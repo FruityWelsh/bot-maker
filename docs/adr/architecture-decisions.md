@@ -391,7 +391,7 @@ This allows the same Make targets to adapt their behavior based on the platform.
 - ✅ Fast validation performance
 - ✅ Full JSON Schema support
 - ✅ Small footprint
-- ✅ JavaScript/TypeScript ecosystem
+- ✅ JavaScript ecosystem (for validation testing only, not application runtime)
 - ✅ Used by major projects
 - ⚠️ Additional validation layer
 
@@ -419,7 +419,7 @@ This allows the same Make targets to adapt their behavior based on the platform.
 | **CI/CD** | Tekton | Pipeline automation | ADR-007 |
 | **Documentation** | React-Markdown, Mermaid.js | Safe rendering | ADR-009 |
 | **BDD Testing** | Godog | Behavior testing | ADR-010 |
-| **Validation** | AJV | JSON schema validation | ADR-011 |
+| **Validation** | AJV | JSON schema validation (Node.js, testing only) | ADR-011 |
 
 ---
 

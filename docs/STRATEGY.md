@@ -21,7 +21,7 @@ BMML (YAML Value Proposition)
     ↓ (hard reference)
 Structurizr & ADR (Markdown + YAML frontmatter)
     ↓ (hard reference)
-Cube.js (JavaScript/YAML Business Metrics)
+Cube.js (YAML Business Metrics) - Designed but not yet implemented
     ↓ (hard reference)
 react-markdown & gray-matter & Mermaid.js (TSX/Markdown)
     ↓ (hard reference)
@@ -96,7 +96,7 @@ Application Code & Kubernetes CRDs
 5. **Metrics Definition** (Cube.js)
 6. **Documentation & Diagrams** (react-markdown, Mermaid)
 7. **Behavior Testing** (Godog, Gherkin)
-8. **Validation & Unit Testing** (Jest, AJV)
+8. **Validation Testing** (Jest, AJV) - Node.js based, for CRD and toolchain document validation only
 9. **Implementation** (Application Code)
 10. **CI/CD Automation** (Platform-agnostic pipelines)
 

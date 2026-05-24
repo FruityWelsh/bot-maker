@@ -40,7 +40,7 @@ Feature: ChatBot Operator Lifecycle Management
     When I apply the ChatBot manifest to Kubernetes
     Then the ChatBot resource should be rejected
     And the resource status should indicate validation failure
-    And the error should reference the AJV schema validation from ADR-011
+    And the error should reference the AJV schema validation from ADR-011 (Node.js, testing only)
 
   Scenario: Update an existing ChatBot resource
     Given I have an existing ChatBot resource in "Ready" state
@@ -345,7 +345,7 @@ Feature: ChatBot Operator Lifecycle Management
     When the manifest is validated against the JSON schema
     Then the validation should pass for valid manifests
     And the validation should fail for invalid manifests
-    And the validation should use AJV as specified in ADR-011
+    And the validation should use AJV as specified in ADR-011 (Node.js, testing only)
     And the validation errors should be descriptive
 
   Scenario: Validate BotPlatform CRD against JSON schema

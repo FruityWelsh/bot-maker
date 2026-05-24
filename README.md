@@ -31,13 +31,13 @@ BMML (YAML Value Proposition) ✅
     ↓ (hard reference)
 Structurizr & ADR (Markdown + YAML frontmatter) ✅
     ↓ (hard reference)
-Cube.js (JavaScript/YAML Business Metrics) ✅
+Cube.js (YAML Business Metrics) ✅ Designed
     ↓ (hard reference)
 react-markdown & gray-matter & Mermaid.js (TSX/Markdown) ✅
     ↓ (hard reference)
 Godog & Gherkin (.feature/Go) ✅
     ↓ (hard reference)
-Jest & AJV (TypeScript/JSON) ✅
+Jest & AJV (JavaScript/JSON) ✅ Implemented (Node.js, testing only)
     ↓ (hard reference)
 Application Code & Kubernetes CRDs ✅
 ```
@@ -91,7 +91,7 @@ bot-maker/
 - **Business Metrics** - Cube.js metrics with dashboards and alerts
 - **Architecture Diagrams** - Comprehensive Mermaid diagrams for all aspects
 - **Behavior Tests** - Godog/Gherkin scenarios for all use cases
-- **Validation Tests** - Jest/AJV tests for all schemas and cross-references
+- **Validation Tests** - Jest/AJV tests for all schemas and cross-references (Node.js, testing only)
 
 ### 🚧 Application Implementation In Progress
 - Kubernetes CRD implementations
@@ -129,7 +129,7 @@ bot-maker/
 | **CI/CD** | Tekton | Pipeline automation | 📋 Planned |
 | **Documentation** | React-Markdown, Mermaid.js | Safe rendering | ✅ Implemented |
 | **BDD Testing** | Godog | Behavior testing | ✅ Implemented |
-| **Validation** | AJV | JSON schema validation | ✅ Implemented |
+| **Validation** | AJV | JSON schema validation (Node.js, testing only) | ✅ Implemented |
 
 ## 🎭 Roles & Responsibilities
 

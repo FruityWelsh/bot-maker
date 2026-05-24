@@ -136,7 +136,7 @@
       {
         "name": "Cube.js",
         "purpose": "Business metrics as code",
-        "schema": "JavaScript/YAML",
+        "schema": "YAML",
         "position": 5,
         "references": ["adr/architecture-decisions.md"]
       },
@@ -156,10 +156,11 @@
       },
       {
         "name": "Jest & AJV",
-        "purpose": "Fast JSON schema validation and feature testing",
-        "schema": "TypeScript/JSON",
+        "purpose": "Fast JSON schema validation for CRDs and toolchain documents",
+        "schema": "JavaScript/JSON",
         "position": 8,
-        "references": ["features/chatbot.feature"]
+        "references": ["features/chatbot.feature"],
+        "note": "Node.js is used only for validation testing, not in the application itself"
       }
     ],
     "application": {
@@ -173,7 +174,12 @@
         "RBAC/ABAC Integration",
         "Metrics & Monitoring",
         "API Gateway"
-      ]
+      ],
+      "testing": {
+        "primary": "Go (Godog for BDD testing)",
+        "secondary": "Node.js (Jest/AJV for schema validation)",
+        "note": "Node.js is only used for validation testing of CRDs and toolchain documents, not in the application runtime"
+      }
     }
   },
   "security": {
