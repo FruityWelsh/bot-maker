@@ -201,43 +201,121 @@ references:
 
 **Status**: Accepted  
 **Date**: 2024-12-19  
-**Context**: Need CI/CD that works across GitLab, Forgejo, GitHub, Tekton  
-**Decision**: Use Tekton as primary pipeline engine with portable manifests  
+**Context**: Need CI/CD that works across GitLab, Forgejo, GitHub, Tekton, and local development  
+**Decision**: Use Makefile as the single source of truth with platform-specific wrappers  
 **Consequences**: 
-- ✅ CD Foundation project
-- ✅ Kubernetes-native pipelines
-- ✅ Portable across platforms
-- ✅ Open-source and extensible
-- ✅ Works with existing Git platforms
-- ⚠️ Pipeline definition complexity
+- ✅ Single source of truth for all checks (Makefile)
+- ✅ Platforms are just wrappers around Make targets
+- ✅ Consistent behavior across all environments
+- ✅ Easy to add new platforms
+- ✅ Local development uses same targets as CI
+- ✅ VSCode tasks, GitHub Actions, GitLab CI, Tekton all wrap the same Make targets
+- ⚠️ Requires Make to be available in all environments
 
 **Architecture**:
 ```
-┌─────────────────────────────────────┐
-│         CI/CD Architecture            │
-│  ┌─────────────────────────────────┐│
-│  │        Tekton Pipelines           ││
-│  │  ┌─────────────────────────────┐││
-│  │  │    Portable Pipeline          │││
-│  │  │    Definitions                │││
-│  │  └─────────────────────────────┘││
-│  └─────────────────────────────────┘│
-│  ┌─────────────────────────────────┐│
-│  │     Git Platforms                ││
-│  │  ┌─────────┐ ┌─────────┐         ││
-│  │  │ GitLab  │ │ GitHub   │         ││
-│  │  └─────────┘ └─────────┘         ││
-│  │  ┌─────────┐ ┌─────────┐         ││
-│  │  │Forgejo  │ │ Tekton   │         ││
-│  │  └─────────┘ └─────────┘         ││
-│  └─────────────────────────────────┘│
-└─────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────────┐
+│                    CI/CD Architecture                          │
+│  ┌─────────────────────────────────────────────────────────┐│
+│  │                    Makefile (Core)                         ││
+│  │  ┌─────────────────────────────────────────────────────┐││
+│  │  │  Actual Check Definitions:                            │││
+│  │  │  - make deps        (install dependencies)             │││
+│  │  │  - make lint        (linting)                          │││
+│  │  │  - make test        (testing)                          │││
+│  │  │  - make build       (building)                         │││
+│  │  │  - make scan        (security scanning)                │││
+│  │  │  - make sign        (artifact signing)                 │││
+│  │  │  - make package     (packaging)                        │││
+│  │  │  - make ci          (full pipeline)                    │││
+│  │  └─────────────────────────────────────────────────────┘││
+│  └─────────────────────────────────────────────────────────┘│
+│                                                                  │
+│  ┌─────────────────┐  ┌─────────────────┐  ┌─────────────┐│
+│  │  GitHub Actions  │  │   GitLab CI     │  │   Tekton    ││
+│  │  (Wrapper)       │  │   (Wrapper)     │  │  (Wrapper)   ││
+│  └────────┬────────┘  └────────┬────────┘  └──────┬──────┘│
+│           │                     │                  │        │
+│           └─────────────────────┼──────────────────┘        │
+│                             │                              │
+│                    ┌────────────┴────────────┐             │
+│                    │   VSCode Tasks           │             │
+│                    │   (Wrapper)              │             │
+│                    └──────────────────────────┘             │
+│                    ┌──────────────────────────┐             │
+│                    │   Local Development       │             │
+│                    │   (make ci)              │             │
+│                    └──────────────────────────┘             │
+└─────────────────────────────────────────────────────────────┘
 ```
 
+**Implementation Details**:
+
+The Makefile contains the actual check definitions:
+```
+make deps        # Install dependencies
+make lint        # Run linting
+make test        # Run tests  
+make build       # Build application
+make scan        # Security scanning
+make sign        # Sign artifacts
+make package     # Package artifacts
+make ci          # Full pipeline
+```
+
+Each platform wraps these targets:
+- **GitHub Actions**: `.github/workflows/ci.yml` calls `make ci-lint`, `make ci-test`, etc.
+- **GitLab CI**: `.gitlab-ci.yml` calls `make ci-lint`, `make ci-test`, etc.
+- **Tekton**: `.tekton/pipeline.yaml` with tasks that call `make ci-lint`, `make ci-test`, etc.
+- **VSCode**: `.vscode/tasks.json` with tasks that call `make ci-lint`, `make ci-test`, etc.
+- **Local**: `make ci` runs the full pipeline
+
+**Platform Detection**:
+The Makefile detects the CI platform via environment variables:
+- `CI_PLATFORM=github` (GitHub Actions)
+- `CI_PLATFORM=gitlab` (GitLab CI)
+- `CI_PLATFORM=tekton` (Tekton)
+- `CI_PLATFORM=local` (default)
+
+This allows the same Make targets to adapt their behavior based on the platform.
+
 **References**: 
-- BMML Goal G005: Platform-Agnostic CI/CD
+- BMML Developer Environment Goal DG001: Platform-Agnostic CI/CD
 - BMML Metric M004: CI/CD Pipeline Success Rate
 - BMML Stakeholder S004: DevOps Team requirements
+
+---
+
+## ADR-012: Makefile as Single Source of Truth for CI/CD
+
+**Status**: Accepted  
+**Date**: 2024-12-19  
+**Context**: Need consistent CI/CD behavior across all platforms  
+**Decision**: Makefile contains all actual check definitions, platforms are just wrappers  
+**Consequences**: 
+- ✅ Single source of truth for all checks
+- ✅ Consistent behavior across platforms
+- ✅ Easy to maintain and update
+- ✅ Local development matches CI behavior
+- ✅ Easy to add new platforms
+- ✅ Platform-specific optimizations still possible
+- ⚠️ Requires Make expertise
+
+**Files**:
+- `Makefile` - Core check definitions
+- `.github/workflows/ci.yml` - GitHub Actions wrapper
+- `.gitlab-ci.yml` - GitLab CI wrapper  
+- `.tekton/pipeline.yaml` - Tekton wrapper
+- `.tekton/tasks.yaml` - Tekton task definitions
+- `.vscode/tasks.json` - VSCode task wrapper
+- `scripts/ci/` - Platform-specific configurations
+
+**Benefits**:
+1. **Consistency**: All platforms run the exact same checks
+2. **Maintainability**: Update once in Makefile, works everywhere
+3. **Extensibility**: Easy to add new platforms by creating new wrappers
+4. **Local Development**: Developers can run the same checks locally
+5. **Debugging**: Issues found in CI can be reproduced locally with `make <target>`
 
 ---
 

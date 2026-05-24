@@ -1,0 +1,90 @@
+# Markdown Lint Configuration
+# Used by: make markdown-lint
+# Platforms: GitHub Actions, GitLab CI, Tekton, Local (make)
+
+# Default rules with customizations
+default: true
+
+# Line length
+line-length: false
+
+# No hard tabs
+no-hard-tabs: true
+
+# Trailing spaces
+no-trailing-spaces: true
+
+# Multiple spaces
+no-multiple-space: true
+
+# Empty lines around headings
+no-multiple-blank-lines: true
+
+# Heading style (ATX style: # Heading)
+heading-style: true
+
+# Heading increment
+heading-increment: true
+
+# No duplicate headings
+no-duplicate-heading: true
+
+# No duplicate headings in same document
+no-duplicate-heading-in-section: true
+
+# Proper heading hierarchy
+proper-names: true
+
+# No inline HTML
+no-inline-html: false  # Allow some HTML for badges
+
+# No bare URLs
+no-bare-urls: true
+
+# No shortcut reference links
+no-shortcut-reference-links: true
+
+# Ordered list marker style
+ol-prefix: true
+
+# Unordered list marker style
+ul-style: true
+
+# List indentation
+list-indent: true
+
+# List marker spacing
+list-marker-space: true
+
+# No trailing punctuation in headings
+no-trailing-punctuation: true
+
+# No multiple spaces in headings
+no-multiple-space-in-headings: true
+
+# No spaces in links
+no-spaces-in-links: true
+
+# No spaces in code
+no-spaces-in-code: true
+
+# Code block style (fenced)
+code-block-style: true
+
+# Fenced code language
+fenced-code-language: true
+
+# Fenced code marker
+fenced-code-marker: true
+
+# No empty links
+no-empty-links: true
+
+# No empty alt text
+no-empty-alt-text: true
+
+# First line should be a top-level heading
+first-line-h1: false  # Allow frontmatter
+
+# No HTML comments
+no-html: true
