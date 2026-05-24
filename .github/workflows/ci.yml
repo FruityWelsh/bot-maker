@@ -2,6 +2,7 @@ name: ChatBot Operator CI
 
 # Platform-agnostic CI workflow
 # Key values: Reproducibility, Repeatability, Strategy First, Code Second
+# This workflow wraps Make targets that work across all platforms
 
 on:
   push:
@@ -30,19 +31,15 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '20'
-          cache: 'npm'
       
       - name: Install dependencies
         run: npm ci || npm install
       
-      - name: Validate Strategy Chain
-        run: node scripts/validation/check-strategy-chain.js
+      - name: Validate Strategy Chain (Make target)
+        run: make test-strategy-chain
       
-      - name: Validate No Manual Dates
-        run: npx jest tests/validation/dates.test.js --forceExit
+      - name: Validate No Manual Dates (Make target)
+        run: make test-dates
       
-      - name: Run Validation Tests
-        run: npx jest tests/schemas/validation.js --forceExit || true
-      
-      - name: Run Tool Tests
-        run: npx jest tests/tools/ --forceExit || true
+      - name: Run Validation Tests (Make target)
+        run: make test-validation || true

@@ -8,7 +8,7 @@
     "author": "Strategy Coder",
     "references": {
       "upstream": null,
-      "downstream": ["archimate/enterprise-architecture.xml"]
+      "downstream": ["docs/archimate/enterprise-architecture.xml"]
     }
   },
   "vision": {
