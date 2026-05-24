@@ -56,7 +56,7 @@ if ! echo "$CLEAN_MSG" | grep -qE '^[a-z]+(#[0-9]+)?(#[0-9]+)?(\([a-z0-9-]+\))?:
 fi
 
 # Extract type
-COMMIT_TYPE=$(echo "$CLEAN_MSG" | sed 's/^\s*\([a-z]*\)(.*)/\1/')
+COMMIT_TYPE=$(echo "$CLEAN_MSG" | sed 's/^\([a-z]*\).*/\1/')
 
 # Validate type
 VALID_TYPES="build chore ci docs feat fix perf refactor revert style test"
