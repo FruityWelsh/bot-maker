@@ -4,7 +4,7 @@
 
 version: "1.0.0"
 name: "ChatBot Operator Value Proposition"
-created: "2024-12-19"
+created: "Generated from Git commit date"
 author: "Strategy Coder"
 references:
   upstream: "docs/archimate/enterprise-architecture.xml"
@@ -14,7 +14,7 @@ business_motivation:
   vision: "Kubernetes-native chat bot management with automated provisioning and lifecycle management"
   mission: "Enable Platform Engineering teams to manage chat bot lifecycles as Kubernetes resources"
   
-  goals:
+  application_goals:
     - id: "G001"
       name: "Kubernetes CRD Development"
       description: "Build Kubernetes CRDs for chat bot management"
@@ -54,16 +54,38 @@ business_motivation:
         - "Security vulnerability count"
         - "Compliance audit pass rate"
         - "Time to remediate security issues"
-      
-    - id: "G005"
+
+  # Developer Environment Goals (how we build the app)
+  developer_environment_goals:
+    - id: "DG001"
       name: "Platform-Agnostic CI/CD"
       description: "Platform-agnostic CI/CD with open-source tools"
       priority: "medium"
-      business_value: "Flexibility to use preferred CI/CD platforms"
+      business_value: "Flexibility to use preferred CI/CD platforms without locking into proprietary solutions"
       success_metrics:
         - "Number of supported CI/CD platforms"
         - "Pipeline success rate"
         - "Build time consistency"
+      
+    - id: "DG002"
+      name: "Strategy First Development"
+      description: "Enforce Strategy First, Code Second development approach"
+      priority: "high"
+      business_value: "Ensures all implementation traces back to documented strategy, reducing technical debt"
+      success_metrics:
+        - "Percentage of code with strategy references"
+        - "Number of hard reference validations passing"
+        - "Strategy document completeness"
+      
+    - id: "DG003"
+      name: "Clean GitOps Workflow"
+      description: "Implement clean GitOps workflow with frequent commits and rebase strategy"
+      priority: "medium"
+      business_value: "Improves developer productivity and code quality through consistent workflows"
+      success_metrics:
+        - "Commit frequency"
+        - "PR merge time"
+        - "Code review participation"
 
   value_propositions:
     - id: "VP001"

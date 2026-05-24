@@ -1,0 +1,48 @@
+# YAML Lint Configuration
+# Used by: make yaml-lint
+# Platforms: GitHub Actions, GitLab CI, Tekton, Local (make)
+
+extends:
+  - default
+
+rules:
+  # Line length
+  line-length:
+    max: 120
+    level: warning
+    
+  # Indentation
+  indentation:
+    spaces: 2
+    indent-sequences: consistent
+    
+  # Trailing spaces
+  trailing-spaces:
+    level: error
+    
+  # Empty lines
+  empty-lines:
+    max: 2
+    max-start: 0
+    max-end: 1
+    
+  # Empty document
+  empty-document:
+    level: warning
+    
+  # Document start
+  document-start:
+    present: false
+    
+  # Truthy values
+  truthy:
+    allowed-values: [true, false, yes, no, on, off]
+    
+  # Quoted strings
+  quotes:
+    required: false
+    extra-allowed: ["'"]
+    
+  # Key ordering
+  key-ordering:
+    level: warning

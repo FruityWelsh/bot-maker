@@ -1,0 +1,454 @@
+apiVersion: tekton.dev/v1
+kind: Task
+metadata:
+  name: chatbot-operator-setup
+  labels:
+    app: chatbot-operator
+    type: ci-task
+  annotations:
+    description: "Setup task - Installs dependencies. Wraps 'make deps'"
+    author: "Strategy Coder"
+
+spec:
+  description: |
+    Setup Task
+    ==========
+    Installs all dependencies for the ChatBot Operator.
+    This is just a wrapper around: make deps
+  
+  params:
+    - name: git-url
+      type: string
+      description: Git repository URL
+      default: "https://github.com/FruityWelsh/bot-maker.git"
+    
+    - name: git-revision
+      type: string
+      description: Git commit SHA
+      default: "main"
+
+  workspaces:
+    - name: source
+      description: Source code workspace
+    
+    - name: artifacts
+      description: Build artifacts workspace
+
+  steps:
+    - name: checkout
+      image: alpine/git
+      script: |
+        echo "📦 Checking out source code..."
+        git clone $(params.git-url) $(workspaces.source.path)
+        cd $(workspaces.source.path)
+        git checkout $(params.git-revision)
+        echo "✅ Source code checked out"
+    
+    - name: install-deps
+      image: alpine:latest
+      workingDir: $(workspaces.source.path)
+      script: |
+        echo "📦 Installing dependencies..."
+        apk add --no-cache make git curl nodejs npm go
+        
+        # Set CI environment variables for Make targets
+        export CI_PLATFORM=tekton
+        export CI_COMMIT=$(params.git-revision)
+        export CI_BRANCH=$(params.git-revision)
+        export CI_REPO=$(params.git-url)
+        
+        # Install dependencies using Make targets
+        make deps
+        echo "✅ Dependencies installed"
+
+---
+apiVersion: tekton.dev/v1
+kind: Task
+metadata:
+  name: chatbot-operator-lint
+  labels:
+    app: chatbot-operator
+    type: ci-task
+  annotations:
+    description: "Lint task - Runs all linting checks. Wraps 'make ci-lint'"
+    author: "Strategy Coder"
+
+spec:
+  description: |
+    Lint Task
+    =========
+    Runs all linting checks for the ChatBot Operator.
+    This is just a wrapper around: make ci-lint
+  
+  workspaces:
+    - name: source
+      description: Source code workspace
+    
+    - name: artifacts
+      description: Build artifacts workspace
+
+  steps:
+    - name: lint
+      image: alpine:latest
+      workingDir: $(workspaces.source.path)
+      script: |
+        echo "🔍 Running linting checks..."
+        apk add --no-cache make git curl nodejs npm go yaml python3 py3-pip
+        pip install yamllint markdownlint shellcheck
+        
+        # Set CI environment variables for Make targets
+        export CI_PLATFORM=tekton
+        
+        # Run linting using Make targets
+        make ci-lint
+        echo "✅ Linting checks passed"
+
+---
+apiVersion: tekton.dev/v1
+kind: Task
+metadata:
+  name: chatbot-operator-test
+  labels:
+    app: chatbot-operator
+    type: ci-task
+  annotations:
+    description: "Test task - Runs all tests. Wraps 'make ci-test'"
+    author: "Strategy Coder"
+
+spec:
+  description: |
+    Test Task
+    =========
+    Runs all tests for the ChatBot Operator.
+    This is just a wrapper around: make ci-test
+  
+  workspaces:
+    - name: source
+      description: Source code workspace
+    
+    - name: artifacts
+      description: Build artifacts workspace
+
+  steps:
+    - name: test
+      image: alpine:latest
+      workingDir: $(workspaces.source.path)
+      script: |
+        echo "🧪 Running tests..."
+        apk add --no-cache make git curl nodejs npm go
+        
+        # Set CI environment variables for Make targets
+        export CI_PLATFORM=tekton
+        
+        # Run tests using Make targets
+        make ci-test
+        echo "✅ Tests passed"
+
+---
+apiVersion: tekton.dev/v1
+kind: Task
+metadata:
+  name: chatbot-operator-build
+  labels:
+    app: chatbot-operator
+    type: ci-task
+  annotations:
+    description: "Build task - Builds the application. Wraps 'make ci-build'"
+    author: "Strategy Coder"
+
+spec:
+  description: |
+    Build Task
+    ==========
+    Builds the ChatBot Operator application.
+    This is just a wrapper around: make ci-build
+  
+  params:
+    - name: image-registry
+      type: string
+      description: Container registry for built images
+      default: "ghcr.io"
+    
+    - name: image-repo
+      type: string
+      description: Container repository name
+      default: "chatbot-operator"
+
+  workspaces:
+    - name: source
+      description: Source code workspace
+    
+    - name: artifacts
+      description: Build artifacts workspace
+
+  steps:
+    - name: build
+      image: alpine:latest
+      workingDir: $(workspaces.source.path)
+      script: |
+        echo "🔨 Building application..."
+        apk add --no-cache make git curl nodejs npm go docker
+        
+        # Set CI environment variables for Make targets
+        export CI_PLATFORM=tekton
+        export CONTAINER_REGISTRY=$(params.image-registry)
+        export CONTAINER_REPO=$(params.image-repo)
+        
+        # Build using Make targets
+        make ci-build
+        echo "✅ Build complete"
+
+---
+apiVersion: tekton.dev/v1
+kind: Task
+metadata:
+  name: chatbot-operator-scan
+  labels:
+    app: chatbot-operator
+    type: ci-task
+  annotations:
+    description: "Scan task - Runs security scanning. Wraps 'make ci-scan'"
+    author: "Strategy Coder"
+
+spec:
+  description: |
+    Scan Task
+    =========
+    Runs security scanning for the ChatBot Operator.
+    This is just a wrapper around: make ci-scan
+  
+  workspaces:
+    - name: source
+      description: Source code workspace
+    
+    - name: artifacts
+      description: Build artifacts workspace
+
+  steps:
+    - name: scan
+      image: alpine:latest
+      workingDir: $(workspaces.source.path)
+      script: |
+        echo "🔒 Running security scans..."
+        apk add --no-cache make git curl nodejs npm go
+        apk add --no-cache gosec trivy govulncheck gitleaks
+        
+        # Set CI environment variables for Make targets
+        export CI_PLATFORM=tekton
+        
+        # Run security scanning using Make targets
+        make ci-scan
+        echo "✅ Security scans passed"
+
+---
+apiVersion: tekton.dev/v1
+kind: Task
+metadata:
+  name: chatbot-operator-sign
+  labels:
+    app: chatbot-operator
+    type: ci-task
+  annotations:
+    description: "Sign task - Signs artifacts. Wraps 'make ci-sign'"
+    author: "Strategy Coder"
+
+spec:
+  description: |
+    Sign Task
+    =========
+    Signs artifacts for the ChatBot Operator.
+    This is just a wrapper around: make ci-sign
+  
+  workspaces:
+    - name: source
+      description: Source code workspace
+    
+    - name: artifacts
+      description: Build artifacts workspace
+
+  steps:
+    - name: sign
+      image: alpine:latest
+      workingDir: $(workspaces.source.path)
+      script: |
+        echo "✍️  Signing artifacts..."
+        apk add --no-cache make git curl nodejs npm go cosign
+        
+        # Set CI environment variables for Make targets
+        export CI_PLATFORM=tekton
+        
+        # Sign artifacts using Make targets
+        make ci-sign
+        echo "✅ Artifacts signed"
+
+---
+apiVersion: tekton.dev/v1
+kind: Task
+metadata:
+  name: chatbot-operator-package
+  labels:
+    app: chatbot-operator
+    type: ci-task
+  annotations:
+    description: "Package task - Packages artifacts. Wraps 'make ci-package'"
+    author: "Strategy Coder"
+
+spec:
+  description: |
+    Package Task
+    ============
+    Packages artifacts for the ChatBot Operator.
+    This is just a wrapper around: make ci-package
+  
+  params:
+    - name: image-registry
+      type: string
+      description: Container registry for built images
+      default: "ghcr.io"
+    
+    - name: image-repo
+      type: string
+      description: Container repository name
+      default: "chatbot-operator"
+
+  workspaces:
+    - name: source
+      description: Source code workspace
+    
+    - name: artifacts
+      description: Build artifacts workspace
+
+  steps:
+    - name: package
+      image: alpine:latest
+      workingDir: $(workspaces.source.path)
+      script: |
+        echo "📦 Packaging artifacts..."
+        apk add --no-cache make git curl nodejs npm go docker
+        
+        # Set CI environment variables for Make targets
+        export CI_PLATFORM=tekton
+        export CONTAINER_REGISTRY=$(params.image-registry)
+        export CONTAINER_REPO=$(params.image-repo)
+        
+        # Package using Make targets
+        make ci-package
+        echo "✅ Artifacts packaged"
+
+---
+apiVersion: tekton.dev/v1
+kind: Task
+metadata:
+  name: chatbot-operator-full
+  labels:
+    app: chatbot-operator
+    type: ci-task
+  annotations:
+    description: "Full pipeline task - Runs everything in one container. Wraps 'make ci'"
+    author: "Strategy Coder"
+
+spec:
+  description: |
+    Full Pipeline Task
+    ==================
+    Runs the complete CI pipeline in one container.
+    This is just a wrapper around: make ci
+  
+  params:
+    - name: git-url
+      type: string
+      description: Git repository URL
+      default: "https://github.com/FruityWelsh/bot-maker.git"
+    
+    - name: git-revision
+      type: string
+      description: Git commit SHA
+      default: "main"
+    
+    - name: image-registry
+      type: string
+      description: Container registry for built images
+      default: "ghcr.io"
+    
+    - name: image-repo
+      type: string
+      description: Container repository name
+      default: "chatbot-operator"
+
+  workspaces:
+    - name: source
+      description: Source code workspace
+    
+    - name: artifacts
+      description: Build artifacts workspace
+
+  steps:
+    - name: checkout
+      image: alpine/git
+      workingDir: $(workspaces.source.path)
+      script: |
+        echo "📦 Checking out source code..."
+        git clone $(params.git-url) .
+        git checkout $(params.git-revision)
+        echo "✅ Source code checked out"
+    
+    - name: full-pipeline
+      image: alpine:latest
+      workingDir: $(workspaces.source.path)
+      script: |
+        echo "🚀 Running full pipeline..."
+        apk add --no-cache make git curl nodejs npm go docker gosec trivy govulncheck gitleaks cosign
+        apk add --no-cache python3 py3-pip
+        pip install yamllint markdownlint shellcheck
+        
+        # Set CI environment variables for Make targets
+        export CI_PLATFORM=tekton
+        export CI_COMMIT=$(params.git-revision)
+        export CI_BRANCH=$(params.git-revision)
+        export CI_REPO=$(params.git-url)
+        export CONTAINER_REGISTRY=$(params.image-registry)
+        export CONTAINER_REPO=$(params.image-repo)
+        
+        # Run full pipeline using Make targets
+        make ci
+        echo "✅ Full pipeline complete"
+
+---
+apiVersion: tekton.dev/v1
+kind: Task
+metadata:
+  name: chatbot-operator-cleanup
+  labels:
+    app: chatbot-operator
+    type: ci-task
+  annotations:
+    description: "Cleanup task - Cleans up artifacts. Wraps 'make clean'"
+    author: "Strategy Coder"
+
+spec:
+  description: |
+    Cleanup Task
+    ============
+    Cleans up build artifacts.
+    This is just a wrapper around: make clean
+  
+  workspaces:
+    - name: source
+      description: Source code workspace
+    
+    - name: artifacts
+      description: Build artifacts workspace
+
+  steps:
+    - name: cleanup
+      image: alpine:latest
+      workingDir: $(workspaces.source.path)
+      script: |
+        echo "🧹 Cleaning up..."
+        
+        # Set CI environment variables for Make targets
+        export CI_PLATFORM=tekton
+        
+        # Clean up using Make targets
+        make clean
+        echo "✅ Cleanup complete"

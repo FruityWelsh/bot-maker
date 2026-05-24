@@ -1,0 +1,177 @@
+apiVersion: tekton.dev/v1
+kind: Pipeline
+metadata:
+  name: chatbot-operator-ci
+  labels:
+    app: chatbot-operator
+    type: ci-pipeline
+  annotations:
+    description: "Platform-agnostic CI pipeline for ChatBot Operator. Wraps Make targets."
+    author: "Strategy Coder"
+    version: "1.0.0"
+
+spec:
+  description: |
+    ChatBot Operator CI Pipeline
+    ============================
+    This Tekton pipeline wraps the platform-agnostic Make targets.
+    The actual checks are defined in the Makefile.
+    Tekton is just a wrapper around: make ci-lint, make ci-test, etc.
+  
+  params:
+    - name: git-url
+      type: string
+      description: Git repository URL
+      default: "https://github.com/FruityWelsh/bot-maker.git"
+    
+    - name: git-revision
+      type: string
+      description: Git commit SHA
+      default: "main"
+    
+    - name: image-registry
+      type: string
+      description: Container registry for built images
+      default: "ghcr.io"
+    
+    - name: image-repo
+      type: string
+      description: Container repository name
+      default: "chatbot-operator"
+    
+    - name: run-full-pipeline
+      type: string
+      description: Run full pipeline instead of individual stages
+      default: "false"
+
+  workspaces:
+    - name: source
+      description: Source code workspace
+    
+    - name: artifacts
+      description: Build artifacts workspace
+
+  tasks:
+    # Setup task - Install dependencies
+    - name: setup
+      taskRef:
+        name: chatbot-operator-setup
+      params:
+        - name: git-url
+          value: $(params.git-url)
+        - name: git-revision
+          value: $(params.git-revision)
+      workspaces:
+        - name: source
+          workspace: source
+        - name: artifacts
+          workspace: artifacts
+
+    # Lint task - Run all linting checks
+    - name: lint
+      runAfter: [setup]
+      taskRef:
+        name: chatbot-operator-lint
+      workspaces:
+        - name: source
+          workspace: source
+        - name: artifacts
+          workspace: artifacts
+
+    # Test task - Run all tests
+    - name: test
+      runAfter: [setup]
+      taskRef:
+        name: chatbot-operator-test
+      workspaces:
+        - name: source
+          workspace: source
+        - name: artifacts
+          workspace: artifacts
+
+    # Build task - Build the application
+    - name: build
+      runAfter: [lint, test]
+      taskRef:
+        name: chatbot-operator-build
+      params:
+        - name: image-registry
+          value: $(params.image-registry)
+        - name: image-repo
+          value: $(params.image-repo)
+      workspaces:
+        - name: source
+          workspace: source
+        - name: artifacts
+          workspace: artifacts
+
+    # Scan task - Run security scanning
+    - name: scan
+      runAfter: [build]
+      taskRef:
+        name: chatbot-operator-scan
+      workspaces:
+        - name: source
+          workspace: source
+        - name: artifacts
+          workspace: artifacts
+
+    # Sign task - Sign artifacts
+    - name: sign
+      runAfter: [scan]
+      taskRef:
+        name: chatbot-operator-sign
+      workspaces:
+        - name: source
+          workspace: source
+        - name: artifacts
+          workspace: artifacts
+
+    # Package task - Package artifacts
+    - name: package
+      runAfter: [sign]
+      taskRef:
+        name: chatbot-operator-package
+      params:
+        - name: image-registry
+          value: $(params.image-registry)
+        - name: image-repo
+          value: $(params.image-repo)
+      workspaces:
+        - name: source
+          workspace: source
+        - name: artifacts
+          workspace: artifacts
+
+    # Full pipeline task (runs everything in one container)
+    - name: full-pipeline
+      when:
+        - input: $(params.run-full-pipeline)
+          operator: in
+          values: ["true", "yes", "1"]
+      taskRef:
+        name: chatbot-operator-full
+      params:
+        - name: git-url
+          value: $(params.git-url)
+        - name: git-revision
+          value: $(params.git-revision)
+        - name: image-registry
+          value: $(params.image-registry)
+        - name: image-repo
+          value: $(params.image-repo)
+      workspaces:
+        - name: source
+          workspace: source
+        - name: artifacts
+          workspace: artifacts
+
+  finally:
+    - name: cleanup
+      taskRef:
+        name: chatbot-operator-cleanup
+      workspaces:
+        - name: source
+          workspace: source
+        - name: artifacts
+          workspace: artifacts
