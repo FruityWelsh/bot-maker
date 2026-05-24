@@ -76,7 +76,14 @@ bot-maker/
 
 ## 🎯 Key Features
 
-### ✅ Completed
+### ✅ Application Features (what the app does)
+- **Kubernetes CRDs** - ChatBot, BotPlatform, BotConfiguration, BotCredential resources
+- **Automated Provisioning** - Automatic bot account creation for Slack, Matrix, Discord, Twilio
+- **Lifecycle Management** - Full bot lifecycle from creation to deprovisioning
+- **Security Integration** - Zero Trust with Linkerd service mesh and RBAC/ABAC
+- **Multi-Platform Support** - Unified interface for multiple chat platforms
+
+### ✅ Developer Environment Features (how we build the app)
 - **Strategy Definition** - Comprehensive Omen strategy with goals, constraints, and architecture
 - **Enterprise Architecture** - Full ArchiMate model with business, application, and technology layers
 - **Value Proposition** - BMML with business motivation, stakeholders, and metrics
@@ -86,31 +93,40 @@ bot-maker/
 - **Behavior Tests** - Godog/Gherkin scenarios for all use cases
 - **Validation Tests** - Jest/AJV tests for all schemas and cross-references
 
-### 🚧 In Progress
+### 🚧 Application Implementation In Progress
 - Kubernetes CRD implementations
 - Operator controller logic
 - Platform-specific provisioners
-- CI/CD pipeline implementations
 - Monitoring and observability setup
 
-### 📋 Planned
+### 📋 Application Implementation Planned
 - Full operator implementation with Kubebuilder
 - Platform integration (Slack, Matrix, Discord, Twilio)
 - Linkerd service mesh configuration
+
+### 🚧 Developer Environment Implementation In Progress
+- CI/CD pipeline implementations
+
+### 📋 Developer Environment Implementation Planned
 - Argo CD GitOps setup
 - Tekton pipeline definitions
 - Cube.js deployment and dashboards
 
 ## 🔧 Technology Stack
 
+### Application Technologies (what the app uses)
 | Component | Technology | Purpose | Status |
 |-----------|------------|---------|--------|
 | **Operator Framework** | Kubebuilder | Kubernetes operator development | 📋 Planned |
 | **Service Mesh** | Linkerd | Mutual TLS and service mesh | 📋 Planned |
 | **Policy Engine** | OPA/Gatekeeper | ABAC policies | 📋 Planned |
+| **Metrics** | Cube.js | Business metrics | ✅ Designed |
+
+### Developer Environment Technologies (how we build the app)
+| Component | Technology | Purpose | Status |
+|-----------|------------|---------|--------|
 | **GitOps** | Argo CD | Continuous delivery | 📋 Planned |
 | **CI/CD** | Tekton | Pipeline automation | 📋 Planned |
-| **Metrics** | Cube.js | Business metrics | ✅ Designed |
 | **Documentation** | React-Markdown, Mermaid.js | Safe rendering | ✅ Implemented |
 | **BDD Testing** | Godog | Behavior testing | ✅ Implemented |
 | **Validation** | AJV | JSON schema validation | ✅ Implemented |

@@ -326,14 +326,19 @@ references:
 
 ## Technology Stack Summary
 
+### Application Technologies (what the app uses)
 | Component | Technology | Purpose | Reference |
 |-----------|------------|---------|-----------|
 | **Operator Framework** | Kubebuilder | Kubernetes operator development | ADR-002 |
 | **Service Mesh** | Linkerd | Mutual TLS and service mesh | ADR-004 |
 | **Policy Engine** | OPA/Gatekeeper | ABAC policies | ADR-005 |
+| **Metrics** | Cube.js | Business metrics | ADR-008 |
+
+### Developer Environment Technologies (how we build the app)
+| Component | Technology | Purpose | Reference |
+|-----------|------------|---------|-----------|
 | **GitOps** | Argo CD | Continuous delivery | ADR-006 |
 | **CI/CD** | Tekton | Pipeline automation | ADR-007 |
-| **Metrics** | Cube.js | Business metrics | ADR-008 |
 | **Documentation** | React-Markdown, Mermaid.js | Safe rendering | ADR-009 |
 | **BDD Testing** | Godog | Behavior testing | ADR-010 |
 | **Validation** | AJV | JSON schema validation | ADR-011 |

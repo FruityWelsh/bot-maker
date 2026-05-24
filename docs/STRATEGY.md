@@ -40,24 +40,47 @@ Application Code & Kubernetes CRDs
 
 ## Roles & Responsibilities
 
-### Platform Engineering Team
+### Application Roles (who uses the app)
+
+#### Platform Engineering Team
 - **AoR**: Infrastructure setup, RBAC/ABAC backend integration
+- **Category**: Application
 - **Responsibilities**:
   - Cluster configuration and hardening
   - RBAC/ABAC policy management
   - Service mesh (Linkerd) configuration
-  - CI/CD pipeline setup
   - Monitoring and observability
   - Security policies and compliance
 
-### Application Development Team
+#### Application Development Team
 - **AoR**: Bot account creation and backend configuration
+- **Category**: Application
 - **Responsibilities**:
   - ChatBot CRD definitions
   - Bot account provisioning logic
   - Backend service integrations
   - Bot lifecycle management
   - Testing and validation
+
+### Developer Environment Roles (who builds the app)
+
+#### DevOps Team
+- **AoR**: CI/CD pipeline management and developer tooling
+- **Category**: Developer Experience
+- **Responsibilities**:
+  - CI/CD pipeline setup and maintenance
+  - Platform-agnostic pipeline design
+  - Open-source tool selection and configuration
+  - Build automation and artifact management
+
+#### Platform Architect
+- **AoR**: Strategy definition and toolchain architecture
+- **Category**: Developer Experience
+- **Responsibilities**:
+  - Strategy First, Code Second enforcement
+  - Toolchain design and hard reference validation
+  - Architecture decision documentation
+  - Development workflow design
 
 ## Security & Compliance
 - **Zero Trust**: All communications encrypted, mutual TLS via Linkerd

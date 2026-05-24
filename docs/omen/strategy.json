@@ -16,38 +16,61 @@
     "targetAudience": ["Platform Engineers", "AppDev Teams", "Security Teams"],
     "valueProposition": "Kubernetes-native chat bot management with automated provisioning and lifecycle management"
   },
-  "goals": [
-    {
-      "id": "G001",
-      "description": "Build Kubernetes CRDs for chat bot management",
-      "priority": "high",
-      "successCriteria": "CRDs support Slack, Matrix, Discord, Twilio bot provisioning"
-    },
-    {
-      "id": "G002", 
-      "description": "Implement automated account creation and configuration",
-      "priority": "high",
-      "successCriteria": "Bots can be created, configured, and managed via Kubernetes API"
-    },
-    {
-      "id": "G003",
-      "description": "Maintain separation of concerns between Platform Engineering and AppDev",
-      "priority": "high",
-      "successCriteria": "Platform Engineering handles infrastructure/RBAC, AppDev handles bot configuration"
-    },
-    {
-      "id": "G004",
-      "description": "Ensure Secure by Design implementation",
-      "priority": "high",
-      "successCriteria": "Zero Trust, CNCF compliance, SLSA level 3+"
-    },
-    {
-      "id": "G005",
-      "description": "Platform-agnostic CI/CD with open-source tools",
-      "priority": "medium",
-      "successCriteria": "Works with GitLab, Forgejo, GitHub, Tekton"
-    }
-  ],
+  "goals": {
+    "application_goals": [
+      {
+        "id": "AG001",
+        "description": "Build Kubernetes CRDs for chat bot management",
+        "priority": "high",
+        "successCriteria": "CRDs support Slack, Matrix, Discord, Twilio bot provisioning",
+        "category": "application"
+      },
+      {
+        "id": "AG002", 
+        "description": "Implement automated account creation and configuration",
+        "priority": "high",
+        "successCriteria": "Bots can be created, configured, and managed via Kubernetes API",
+        "category": "application"
+      },
+      {
+        "id": "AG003",
+        "description": "Maintain separation of concerns between Platform Engineering and AppDev",
+        "priority": "high",
+        "successCriteria": "Platform Engineering handles infrastructure/RBAC, AppDev handles bot configuration",
+        "category": "application"
+      },
+      {
+        "id": "AG004",
+        "description": "Ensure Secure by Design implementation for bot operations",
+        "priority": "high",
+        "successCriteria": "Zero Trust, CNCF compliance, SLSA level 3+ for bot communications",
+        "category": "application"
+      }
+    ],
+    "developer_environment_goals": [
+      {
+        "id": "DG001",
+        "description": "Platform-agnostic CI/CD with open-source tools",
+        "priority": "medium",
+        "successCriteria": "Works with GitLab, Forgejo, GitHub, Tekton",
+        "category": "developer_experience"
+      },
+      {
+        "id": "DG002",
+        "description": "Clean GitOps workflow with frequent commits and rebase strategy",
+        "priority": "medium",
+        "successCriteria": "Feature branches, conventional commits, regular pushes, PR workflow",
+        "category": "developer_experience"
+      },
+      {
+        "id": "DG003",
+        "description": "Strategy First, Code Second development approach",
+        "priority": "high",
+        "successCriteria": "All implementation traces back to documented strategy with hard references",
+        "category": "developer_experience"
+      }
+    ]
+  },
   "constraints": [
     {
       "id": "C001",
@@ -195,26 +218,51 @@
     }
   },
   "roles": {
-    "platformEngineering": {
-      "aoR": "Infrastructure setup, RBAC/ABAC backend integration",
-      "responsibilities": [
-        "Cluster configuration and hardening",
-        "RBAC/ABAC policy management", 
-        "Service mesh (Linkerd) configuration",
-        "CI/CD pipeline setup",
-        "Monitoring and observability",
-        "Security policies and compliance"
-      ]
+    "application_roles": {
+      "platformEngineering": {
+        "aoR": "Infrastructure setup, RBAC/ABAC backend integration",
+        "category": "application",
+        "responsibilities": [
+          "Cluster configuration and hardening",
+          "RBAC/ABAC policy management", 
+          "Service mesh (Linkerd) configuration",
+          "Monitoring and observability",
+          "Security policies and compliance"
+        ]
+      },
+      "appDev": {
+        "aoR": "Bot account creation and backend configuration",
+        "category": "application",
+        "responsibilities": [
+          "ChatBot CRD definitions",
+          "Bot account provisioning logic",
+          "Backend service integrations",
+          "Bot lifecycle management",
+          "Testing and validation"
+        ]
+      }
     },
-    "appDev": {
-      "aoR": "Bot account creation and backend configuration",
-      "responsibilities": [
-        "ChatBot CRD definitions",
-        "Bot account provisioning logic",
-        "Backend service integrations",
-        "Bot lifecycle management",
-        "Testing and validation"
-      ]
+    "developer_environment_roles": {
+      "devOps": {
+        "aoR": "CI/CD pipeline management and developer tooling",
+        "category": "developer_experience",
+        "responsibilities": [
+          "CI/CD pipeline setup and maintenance",
+          "Platform-agnostic pipeline design",
+          "Open-source tool selection and configuration",
+          "Build automation and artifact management"
+        ]
+      },
+      "platformArchitect": {
+        "aoR": "Strategy definition and toolchain architecture",
+        "category": "developer_experience",
+        "responsibilities": [
+          "Strategy First, Code Second enforcement",
+          "Toolchain design and hard reference validation",
+          "Architecture decision documentation",
+          "Development workflow design"
+        ]
+      }
     }
   },
   "validation": {
