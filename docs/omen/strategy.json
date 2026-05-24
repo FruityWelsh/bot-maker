@@ -1,0 +1,242 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "metadata": {
+    "name": "chatbot-operator-strategy",
+    "version": "1.0.0",
+    "description": "Strategy definition for Kubernetes-native chat bot management",
+    "created": "2024-12-19",
+    "author": "Strategy Coder",
+    "references": {
+      "upstream": null,
+      "downstream": ["archimate/enterprise-architecture.xml"]
+    }
+  },
+  "vision": {
+    "statement": "Enable Platform Engineering teams to manage chat bot lifecycles as Kubernetes resources with automated account creation and configuration",
+    "targetAudience": ["Platform Engineers", "AppDev Teams", "Security Teams"],
+    "valueProposition": "Kubernetes-native chat bot management with automated provisioning and lifecycle management"
+  },
+  "goals": [
+    {
+      "id": "G001",
+      "description": "Build Kubernetes CRDs for chat bot management",
+      "priority": "high",
+      "successCriteria": "CRDs support Slack, Matrix, Discord, Twilio bot provisioning"
+    },
+    {
+      "id": "G002", 
+      "description": "Implement automated account creation and configuration",
+      "priority": "high",
+      "successCriteria": "Bots can be created, configured, and managed via Kubernetes API"
+    },
+    {
+      "id": "G003",
+      "description": "Maintain separation of concerns between Platform Engineering and AppDev",
+      "priority": "high",
+      "successCriteria": "Platform Engineering handles infrastructure/RBAC, AppDev handles bot configuration"
+    },
+    {
+      "id": "G004",
+      "description": "Ensure Secure by Design implementation",
+      "priority": "high",
+      "successCriteria": "Zero Trust, CNCF compliance, SLSA level 3+"
+    },
+    {
+      "id": "G005",
+      "description": "Platform-agnostic CI/CD with open-source tools",
+      "priority": "medium",
+      "successCriteria": "Works with GitLab, Forgejo, GitHub, Tekton"
+    }
+  ],
+  "constraints": [
+    {
+      "id": "C001",
+      "description": "Strategy must be parsed before code implementation",
+      "type": "hard",
+      "enforcement": "build-failure"
+    },
+    {
+      "id": "C002", 
+      "description": "All tools must have hard links to upstream tools",
+      "type": "hard",
+      "enforcement": "validation-failure"
+    },
+    {
+      "id": "C003",
+      "description": "No ambiguity allowed - ask for clarification if uncertain",
+      "type": "hard",
+      "enforcement": "build-block"
+    },
+    {
+      "id": "C004",
+      "description": "Follow Conventional Commit standard",
+      "type": "hard",
+      "enforcement": "commit-hook"
+    },
+    {
+      "id": "C005",
+      "description": "Target hardened RKE2 cluster with Linkerd service mesh",
+      "type": "soft",
+      "enforcement": "documentation"
+    }
+  ],
+  "architecture": {
+    "toolchain": [
+      {
+        "name": "Omen",
+        "purpose": "Define strategy and vision",
+        "schema": "JSON",
+        "position": 1,
+        "references": []
+      },
+      {
+        "name": "ArchiMate",
+        "purpose": "Map enterprise architecture", 
+        "schema": "XML/DSL",
+        "position": 2,
+        "references": ["omen/strategy.json"]
+      },
+      {
+        "name": "BMML",
+        "purpose": "Value proposition",
+        "schema": "YAML",
+        "position": 3,
+        "references": ["archimate/enterprise-architecture.xml"]
+      },
+      {
+        "name": "Structurizr & ADR",
+        "purpose": "Architecture decisions",
+        "schema": "Markdown with YAML frontmatter",
+        "position": 4,
+        "references": ["bmml/value-proposition.yaml"]
+      },
+      {
+        "name": "Cube.js",
+        "purpose": "Business metrics as code",
+        "schema": "JavaScript/YAML",
+        "position": 5,
+        "references": ["adr/architecture-decisions.md"]
+      },
+      {
+        "name": "react-markdown & gray-matter & Mermaid.js",
+        "purpose": "Render strategy metadata and diagrams safely",
+        "schema": "Markdown/TSX",
+        "position": 6,
+        "references": ["cubejs/metrics.yaml"]
+      },
+      {
+        "name": "Godog & Gherkin",
+        "purpose": "Behavior-driven feature tests",
+        "schema": "Gherkin (.feature)/Go",
+        "position": 7,
+        "references": ["docs/diagrams.md"]
+      },
+      {
+        "name": "Jest & AJV",
+        "purpose": "Fast JSON schema validation and feature testing",
+        "schema": "TypeScript/JSON",
+        "position": 8,
+        "references": ["features/chatbot.feature"]
+      }
+    ],
+    "application": {
+      "type": "Kubernetes Operator",
+      "language": "Go",
+      "framework": "Kubebuilder",
+      "targetEnvironment": "RKE2 with Linkerd",
+      "components": [
+        "CRD Controller",
+        "Bot Provisioning Service",
+        "RBAC/ABAC Integration",
+        "Metrics & Monitoring",
+        "API Gateway"
+      ]
+    }
+  },
+  "security": {
+    "principles": ["Zero Trust", "Secure by Design", "Least Privilege"],
+    "standards": ["CNCF", "SLSA", "NIST"],
+    "requirements": [
+      "Mutual TLS via Linkerd",
+      "Signed container images",
+      "SBOM generation",
+      "Vulnerability scanning",
+      "Runtime security policies"
+    ]
+  },
+  "compliance": {
+    "slsaLevel": "3+",
+    "cncfCompliance": true,
+    "openStandards": true,
+    "choiceMatters": true
+  },
+  "dependencies": {
+    "preferences": ["Apache", "CNCF", "Linux Foundation"],
+    "requirements": ["Commercial support available", "Solid foundation support"],
+    "examples": [
+      "Kubernetes (CNCF)",
+      "Linkerd (CNCF)",
+      "RKE2 (SUSE)",
+      "Tekton (CD Foundation)",
+      "Argo CD (CNCF)"
+    ]
+  },
+  "gitOps": {
+    "workflow": {
+      "branching": "Feature branches from dev",
+      "commitStandard": "Conventional Commits",
+      "mergeStrategy": "Rebase on dev, PR to dev",
+      "frequency": "Commit frequently, push regularly"
+    },
+    "ciCd": {
+      "platforms": ["GitLab", "Forgejo", "GitHub", "Tekton"],
+      "requirements": ["Platform-agnostic", "Open-source first"],
+      "stages": ["Lint", "Test", "Build", "Scan", "Sign", "Deploy"]
+    }
+  },
+  "roles": {
+    "platformEngineering": {
+      "aoR": "Infrastructure setup, RBAC/ABAC backend integration",
+      "responsibilities": [
+        "Cluster configuration and hardening",
+        "RBAC/ABAC policy management", 
+        "Service mesh (Linkerd) configuration",
+        "CI/CD pipeline setup",
+        "Monitoring and observability",
+        "Security policies and compliance"
+      ]
+    },
+    "appDev": {
+      "aoR": "Bot account creation and backend configuration",
+      "responsibilities": [
+        "ChatBot CRD definitions",
+        "Bot account provisioning logic",
+        "Backend service integrations",
+        "Bot lifecycle management",
+        "Testing and validation"
+      ]
+    }
+  },
+  "validation": {
+    "rules": [
+      {
+        "id": "V001",
+        "description": "All implementation must trace back to strategy",
+        "check": "Hard links exist between all tools in chain",
+        "enforcement": "build-failure"
+      },
+      {
+        "id": "V002",
+        "description": "No code without matching strategy",
+        "check": "Strategy documents exist and are referenced",
+        "enforcement": "build-block"
+      },
+      {
+        "id": "V003",
+        "description": "All tests must pass before merge",
+        "check": "Godog, Jest, AJV tests pass",
+        "enforcement": "CI-failure"
+      }
+    ]
+  }
+}

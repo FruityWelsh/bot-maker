@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+ArchiMate Enterprise Architecture Model for ChatBot Operator
+References: docs/omen/strategy.json (upstream)
+Downstream: docs/bmml/value-proposition.yaml
+-->
+<archimate:model xmlns:archimate="http://www.archimatetool.com/archimate" 
+                 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                 xsi:schemaLocation="http://www.archimatetool.com/archimate http://www.archimatetool.com/archimate/archimate_v3.xsd"
+                 name="ChatBot Operator Enterprise Architecture"
+                 version="1.0.0">
+    
+    <metadata>
+        <property key="strategy_reference" value="docs/omen/strategy.json"/>
+        <property key="downstream_reference" value="docs/bmml/value-proposition.yaml"/>
+        <property key="created" value="2024-12-19"/>
+        <property key="author" value="Strategy Coder"/>
+    </metadata>
+
+    <!-- Business Layer -->
+    <elements>
+        <element xsi:type="archimate:BusinessActor" name="Platform Engineering Team" id="ba1">
+            <documentation>Responsible for infrastructure setup, RBAC/ABAC backend integration</documentation>
+        </element>
+        
+        <element xsi:type="archimate:BusinessActor" name="Application Development Team" id="ba2">
+            <documentation>Responsible for bot account creation and backend configuration</documentation>
+        </element>
+
+        <element xsi:type="archimate:BusinessRole" name="Infrastructure Manager" id="br1">
+            <documentation>Manages Kubernetes cluster and service mesh configuration</documentation>
+        </element>
+        
+        <element xsi:type="archimate:BusinessRole" name="Bot Developer" id="br2">
+            <documentation>Develops and configures chat bots</documentation>
+        </element>
+
+        <element xsi:type="archimate:BusinessService" name="Chat Bot Management Service" id="bs1">
+            <documentation>Kubernetes-native service for managing chat bot lifecycles</documentation>
+        </element>
+        
+        <element xsi:type="archimate:BusinessService" name="RBAC/ABAC Integration Service" id="bs2">
+            <documentation>Provides role-based and attribute-based access control</documentation>
+        </element>
+
+        <!-- Application Layer -->
+        <element xsi:type="archimate:ApplicationComponent" name="ChatBot Operator" id="ac1">
+            <documentation>Kubernetes operator that manages chat bot CRDs</documentation>
+        </element>
+        
+        <element xsi:type="archimate:ApplicationComponent" name="Bot Provisioning Service" id="ac2">
+            <documentation>Handles automated creation of bot accounts across platforms</documentation>
+        </element>
+        
+        <element xsi:type="archimate:ApplicationComponent" name="API Gateway" id="ac3">
+            <documentation>Secure gateway for bot communications with mutual TLS</documentation>
+        </element>
+
+        <!-- Technology Layer -->
+        <element xsi:type="archimate:TechnologyInternalActiveStructureElement" name="RKE2 Cluster" id="ta1">
+            <documentation>Hardened RKE2 Kubernetes cluster</documentation>
+        </element>
+        
+        <element xsi:type="archimate:TechnologyInternalActiveStructureElement" name="Linkerd Service Mesh" id="ta2">
+            <documentation>Provides mutual TLS and service mesh capabilities</documentation>
+        </element>
+        
+        <element xsi:type="archimate:TechnologyObject" name="ChatBot CRD" id="to1">
+            <documentation>Custom Resource Definition for chat bot management</documentation>
+        </element>
+    </elements>
+
+    <relationships>
+        <relationship xsi:type="archimate:AssignmentRelationship" source="ba1" target="br1">
+            <documentation>Platform Engineering Team performs Infrastructure Manager role</documentation>
+        </relationship>
+        
+        <relationship xsi:type="archimate:AssignmentRelationship" source="ba2" target="br2">
+            <documentation>Application Development Team performs Bot Developer role</documentation>
+        </relationship>
+
+        <relationship xsi:type="archimate:ServingRelationship" source="br1" target="bs2">
+            <documentation>Infrastructure Manager provides RBAC/ABAC Integration Service</documentation>
+        </relationship>
+        
+        <relationship xsi:type="archimate:ServingRelationship" source="br2" target="bs1">
+            <documentation>Bot Developer provides Chat Bot Management Service</documentation>
+        </relationship>
+
+        <relationship xsi:type="archimate:RealizationRelationship" source="bs1" target="ac1">
+            <documentation>Chat Bot Management Service is realized by ChatBot Operator</documentation>
+        </relationship>
+        
+        <relationship xsi:type="archimate:RealizationRelationship" source="bs2" target="ac1">
+            <documentation>RBAC/ABAC Integration Service is realized by ChatBot Operator</documentation>
+        </relationship>
+        
+        <relationship xsi:type="archimate:CompositionRelationship" source="ac1" target="ac2">
+            <documentation>ChatBot Operator contains Bot Provisioning Service</documentation>
+        </relationship>
+        
+        <relationship xsi:type="archimate:CompositionRelationship" source="ac1" target="ac3">
+            <documentation>ChatBot Operator contains API Gateway</documentation>
+        </relationship>
+
+        <relationship xsi:type="archimate:DeploymentRelationship" source="ac1" target="ta1">
+            <documentation>ChatBot Operator is deployed on RKE2 Cluster</documentation>
+        </relationship>
+        
+        <relationship xsi:type="archimate:DeploymentRelationship" source="ac3" target="ta2">
+            <documentation>API Gateway is deployed with Linkerd Service Mesh</documentation>
+        </relationship>
+        
+        <relationship xsi:type="archimate:UsedByRelationship" source="ac1" target="to1">
+            <documentation>ChatBot Operator uses ChatBot CRD</documentation>
+        </relationship>
+
+        <relationship xsi:type="archimate:UsedByRelationship" source="ac2" target="bs1">
+            <documentation>Bot Provisioning Service is used by Chat Bot Management Service</documentation>
+        </relationship>
+        
+        <relationship xsi:type="archimate:UsedByRelationship" source="ac3" target="bs1">
+            <documentation>API Gateway is used by Chat Bot Management Service</documentation>
+        </relationship>
+    </relationships>
+</archimate:model>
