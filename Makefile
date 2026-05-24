@@ -155,7 +155,7 @@ shell-lint: ## Lint shell scripts
 # ============================================================================
 
 .PHONY: test
-test: test-unit test-integration test-validation test-behavior ## Run all tests
+test: test-unit test-integration test-validation test-behavior test-tools test-strategy-chain test-dates ## Run all tests
 
 .PHONY: test-unit
 test-unit: ## Run Go unit tests
@@ -174,6 +174,21 @@ test-integration: ## Run integration tests
 test-validation: ## Run Jest/AJV validation tests
 	@echo "🧪 Running Jest/AJV validation tests..."
 	npm test -- tests/schemas/validation.js
+
+.PHONY: test-tools
+test-tools: ## Run tool tests
+	@echo "🧪 Running tool tests..."
+	npm test -- tests/tools/
+
+.PHONY: test-strategy-chain
+test-strategy-chain: ## Validate strategy-to-code chain
+	@echo "🔗 Validating strategy-to-code chain..."
+	node scripts/validation/check-strategy-chain.js
+
+.PHONY: test-dates
+test-dates: ## Validate no manual dates
+	@echo "📅 Validating date references..."
+	npm test -- tests/validation/dates.test.js
 
 .PHONY: test-behavior
 test-behavior: ## Run Godog behavior-driven tests
@@ -314,17 +329,20 @@ ci-package: deps package ## Packaging stage
 
 .PHONY: github-ci
 github-ci: ## Generate GitHub Actions workflow
-	@echo "📝 Generating GitHub Actions workflow..."
+	@echo "📝 GitHub Actions workflow..."
 	@mkdir -p .github/workflows
-	cp scripts/ci/github-workflow.yml .github/workflows/ci.yml
-	@echo "✅ GitHub Actions workflow generated at .github/workflows/ci.yml"
+	@if [ -f ".github/workflows/ci.yml" ]; then \
+		echo "✅ GitHub Actions workflow already exists at .github/workflows/ci.yml"; \
+	else \
+		echo "❌ GitHub Actions workflow not found"; \
+	fi
 
 .PHONY: gitlab-ci
 gitlab-ci: ## Generate GitLab CI/CD configuration
 	@echo "📝 Generating GitLab CI/CD configuration..."
 	@mkdir -p .gitlab-ci
-	cp scripts/ci/gitlab-ci.yml .gitlab-ci/.gitlab-ci.yml
-	@echo "✅ GitLab CI/CD configuration generated at .gitlab-ci/.gitlab-ci.yml"
+	cp scripts/ci/gitlab-ci.yml .gitlab-ci.yml
+	@echo "✅ GitLab CI/CD configuration generated at .gitlab-ci.yml"
 
 .PHONY: tekton-ci
 tekton-ci: ## Generate Tekton pipeline manifests
