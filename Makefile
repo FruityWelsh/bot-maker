@@ -188,7 +188,7 @@ test-strategy-chain: ## Validate strategy-to-code chain
 .PHONY: test-dates
 test-dates: ## Validate no manual dates
 	@echo "📅 Validating date references..."
-	npm test -- tests/validation/dates.test.js
+	node scripts/validation/validate-dates.js
 
 .PHONY: test-behavior
 test-behavior: ## Run Godog behavior-driven tests
