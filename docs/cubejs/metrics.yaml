@@ -4,7 +4,7 @@
 
 version: "1.0.0"
 name: "ChatBot Operator Business Metrics"
-created: "2024-12-19"
+created: "Generated from Git commit date"
 author: "Strategy Coder"
 references:
   upstream: "docs/adr/architecture-decisions.md"

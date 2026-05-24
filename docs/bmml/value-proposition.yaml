@@ -4,7 +4,7 @@
 
 version: "1.0.0"
 name: "ChatBot Operator Value Proposition"
-created: "2024-12-19"
+created: "Generated from Git commit date"
 author: "Strategy Coder"
 references:
   upstream: "docs/archimate/enterprise-architecture.xml"

@@ -5,7 +5,7 @@
 
 title: ChatBot Operator Architecture Decisions
 version: 1.0.0
-created: 2024-12-19
+created: Generated from Git commit date
 author: Strategy Coder
 references:
   upstream: docs/bmml/value-proposition.yaml
@@ -17,7 +17,7 @@ references:
 ## ADR-001: Use Kubernetes Operator Pattern
 
 **Status**: Accepted  
-**Date**: 2024-12-19  
+**Date**: Generated from Git commit date  
 **Context**: Need to manage chat bot lifecycles as Kubernetes resources  
 **Decision**: Implement as Kubernetes Operator using Kubebuilder framework  
 **Consequences**: 
@@ -36,7 +36,7 @@ references:
 ## ADR-002: Use Kubebuilder Framework
 
 **Status**: Accepted  
-**Date**: 2024-12-19  
+**Date**: Generated from Git commit date  
 **Context**: Need framework for building Kubernetes operators  
 **Decision**: Use Kubebuilder (CNCF project) over Operator SDK  
 **Consequences**: 
@@ -55,7 +55,7 @@ references:
 ## ADR-003: Multi-Platform Bot Support Architecture
 
 **Status**: Accepted  
-**Date**: 2024-12-19  
+**Date**: Generated from Git commit date  
 **Context**: Need to support Slack, Matrix, Discord, Twilio platforms  
 **Decision**: Implement platform-specific provisioners with common interface  
 **Consequences**: 
@@ -96,7 +96,7 @@ references:
 ## ADR-004: Security Architecture with Linkerd
 
 **Status**: Accepted  
-**Date**: 2024-12-19  
+**Date**: Generated from Git commit date  
 **Context**: Need Zero Trust security for bot communications  
 **Decision**: Use Linkerd service mesh for mutual TLS and security  
 **Consequences**: 
@@ -138,7 +138,7 @@ references:
 ## ADR-005: RBAC/ABAC Integration Strategy
 
 **Status**: Accepted  
-**Date**: 2024-12-19  
+**Date**: Generated from Git commit date  
 **Context**: Need role-based and attribute-based access control  
 **Decision**: Integrate with existing Kubernetes RBAC and implement ABAC via OPA/Gatekeeper  
 **Consequences**: 
@@ -179,7 +179,7 @@ references:
 ## ADR-006: GitOps Workflow Implementation
 
 **Status**: Accepted  
-**Date**: 2024-12-19  
+**Date**: Generated from Git commit date  
 **Context**: Need consistent deployment and management workflow  
 **Decision**: Implement GitOps with Argo CD for continuous delivery  
 **Consequences**: 
@@ -200,7 +200,7 @@ references:
 ## ADR-007: Platform-Agnostic CI/CD Pipeline
 
 **Status**: Accepted  
-**Date**: 2024-12-19  
+**Date**: Generated from Git commit date  
 **Context**: Need CI/CD that works across GitLab, Forgejo, GitHub, Tekton, and local development  
 **Decision**: Use Makefile as the single source of truth with platform-specific wrappers  
 **Consequences**: 
@@ -289,7 +289,7 @@ This allows the same Make targets to adapt their behavior based on the platform.
 ## ADR-012: Makefile as Single Source of Truth for CI/CD
 
 **Status**: Accepted  
-**Date**: 2024-12-19  
+**Date**: Generated from Git commit date  
 **Context**: Need consistent CI/CD behavior across all platforms  
 **Decision**: Makefile contains all actual check definitions, platforms are just wrappers  
 **Consequences**: 
@@ -322,7 +322,7 @@ This allows the same Make targets to adapt their behavior based on the platform.
 ## ADR-008: Business Metrics with Cube.js
 
 **Status**: Accepted  
-**Date**: 2024-12-19  
+**Date**: Generated from Git commit date  
 **Context**: Need business metrics and observability for bot operations  
 **Decision**: Use Cube.js for business metrics as code  
 **Consequences**: 
@@ -343,7 +343,7 @@ This allows the same Make targets to adapt their behavior based on the platform.
 ## ADR-009: Documentation with React-Markdown and Mermaid
 
 **Status**: Accepted  
-**Date**: 2024-12-19  
+**Date**: Generated from Git commit date  
 **Context**: Need safe rendering of strategy metadata and diagrams  
 **Decision**: Use react-markdown for markdown, gray-matter for frontmatter, Mermaid.js for diagrams  
 **Consequences**: 
@@ -363,7 +363,7 @@ This allows the same Make targets to adapt their behavior based on the platform.
 ## ADR-010: Behavior-Driven Development with Godog
 
 **Status**: Accepted  
-**Date**: 2024-12-19  
+**Date**: Generated from Git commit date  
 **Context**: Need behavior-driven testing for bot provisioning workflows  
 **Decision**: Use Godog (Gherkin in Go) for BDD testing  
 **Consequences**: 
@@ -384,7 +384,7 @@ This allows the same Make targets to adapt their behavior based on the platform.
 ## ADR-011: JSON Schema Validation with AJV
 
 **Status**: Accepted  
-**Date**: 2024-12-19  
+**Date**: Generated from Git commit date  
 **Context**: Need fast JSON schema validation for CRDs and configurations  
 **Decision**: Use AJV (Another JSON Schema Validator) for validation  
 **Consequences**: 
