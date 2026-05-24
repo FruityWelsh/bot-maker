@@ -179,7 +179,7 @@ shell-lint: ## Lint shell scripts
 # ============================================================================
 
 .PHONY: test
-test: test-unit test-integration test-validation test-behavior test-tools test-strategy-chain test-dates ## Run all tests
+test: test-unit test-integration test-validation test-behavior test-tools test-strategy-chain test-dates test-toolchain test-cncf-compliance scan-secrets ## Run all tests
 
 .PHONY: test-unit
 test-unit: ## Run Go unit tests
@@ -218,6 +218,16 @@ test-dates: ## Validate no manual dates
 test-toolchain: ## Validate all 8 toolchain tools with hard references
 	@echo "🔧 Validating complete toolchain..."
 	node scripts/validation/validate-toolchain.js
+
+.PHONY: test-cncf-compliance
+test-cncf-compliance: ## Validate CNCF graduated project compliance
+	@echo "🏆 Validating CNCF compliance..."
+	bash scripts/validation/validate-cncf-compliance.sh
+
+.PHONY: scan-secrets
+scan-secrets: ## Scan for secrets in the repository
+	@echo "🔍 Scanning for secrets..."
+	bash scripts/validation/scan-secrets.sh
 
 .PHONY: test-behavior
 test-behavior: ## Run Godog behavior-driven tests

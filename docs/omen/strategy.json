@@ -63,6 +63,20 @@
         "category": "developer_experience"
       },
       {
+        "id": "DG005",
+        "description": "Local testing and GitHub Actions passing as gate before pushing/merging",
+        "priority": "high",
+        "successCriteria": "Pre-push hooks validate all checks locally, ensuring GitHub Actions will pass",
+        "category": "developer_experience"
+      },
+      {
+        "id": "DG006",
+        "description": "Documentation correctness checking with Vale using OpenSUSE rules",
+        "priority": "medium",
+        "successCriteria": "Vale configuration with OpenSUSE base rules validates all documentation",
+        "category": "developer_experience"
+      },
+      {
         "id": "DG002",
         "description": "Clean GitOps workflow with frequent commits and rebase strategy",
         "priority": "medium",

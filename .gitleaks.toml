@@ -1,0 +1,375 @@
+# Gitleaks Configuration for ChatBot Operator
+# ============================================
+# Prevents secrets from being committed to the repository
+# References: docs/omen/strategy.json (Security Goal AG004)
+# References: docs/adr/architecture-decisions.md (ADR-004 - Security with Linkerd)
+
+# Based on: https://github.com/gitleaks/gitleaks
+# Custom configuration for ChatBot Operator project
+
+title = "ChatBot Operator Secrets Detection"
+
+# Description of this configuration
+[description]
+  description = "Custom Gitleaks configuration for ChatBot Operator"
+  author = "Strategy Coder"
+  version = "1.0.0"
+  references = ["docs/omen/strategy.json", "docs/adr/architecture-decisions.md"]
+
+# Global configuration
+[global]
+  # Enable verbose output
+  verbose = true
+  
+  # Redact secrets in output (don't show the actual secret)
+  redact = true
+  
+  # Exit with error code if secrets found
+  exit-code = 1
+
+# Paths to include in scanning
+[[paths]]
+  # Scan all files by default
+  path = "./"
+  
+  # Exclude node_modules
+  [[paths.exclude]]
+    path = "node_modules/"
+    
+  # Exclude .git directory
+  [[paths.exclude]]
+    path = ".git/"
+    
+  # Exclude generated files
+  [[paths.exclude]]
+    path = "dist/"
+    
+  [[paths.exclude]]
+    path = "coverage/"
+    
+  [[paths.exclude]]
+    path = "reports/"
+
+# Custom rules for ChatBot Operator
+# These are in addition to the default rules
+
+# Rule: GitHub Tokens
+[[rules]]
+  id = "github-token"
+  description = "GitHub Personal Access Token"
+  regex = """ghp_[a-zA-Z0-9]{36}"""
+  tags = ["github", "token"]
+  severity = "high"
+
+# Rule: GitHub OAuth Tokens
+[[rules]]
+  id = "github-oauth"
+  description = "GitHub OAuth Token"
+  regex = """gho_[a-zA-Z0-9]{36}"""
+  tags = ["github", "oauth"]
+  severity = "high"
+
+# Rule: GitHub App Tokens
+[[rules]]
+  id = "github-app-token"
+  description = "GitHub App Token"
+  regex = """ghr_[a-zA-Z0-9]{36}"""
+  tags = ["github", "app"]
+  severity = "high"
+
+# Rule: GitHub Refresh Tokens
+[[rules]]
+  id = "github-refresh-token"
+  description = "GitHub Refresh Token"
+  regex = """ghr_[a-zA-Z0-9]{76}"""
+  tags = ["github", "refresh"]
+  severity = "high"
+
+# Rule: GitHub Server-Side Request Forgery Tokens
+[[rules]]
+  id = "github-ssrf-token"
+  description = "GitHub SSRF Token"
+  regex = """ghs_[a-zA-Z0-9]{36}"""
+  tags = ["github", "ssrf"]
+  severity = "high"
+
+# Rule: GitHub User Tokens
+[[rules]]
+  id = "github-user-token"
+  description = "GitHub User Token"
+  regex = """ghu_[a-zA-Z0-9]{36}"""
+  tags = ["github", "user"]
+  severity = "high"
+
+# Rule: GitLab Tokens
+[[rules]]
+  id = "gitlab-token"
+  description = "GitLab Personal Access Token"
+  regex = """glpat-[a-zA-Z0-9_-]{20}"""
+  tags = ["gitlab", "token"]
+  severity = "high"
+
+# Rule: Slack Tokens
+[[rules]]
+  id = "slack-token"
+  description = "Slack API Token"
+  regex = """xox[baprs]-([0-9a-zA-Z]{10,48})"""
+  tags = ["slack", "token", "api"]
+  severity = "high"
+
+# Rule: Slack Webhooks
+[[rules]]
+  id = "slack-webhook"
+  description = "Slack Webhook URL"
+  regex = """https://hooks\.slack\.com/services/T[A-Z0-9]+/B[A-Z0-9]+/[A-Za-z0-9]+"""
+  tags = ["slack", "webhook"]
+  severity = "high"
+
+# Rule: Matrix Tokens
+[[rules]]
+  id = "matrix-token"
+  description = "Matrix Access Token"
+  regex = """MDAx[_.a-zA-Z0-9-]{20,}"""
+  tags = ["matrix", "token"]
+  severity = "high"
+
+# Rule: Discord Tokens
+[[rules]]
+  id = "discord-token"
+  description = "Discord Bot Token"
+  regex = """[MN][A-Za-z\d]{23,}\.[\w-]{6}\.[\w-]{27}"""
+  tags = ["discord", "token", "bot"]
+  severity = "high"
+
+# Rule: Twilio API Keys
+[[rules]]
+  id = "twilio-api-key"
+  description = "Twilio API Key"
+  regex = """SK[0-9a-fA-F]{32}"""
+  tags = ["twilio", "api", "key"]
+  severity = "high"
+
+# Rule: Twilio Account SIDs
+[[rules]]
+  id = "twilio-account-sid"
+  description = "Twilio Account SID"
+  regex = """AC[0-9a-fA-F]{32}"""
+  tags = ["twilio", "account", "sid"]
+  severity = "medium"
+
+# Rule: Twilio Auth Tokens
+[[rules]]
+  id = "twilio-auth-token"
+  description = "Twilio Auth Token"
+  regex = """[0-9a-fA-F]{32}"""
+  tags = ["twilio", "auth", "token"]
+  severity = "high"
+
+# Rule: Generic API Keys
+[[rules]]
+  id = "generic-api-key"
+  description = "Generic API Key"
+  regex = """[a-zA-Z0-9]{32,}"""
+  tags = ["api", "key", "generic"]
+  severity = "medium"
+  
+  # Only match if it looks like a key (not a hash or ID)
+  [[rules.conditions]]
+    type = "notRegex"
+    regex = """^[a-f0-9]{64}$"""  # SHA-256 hash
+  
+  [[rules.conditions]]
+    type = "notRegex"
+    regex = """^[0-9]+$"""  # Numeric ID
+
+# Rule: Generic Secrets
+[[rules]]
+  id = "generic-secret"
+  description = "Generic Secret Pattern"
+  regex = """[sS][eE][cC][rR][eE][tT][_:\-]?[\s]?[\"']?[a-zA-Z0-9]{20,}[\"']?"""
+  tags = ["secret", "generic"]
+  severity = "medium"
+
+# Rule: Password in various formats
+[[rules]]
+  id = "password-pattern"
+  description = "Password Pattern"
+  regex = """[pP][aA][sS][sS][wW][oO][rR][dD][_:\-]?[\s]?[\"']?[a-zA-Z0-9!@#$%^&*]{8,}[\"']?"""
+  tags = ["password", "credentials"]
+  severity = "high"
+
+# Rule: Private Keys
+[[rules]]
+  id = "private-key"
+  description = "Private Key"
+  regex = """-----BEGIN (RSA |EC |DSA |OPENSSH |PGP )?PRIVATE KEY-----"""
+  tags = ["private", "key", "crypto"]
+  severity = "critical"
+
+# Rule: AWS Access Key IDs
+[[rules]]
+  id = "aws-access-key"
+  description = "AWS Access Key ID"
+  regex = """AKIA[0-9A-Z]{16}"""
+  tags = ["aws", "access", "key"]
+  severity = "high"
+
+# Rule: AWS Secret Access Keys
+[[rules]]
+  id = "aws-secret-key"
+  description = "AWS Secret Access Key"
+  regex = """aws(.{0,20})?['\"][0-9a-zA-Z/+]{20,40}['\"]"""
+  tags = ["aws", "secret", "key"]
+  severity = "critical"
+
+# Rule: AWS Session Tokens
+[[rules]]
+  id = "aws-session-token"
+  description = "AWS Session Token"
+  regex = """AWS_SESSION_TOKEN"""
+  tags = ["aws", "session", "token"]
+  severity = "high"
+
+# Rule: Google API Keys
+[[rules]]
+  id = "google-api-key"
+  description = "Google API Key"
+  regex = """AIza[0-9A-Za-z\-_]{35}"""
+  tags = ["google", "api", "key"]
+  severity = "high"
+
+# Rule: Google OAuth Tokens
+[[rules]]
+  id = "google-oauth-token"
+  description = "Google OAuth Token"
+  regex = """[0-9]+-[0-9A-Za-z]{32}\.apps\.googleusercontent\.com"""
+  tags = ["google", "oauth", "token"]
+  severity = "high"
+
+# Rule: Google Service Account Keys
+[[rules]]
+  id = "google-service-account"
+  description = "Google Service Account Key"
+  regex = """-----BEGIN PRIVATE KEY-----\s*[\s\S]*?\s*-----END PRIVATE KEY-----"""
+  tags = ["google", "service", "account", "key"]
+  severity = "critical"
+
+# Rule: Azure Connection Strings
+[[rules]]
+  id = "azure-connection-string"
+  description = "Azure Connection String"
+  regex = """AccountKey=[a-zA-Z0-9+/=]{40,}"""
+  tags = ["azure", "connection", "string"]
+  severity = "high"
+
+# Rule: Azure Storage Keys
+[[rules]]
+  id = "azure-storage-key"
+  description = "Azure Storage Key"
+  regex = """[a-zA-Z0-9+/=]{86}=="""
+  tags = ["azure", "storage", "key"]
+  severity = "high"
+
+# Rule: Generic Bearer Tokens
+[[rules]]
+  id = "bearer-token"
+  description = "Bearer Token"
+  regex = """Bearer [a-zA-Z0-9\-_]+\.[a-zA-Z0-9\-_]+\.[a-zA-Z0-9\-_]+"""
+  tags = ["bearer", "token", "jwt"]
+  severity = "high"
+
+# Rule: JWT Tokens
+[[rules]]
+  id = "jwt-token"
+  description = "JWT Token"
+  regex = """eyJ[A-Za-z0-9\-_]+\.eyJ[A-Za-z0-9\-_]+\.[A-Za-z0-9\-_]+"""
+  tags = ["jwt", "token"]
+  severity = "high"
+
+# Rule: Basic Auth Credentials
+[[rules]]
+  id = "basic-auth"
+  description = "Basic Authentication Credentials"
+  regex = """[a-zA-Z0-9+/_=]+:[a-zA-Z0-9+/_=]+@"""
+  tags = ["basic", "auth", "credentials"]
+  severity = "high"
+
+# Rule: Connection Strings
+[[rules]]
+  id = "connection-string"
+  description = "Generic Connection String"
+  regex = """[a-zA-Z]+://[^\s:]+:[^\s@]+@[^\s/]+:[0-9]+/"""
+  tags = ["connection", "string", "database"]
+  severity = "high"
+
+# Rule: Heroku API Keys
+[[rules]]
+  id = "heroku-api-key"
+  description = "Heroku API Key"
+  regex = """heroku_[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}"""
+  tags = ["heroku", "api", "key"]
+  severity = "high"
+
+# Rule: Stripe API Keys
+[[rules]]
+  id = "stripe-api-key"
+  description = "Stripe API Key"
+  regex = """sk_live_[0-9a-zA-Z]{24}"""
+  tags = ["stripe", "api", "key", "live"]
+  severity = "critical"
+
+# Rule: Stripe Test API Keys
+[[rules]]
+  id = "stripe-test-key"
+  description = "Stripe Test API Key"
+  regex = """sk_test_[0-9a-zA-Z]{24}"""
+  tags = ["stripe", "api", "key", "test"]
+  severity = "high"
+
+# Rule: SendGrid API Keys
+[[rules]]
+  id = "sendgrid-api-key"
+  description = "SendGrid API Key"
+  regex = """SG\.[a-zA-Z0-9\-_]{22}\.[a-zA-Z0-9\-_]{43}"""
+  tags = ["sendgrid", "api", "key"]
+  severity = "high"
+
+# Rule: Mailchimp API Keys
+[[rules]]
+  id = "mailchimp-api-key"
+  description = "Mailchimp API Key"
+  regex = """[a-f0-9]{32}-us[0-9]{1,2}"""
+  tags = ["mailchimp", "api", "key"]
+  severity = "high"
+
+# Rule: NPM Tokens
+[[rules]]
+  id = "npm-token"
+  description = "NPM Authentication Token"
+  regex = """npm_[a-zA-Z0-9]{36}"""
+  tags = ["npm", "token", "auth"]
+  severity = "high"
+
+# Rule: PyPI Tokens
+[[rules]]
+  id = "pypi-token"
+  description = "PyPI API Token"
+  regex = """pypi-AgEIcHlwaS5vcmc[A-Za-z0-9\-_]{50,}"""
+  tags = ["pypi", "token", "api"]
+  severity = "high"
+
+# Rule: Docker Hub Tokens
+[[rules]]
+  id = "docker-token"
+  description = "Docker Hub Token"
+  regex = """dckr_pat_[a-zA-Z0-9]{20}"""
+  tags = ["docker", "token", "hub"]
+  severity = "high"
+
+# Rule: GitHub Container Registry Tokens
+[[rules]]
+  id = "ghcr-token"
+  description = "GitHub Container Registry Token"
+  regex = """ghcr_io_[a-zA-Z0-9]{36}"""
+  tags = ["github", "container", "registry", "token"]
+  severity = "high"
