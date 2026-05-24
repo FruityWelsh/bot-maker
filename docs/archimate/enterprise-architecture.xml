@@ -13,7 +13,7 @@ Downstream: docs/bmml/value-proposition.yaml
     <metadata>
         <property key="strategy_reference" value="docs/omen/strategy.json"/>
         <property key="downstream_reference" value="docs/bmml/value-proposition.yaml"/>
-        <property key="created" value="2024-12-19"/>
+        <property key="created" value="Generated from Git commit date"/>
         <property key="author" value="Strategy Coder"/>
     </metadata>
 

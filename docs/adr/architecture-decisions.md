@@ -489,6 +489,65 @@ flowchart TD
 
 ---
 
+## ADR-013: DevPod for Containerized Development Environment
+
+**Status**: Accepted  
+**Date**: Generated from Git commit date  
+**Context**: Need reproducible development environment across different systems for consistent builds and testing  
+**Decision**: Use DevPod (https://devpod.sh/) for containerized development environments  
+**Consequences**: 
+- ✅ Complete development environment with all tools pre-installed
+- ✅ Works consistently across macOS, Linux, Windows
+- ✅ Supports VSCode and JetBrains IDEs
+- ✅ Easy to share and reproduce development setups
+- ✅ Integrates with GitHub Codespaces and Gitpod
+- ✅ Supports custom container images
+- ⚠️ Requires Docker or Kubernetes for container runtime
+- ⚠️ Initial setup complexity
+
+**Architecture**:
+```
+┌─────────────────────────────────────────────────────────────┐
+│                    DevPod Workspace                            │
+│  ┌─────────────────────────────────────────────────────────┐│
+│  │              Container (from Dockerfile)                   ││
+│  │  ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌────────────┐  ││
+│  │  │   Go     │ │  Node.js  │ │  Make    │ │  kubectl   │  ││
+│  │  │  1.21    │ │   20     │ │          │ │            │  ││
+│  │  └──────────┘ └──────────┘ └──────────┘ └────────────┘  ││
+│  │  ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌────────────┐  ││
+│  │  │kubebuild │ │golangci- │ │  Godog   │ │  cosign    │  ││
+│  │  │          │ │  lint    │ │          │ │            │  ││
+│  │  └──────────┘ └──────────┘ └──────────┘ └────────────┘  ││
+│  │  ┌─────────────────────────────────────────────────────┐││
+│  │  │              Mounted Workspace (/workspace)             │││
+│  │  │  - Source code                                  │││
+│  │  │  - Configuration files                          │││
+│  │  │  - Git history                                  │││
+│  │  └─────────────────────────────────────────────────────┘││
+│  └─────────────────────────────────────────────────────────┘│
+└─────────────────────────────────────────────────────────────┘
+                    ▲
+                    │
+┌───────────────────┴───────────────────┐
+│         DevPod CLI / IDE Extension        │
+│  - Manages container lifecycle             │
+│  - Handles port forwarding                  │
+│  - Provides IDE integration                 │
+└─────────────────────────────────────────┘
+```
+
+**Files Created**:
+- `.devpod/devpod.yaml` - DevPod workspace configuration
+- `.devpod/Dockerfile` - Multi-stage Docker build for development container
+- Makefile targets: `devpod`, `devpod-start`, `devpod-stop`, `devpod-build`, `devpod-push`, `devpod-clean`
+
+**References**: 
+- Omen Strategy DG004: Containerized development environment
+- ADR-012: Makefile as single source of truth
+
+---
+
 ## Next Steps
 
 1. **Implement CRDs**: Define ChatBot, BotPlatform, BotConfiguration CRDs
@@ -498,3 +557,4 @@ flowchart TD
 5. **Build CI/CD**: Create Tekton pipelines and Argo CD applications
 6. **Add Metrics**: Implement Cube.js metrics and dashboards
 7. **Write Tests**: Develop Godog features and Jest/AJV tests
+8. **DevPod Integration**: Build and test DevPod container image

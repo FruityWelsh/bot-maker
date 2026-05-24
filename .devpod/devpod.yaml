@@ -1,0 +1,123 @@
+# DevPod Configuration for ChatBot Operator
+# ============================================
+# Containerized development environment for reproducible builds
+# References: docs/omen/strategy.json (Developer Environment Goal DG001)
+# References: docs/adr/architecture-decisions.md (ADR-012 - Platform-agnostic CI/CD)
+
+name: chatbot-operator
+
+# Container configuration
+container:
+  image: ghcr.io/fruitywelsh/chatbot-operator-dev:latest
+  build:
+    dockerfile: .devpod/Dockerfile
+    context: .
+  
+  # Mount points for development
+  volumes:
+    - .:/workspace:cached
+    - /var/run/docker.sock:/var/run/docker.sock:ro
+    - ~/.kube:/root/.kube:ro
+    - ~/.config/gh:/root/.config/gh:ro
+    - ~/.gitconfig:/root/.gitconfig:ro
+    - ~/.ssh:/root/.ssh:ro
+  
+  # Environment variables
+  env:
+    - GOPATH=/root/go
+    - GOBIN=/root/go/bin
+    - PATH=/root/go/bin:/usr/local/go/bin:$PATH
+    - CI_PLATFORM=devpod
+    - CI_COMMIT=${GIT_COMMIT}
+    - CI_BRANCH=${GIT_BRANCH}
+    - CI_REPO=FruityWelsh/bot-maker
+  
+  # User configuration
+  user: developer
+  uid: 1000
+  gid: 1000
+
+# Development workspace configuration
+workspace:
+  path: /workspace
+  
+# IDE configuration
+ide:
+  vscode:
+    extensions:
+      - golang.Go
+      - redhat.vscode-yaml
+      - ms-azuretools.vscode-docker
+      - ms-kubernetes-tools.vscode-kubernetes-tools
+      - ms-vscode.makefile-tools
+      - cucumber.gherkin-full-support
+      - streetsidesoftware.code-spell-checker
+      - usernamehw.errorlens
+      - timonwong.shellcheck
+      - hadolint.hadolint
+      - hexops.tools-hexops
+
+# Port forwarding for services
+ports:
+  - "8080:8080"       # Kubernetes API (if running locally)
+  - "8081:8081"       # Linkerd dashboard
+  - "8443:8443"       # Linkerd proxy
+  - "9090:9090"       # Metrics server
+  - "3000:3000"       # Development server
+
+# Dependencies to pre-install
+dependencies:
+  - go:1.21
+  - node:20
+  - make
+  - git
+  - docker
+  - kubectl
+  - kubebuilder:3.12.0
+  - golangci-lint:v1.55.2
+  - godog:v0.12.6
+  - yamllint
+  - markdownlint
+  - shellcheck
+  - cosign
+  - syft
+  - trivy
+  - gosec
+  - govulncheck
+  - gitleaks
+
+# Pre-start commands (run once when container starts)
+preStart:
+  - echo "Setting up DevPod environment..."
+  - mkdir -p /root/go/bin /root/go/pkg /root/go/src
+  - go install github.com/kubernetes-sigs/kubebuilder@latest
+  - npm install -g npm@latest
+  
+# Post-start commands (run after workspace is mounted)
+postStart:
+  - echo "DevPod environment ready!"
+  - echo "Running in: $(pwd)"
+  - echo "Git commit: $(git rev-parse --short HEAD)"
+  - echo "Git branch: $(git rev-parse --abbrev-ref HEAD)"
+  - make doctor
+
+# Post-create commands (run after container is created)
+postCreate:
+  - echo "Initializing DevPod container..."
+  - apt-get update && apt-get install -y \
+      ca-certificates \
+      curl \
+      wget \
+      git \
+      build-essential \
+      && rm -rf /var/lib/apt/lists/*
+  
+# Health check
+health:
+  interval: 30s
+  timeout: 10s
+  retries: 3
+  test: ["CMD-SHELL", "make doctor || exit 1"]
+
+# DevPod version
+version: 1.0.0

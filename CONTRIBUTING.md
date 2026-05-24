@@ -448,6 +448,20 @@ When submitting a Pull Request:
 - [Behavior Tests](features/chatbot.feature) - Test scenarios
 - [Validation Tests](tests/schemas/validation.js) - Schema validation
 
+## 📅 Date Management Rule
+
+**Rule: Do not manually add dates - use tools that reference real time**
+
+All dates in documentation must be dynamically generated from Git commit dates or use real-time references. This ensures:
+- **Reproducibility**: Dates are always accurate and traceable
+- **Repeatability**: Same process produces same results
+- **Maintainability**: No manual date updates needed
+
+Use one of these approaches:
+- Reference Git commit date: `Generated from Git commit date`
+- Use scripts: `scripts/generate-dates.js` or `scripts/update-dates.sh`
+- Use environment variables: `$CI_COMMIT_DATE`, `$BUILD_DATE`
+
 ## 🙏 Code of Conduct
 
 This project follows a **Strategy First, Code Second** approach. Please:

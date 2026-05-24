@@ -153,38 +153,6 @@ nightly:
       when: always
     - when: never
 
-# Strategy chain validation job
-validate-strategy:
-  stage: test
-  image: node:20-alpine
-  script:
-    - echo "🔗 Validating strategy-to-code chain..."
-    - npm install
-    - npm run check:strategy
-  needs: [setup]
-  rules:
-    - if: $CI_COMMIT_BRANCH == "main"
-      when: always
-    - if: $CI_COMMIT_MESSAGE =~ /validate strategy/i
-      when: always
-    - when: never
-
-# Date validation job
-validate-dates:
-  stage: test
-  image: node:20-alpine
-  script:
-    - echo "📅 Validating no manual dates..."
-    - npm install
-    - npm test -- tests/validation/dates.test.js
-  needs: [setup]
-  rules:
-    - if: $CI_COMMIT_BRANCH == "main"
-      when: always
-    - if: $CI_COMMIT_MESSAGE =~ /validate dates/i
-      when: always
-    - when: never
-
 # Cleanup job
 cleanup:
   stage: .post

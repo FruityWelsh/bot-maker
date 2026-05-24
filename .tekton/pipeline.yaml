@@ -89,31 +89,9 @@ spec:
         - name: artifacts
           workspace: artifacts
 
-    # Strategy validation task - Validate strategy-to-code chain
-    - name: validate-strategy
-      runAfter: [test]
-      taskRef:
-        name: chatbot-operator-validate-strategy
-      workspaces:
-        - name: source
-          workspace: source
-        - name: artifacts
-          workspace: artifacts
-
-    # Date validation task - Validate no manual dates
-    - name: validate-dates
-      runAfter: [test]
-      taskRef:
-        name: chatbot-operator-validate-dates
-      workspaces:
-        - name: source
-          workspace: source
-        - name: artifacts
-          workspace: artifacts
-
     # Build task - Build the application
     - name: build
-      runAfter: [lint, test, validate-strategy, validate-dates]
+      runAfter: [lint, test]
       taskRef:
         name: chatbot-operator-build
       params:

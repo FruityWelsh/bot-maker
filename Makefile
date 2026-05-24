@@ -69,6 +69,15 @@ help: ## Show this help message
 	@echo "  tekton-ci      - Generate Tekton pipeline manifests"
 	@echo "  vscode-tasks   - Generate VSCode task configurations"
 	@echo ""
+	@echo "DevPod Targets:"
+	@echo ""
+	@echo "  devpod         - Start DevPod development environment"
+	@echo "  devpod-start   - Start DevPod workspace"
+	@echo "  devpod-stop    - Stop DevPod workspace"
+	@echo "  devpod-build   - Build DevPod container image"
+	@echo "  devpod-push    - Push DevPod container image"
+	@echo "  devpod-clean   - Clean DevPod resources"
+	@echo ""
 	@echo "Environment:"
 	@echo "  CI_PLATFORM=$(CI_PLATFORM)"
 	@echo "  CI_COMMIT=$(CI_COMMIT)"
@@ -155,7 +164,7 @@ shell-lint: ## Lint shell scripts
 # ============================================================================
 
 .PHONY: test
-test: test-unit test-integration test-validation test-behavior ## Run all tests
+test: test-unit test-integration test-validation test-behavior test-tools test-strategy-chain test-dates ## Run all tests
 
 .PHONY: test-unit
 test-unit: ## Run Go unit tests
@@ -174,6 +183,21 @@ test-integration: ## Run integration tests
 test-validation: ## Run Jest/AJV validation tests
 	@echo "🧪 Running Jest/AJV validation tests..."
 	npm test -- tests/schemas/validation.js
+
+.PHONY: test-tools
+test-tools: ## Run tool tests
+	@echo "🧪 Running tool tests..."
+	npm test -- tests/tools/
+
+.PHONY: test-strategy-chain
+test-strategy-chain: ## Validate strategy-to-code chain
+	@echo "🔗 Validating strategy-to-code chain..."
+	node scripts/validation/check-strategy-chain.js
+
+.PHONY: test-dates
+test-dates: ## Validate no manual dates
+	@echo "📅 Validating date references..."
+	node scripts/validation/validate-dates.js
 
 .PHONY: test-behavior
 test-behavior: ## Run Godog behavior-driven tests
@@ -314,17 +338,20 @@ ci-package: deps package ## Packaging stage
 
 .PHONY: github-ci
 github-ci: ## Generate GitHub Actions workflow
-	@echo "📝 Generating GitHub Actions workflow..."
+	@echo "📝 GitHub Actions workflow..."
 	@mkdir -p .github/workflows
-	cp scripts/ci/github-workflow.yml .github/workflows/ci.yml
-	@echo "✅ GitHub Actions workflow generated at .github/workflows/ci.yml"
+	@if [ -f ".github/workflows/ci.yml" ]; then \
+		echo "✅ GitHub Actions workflow already exists at .github/workflows/ci.yml"; \
+	else \
+		echo "❌ GitHub Actions workflow not found"; \
+	fi
 
 .PHONY: gitlab-ci
 gitlab-ci: ## Generate GitLab CI/CD configuration
 	@echo "📝 Generating GitLab CI/CD configuration..."
 	@mkdir -p .gitlab-ci
-	cp scripts/ci/gitlab-ci.yml .gitlab-ci/.gitlab-ci.yml
-	@echo "✅ GitLab CI/CD configuration generated at .gitlab-ci/.gitlab-ci.yml"
+	cp scripts/ci/gitlab-ci.yml .gitlab-ci.yml
+	@echo "✅ GitLab CI/CD configuration generated at .gitlab-ci.yml"
 
 .PHONY: tekton-ci
 tekton-ci: ## Generate Tekton pipeline manifests
@@ -407,3 +434,48 @@ doctor: ## Check development environment
 	@docker --version || echo "❌ Docker not found"
 	@echo "Kubectl version:"
 	@kubectl version --client || echo "❌ Kubectl not found"
+
+# ============================================================================
+# DEVPOD TARGETS
+# ============================================================================
+
+.PHONY: devpod
+devpod: devpod-start ## Start DevPod development environment
+
+.PHONY: devpod-start
+devpod-start: ## Start DevPod workspace
+	@echo "🚀 Starting DevPod development environment..."
+	@if command -v devpod >/dev/null 2>&1; then \
+		devpod up --workspace .; \
+	else \
+		echo "❌ DevPod CLI not found. Install from https://devpod.sh/"; \
+		exit 1; \
+	fi
+
+.PHONY: devpod-stop
+devpod-stop: ## Stop DevPod workspace
+	@echo "🛑 Stopping DevPod development environment..."
+	@if command -v devpod >/dev/null 2>&1; then \
+		devpod down --workspace .; \
+	else \
+		echo "❌ DevPod CLI not found"; \
+		exit 1; \
+	fi
+
+.PHONY: devpod-build
+devpod-build: ## Build DevPod container image
+	@echo "🔨 Building DevPod container image..."
+	docker build -t ghcr.io/fruitywelsh/chatbot-operator-dev:latest -f .devpod/Dockerfile .
+
+.PHONY: devpod-push
+devpod-push: devpod-build ## Push DevPod container image
+	@echo "📤 Pushing DevPod container image..."
+	docker push ghcr.io/fruitywelsh/chatbot-operator-dev:latest
+
+.PHONY: devpod-clean
+devpod-clean: ## Clean DevPod resources
+	@echo "🧹 Cleaning DevPod resources..."
+	@if command -v devpod >/dev/null 2>&1; then \
+		devpod down --workspace . --force; \
+	fi
+	docker rmi ghcr.io/fruitywelsh/chatbot-operator-dev:latest 2>/dev/null || true

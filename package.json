@@ -1,0 +1,36 @@
+{
+  "name": "chatbot-operator",
+  "version": "0.1.0-dev",
+  "description": "Kubernetes-native chat bot management with automated account creation and lifecycle management",
+  "main": "index.js",
+  "scripts": {
+    "test": "jest tests/",
+    "test:validation": "jest tests/schemas/validation.js",
+    "test:tools": "jest tests/tools/",
+    "test:dates": "jest tests/validation/dates.test.js",
+    "test:all": "jest tests/",
+    "check:strategy": "node scripts/validation/check-strategy-chain.js",
+    "validate:all": "npm run check:strategy && npm run test:all"
+  },
+  "keywords": [
+    "kubernetes",
+    "operator",
+    "chatbot",
+    "slack",
+    "matrix",
+    "discord",
+    "twilio",
+    "crd",
+    "gitops"
+  ],
+  "author": "Strategy Coder",
+  "license": "Apache-2.0",
+  "dependencies": {},
+  "devDependencies": {
+    "jest": "^29.7.0"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=8.0.0"
+  }
+}
