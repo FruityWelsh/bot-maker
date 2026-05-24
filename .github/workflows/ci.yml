@@ -38,6 +38,9 @@ jobs:
       - name: Validate Strategy Chain (Make target)
         run: make test-strategy-chain
       
+      - name: Validate Toolchain (Make target)
+        run: make test-toolchain
+      
       - name: Validate No Manual Dates (Make target)
         run: make test-dates
       

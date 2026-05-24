@@ -10,7 +10,7 @@
         "isDefault": true
       },
       "problemMatcher": [],
-      "detail": "Runs the complete CI pipeline (lint, test, build, scan, sign, package). This is the same target that GitHub Actions, GitLab CI, and Tekton wrap.",
+      "detail": "Platform-agnostic CI workflow. Runs the complete CI pipeline (lint, test, build, scan, sign, package). This is the same target that GitHub Actions, GitLab CI, and Tekton wrap. References: docs/omen/strategy.json (Developer Environment Goal DG001), docs/adr/architecture-decisions.md (ADR-012 - Platform-agnostic CI/CD)",
       "presentation": {
         "reveal": "always",
         "panel": "dedicated",

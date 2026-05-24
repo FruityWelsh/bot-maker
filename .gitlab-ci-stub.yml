@@ -1,0 +1,102 @@
+# Stubbed GitLab CI/CD Configuration
+# ====================================
+# This is a stubbed version that can be tested locally without requiring GitLab
+# Platform-agnostic CI workflow
+# References: docs/omen/strategy.json (Developer Environment Goal DG001)
+# References: docs/adr/architecture-decisions.md (ADR-012 - Platform-agnostic CI/CD)
+# The actual checks are defined in the Makefile.
+# GitLab CI is just a wrapper around: make ci-lint, make ci-test, etc.
+
+# This file can be used for local testing with:
+#   make gitlab-ci
+#   or manually running the make targets
+
+stages:
+  - setup
+  - lint
+  - test
+  - build
+  - scan
+  - sign
+  - package
+  - deploy
+
+variables:
+  # Platform identification for Make targets
+  CI_PLATFORM: gitlab
+  CI_COMMIT: ${CI_COMMIT_SHA}
+  CI_BRANCH: ${CI_COMMIT_REF_NAME}
+  CI_REPO: ${CI_PROJECT_PATH}
+
+# Setup stage
+setup:
+  stage: setup
+  script:
+    - echo "Setting up GitLab CI environment..."
+    - make deps
+  artifacts:
+    paths:
+      - node_modules/
+      - vendor/
+    expire_in: 1 hour
+
+# Lint stage
+lint:
+  stage: lint
+  script:
+    - echo "Running linting..."
+    - make ci-lint
+  needs: [setup]
+
+# Test stage
+test:
+  stage: test
+  script:
+    - echo "Running tests..."
+    - make ci-test
+  needs: [lint]
+
+# Build stage
+build:
+  stage: build
+  script:
+    - echo "Building application..."
+    - make ci-build
+  needs: [test]
+
+# Security scan stage
+scan-security:
+  stage: scan
+  script:
+    - echo "Running security scans..."
+    - make ci-scan
+  needs: [build]
+
+# Sign stage
+sign:
+  stage: sign
+  script:
+    - echo "Signing artifacts..."
+    - make ci-sign
+  needs: [scan-security]
+
+# Package stage
+package:
+  stage: package
+  script:
+    - echo "Packaging artifacts..."
+    - make ci-package
+  needs: [sign]
+
+# Deploy stage (stubbed - would require actual cluster)
+deploy:
+  stage: deploy
+  script:
+    - echo "Deploy stub - would deploy to cluster"
+    - echo "This is a stubbed version for local testing"
+  needs: [package]
+  when: manual
+
+# Note: This is a stubbed version for local testing.
+# The actual GitLab CI/CD would run on GitLab runners.
+# For local testing, use: make gitlab-ci or run make targets directly

@@ -1,3 +1,6 @@
+    Installs all dependencies for the ChatBot Operator.
+    This is just a wrapper around: make deps
+=======
 apiVersion: tekton.dev/v1
 kind: Task
 metadata:
@@ -8,11 +11,18 @@ metadata:
   annotations:
     description: "Setup task - Installs dependencies. Wraps 'make deps'"
     author: "Strategy Coder"
+    version: "Generated from Git commit date"
+    references: "docs/omen/strategy.json, docs/adr/architecture-decisions.md"
 
 spec:
   description: |
     Setup Task
     ==========
+    Platform-agnostic CI workflow
+    Installs all dependencies for the ChatBot Operator.
+    References: docs/omen/strategy.json (Developer Environment Goal DG001)
+    References: docs/adr/architecture-decisions.md (ADR-012 - Platform-agnostic CI/CD)
+    This is just a wrapper around: make deps==========
     Installs all dependencies for the ChatBot Operator.
     This is just a wrapper around: make deps
   

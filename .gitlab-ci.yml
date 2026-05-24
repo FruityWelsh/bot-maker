@@ -1,5 +1,15 @@
+# This configuration wraps the platform-agnostic Make targets.
+# The actual checks are defined in the Makefile.
+# GitLab CI is just a wrapper around: make ci-lint, make ci-test, etc.
+=======
 # ChatBot Operator GitLab CI/CD Configuration
 # ================================================
+# Platform-agnostic CI workflow
+# This workflow wraps Make targets that work across all platforms
+# References: docs/omen/strategy.json (Developer Environment Goal DG001)
+# References: docs/adr/architecture-decisions.md (ADR-012 - Platform-agnostic CI/CD)
+# The actual checks are defined in the Makefile.
+# GitLab CI is just a wrapper around: make ci-lint, make ci-test, etc.================================================
 # This configuration wraps the platform-agnostic Make targets.
 # The actual checks are defined in the Makefile.
 # GitLab CI is just a wrapper around: make ci-lint, make ci-test, etc.
