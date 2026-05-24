@@ -69,6 +69,15 @@ help: ## Show this help message
 	@echo "  tekton-ci      - Generate Tekton pipeline manifests"
 	@echo "  vscode-tasks   - Generate VSCode task configurations"
 	@echo ""
+	@echo "DevPod Targets:"
+	@echo ""
+	@echo "  devpod         - Start DevPod development environment"
+	@echo "  devpod-start   - Start DevPod workspace"
+	@echo "  devpod-stop    - Stop DevPod workspace"
+	@echo "  devpod-build   - Build DevPod container image"
+	@echo "  devpod-push    - Push DevPod container image"
+	@echo "  devpod-clean   - Clean DevPod resources"
+	@echo ""
 	@echo "Environment:"
 	@echo "  CI_PLATFORM=$(CI_PLATFORM)"
 	@echo "  CI_COMMIT=$(CI_COMMIT)"
@@ -425,3 +434,48 @@ doctor: ## Check development environment
 	@docker --version || echo "❌ Docker not found"
 	@echo "Kubectl version:"
 	@kubectl version --client || echo "❌ Kubectl not found"
+
+# ============================================================================
+# DEVPOD TARGETS
+# ============================================================================
+
+.PHONY: devpod
+devpod: devpod-start ## Start DevPod development environment
+
+.PHONY: devpod-start
+devpod-start: ## Start DevPod workspace
+	@echo "🚀 Starting DevPod development environment..."
+	@if command -v devpod >/dev/null 2>&1; then \
+		devpod up --workspace .; \
+	else \
+		echo "❌ DevPod CLI not found. Install from https://devpod.sh/"; \
+		exit 1; \
+	fi
+
+.PHONY: devpod-stop
+devpod-stop: ## Stop DevPod workspace
+	@echo "🛑 Stopping DevPod development environment..."
+	@if command -v devpod >/dev/null 2>&1; then \
+		devpod down --workspace .; \
+	else \
+		echo "❌ DevPod CLI not found"; \
+		exit 1; \
+	fi
+
+.PHONY: devpod-build
+devpod-build: ## Build DevPod container image
+	@echo "🔨 Building DevPod container image..."
+	docker build -t ghcr.io/fruitywelsh/chatbot-operator-dev:latest -f .devpod/Dockerfile .
+
+.PHONY: devpod-push
+devpod-push: devpod-build ## Push DevPod container image
+	@echo "📤 Pushing DevPod container image..."
+	docker push ghcr.io/fruitywelsh/chatbot-operator-dev:latest
+
+.PHONY: devpod-clean
+devpod-clean: ## Clean DevPod resources
+	@echo "🧹 Cleaning DevPod resources..."
+	@if command -v devpod >/dev/null 2>&1; then \
+		devpod down --workspace . --force; \
+	fi
+	docker rmi ghcr.io/fruitywelsh/chatbot-operator-dev:latest 2>/dev/null || true
