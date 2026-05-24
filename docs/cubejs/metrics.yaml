@@ -1,0 +1,650 @@
+# Cube.js Business Metrics for ChatBot Operator
+# References: docs/adr/architecture-decisions.md (upstream)
+# Downstream: docs/diagrams.md
+
+version: "1.0.0"
+name: "ChatBot Operator Business Metrics"
+created: "2024-12-19"
+author: "Strategy Coder"
+references:
+  upstream: "docs/adr/architecture-decisions.md"
+  downstream: "docs/diagrams.md"
+
+# Metrics Schema Definition
+metrics:
+  # Bot Provisioning Metrics
+  - name: "bot_provisioning_time"
+    description: "Time taken to provision a new chat bot from request to ready state"
+    type: "time"
+    unit: "seconds"
+    dimensions:
+      - "platform"  # slack, matrix, discord, twilio
+      - "region"    # deployment region
+      - "team"      # team that requested the bot
+    targets:
+      - name: "average_provisioning_time"
+        description: "Average provisioning time across all platforms"
+        target_value: "< 300"  # 5 minutes
+        comparison: "less_than"
+      - name: "provisioning_time_by_platform"
+        description: "Average provisioning time per platform"
+        target_value: "< 300"  # 5 minutes per platform
+        comparison: "less_than"
+    
+  - name: "bot_provisioning_success_rate"
+    description: "Percentage of successful bot provisioning attempts"
+    type: "percentage"
+    unit: "%"
+    dimensions:
+      - "platform"
+      - "region"
+      - "team"
+      - "time_period"  # hourly, daily, weekly
+    targets:
+      - name: "overall_success_rate"
+        description: "Overall provisioning success rate"
+        target_value: "> 99.0"
+        comparison: "greater_than"
+      - name: "platform_success_rate"
+        description: "Success rate per platform"
+        target_value: "> 99.0"
+        comparison: "greater_than"
+    
+  - name: "bot_provisioning_failures"
+    description: "Number and types of bot provisioning failures"
+    type: "count"
+    unit: "count"
+    dimensions:
+      - "platform"
+      - "failure_type"  # validation_error, api_error, timeout, etc.
+      - "severity"      # low, medium, high, critical
+      - "time_period"
+    targets:
+      - name: "total_failures"
+        description: "Total number of provisioning failures"
+        target_value: "< 10"
+        comparison: "less_than"
+        time_window: "weekly"
+      - name: "critical_failures"
+        description: "Number of critical provisioning failures"
+        target_value: "0"
+        comparison: "equal_to"
+        time_window: "daily"
+
+  # Bot Operations Metrics
+  - name: "active_bots"
+    description: "Number of currently active and operational chat bots"
+    type: "count"
+    unit: "count"
+    dimensions:
+      - "platform"
+      - "team"
+      - "region"
+      - "status"  # active, degraded, inactive
+    targets:
+      - name: "total_active_bots"
+        description: "Total number of active bots"
+        target_value: ">= 0"  # No specific target, just tracking
+        comparison: "greater_than_equal"
+      - name: "platform_distribution"
+        description: "Distribution of bots across platforms"
+        target_value: "balanced"  # Monitor for imbalance
+        comparison: "monitor"
+    
+  - name: "bot_message_volume"
+    description: "Volume of messages processed by chat bots"
+    type: "count"
+    unit: "messages"
+    dimensions:
+      - "platform"
+      - "bot_id"
+      - "team"
+      - "time_period"  # hourly, daily, weekly, monthly
+      - "message_type"  # command, notification, response, error
+    targets:
+      - name: "total_message_volume"
+        description: "Total message volume across all bots"
+        target_value: ">= 0"  # No specific target
+        comparison: "greater_than_equal"
+      - name: "error_message_rate"
+        description: "Percentage of messages that resulted in errors"
+        target_value: "< 1.0"
+        comparison: "less_than"
+        unit: "%"
+    
+  - name: "bot_response_time"
+    description: "Time taken for bots to respond to user messages"
+    type: "time"
+    unit: "milliseconds"
+    dimensions:
+      - "platform"
+      - "bot_id"
+      - "team"
+      - "message_type"
+    targets:
+      - name: "average_response_time"
+        description: "Average response time across all bots"
+        target_value: "< 1000"  # 1 second
+        comparison: "less_than"
+      - name: "p95_response_time"
+        description: "95th percentile response time"
+        target_value: "< 2000"  # 2 seconds
+        comparison: "less_than"
+
+  # System Performance Metrics
+  - name: "operator_reconciliation_time"
+    description: "Time taken for operator to reconcile desired vs actual state"
+    type: "time"
+    unit: "milliseconds"
+    dimensions:
+      - "resource_type"  # ChatBot, BotPlatform, BotConfiguration
+      - "operation"      # create, update, delete
+      - "success"        # true, false
+    targets:
+      - name: "average_reconciliation_time"
+        description: "Average reconciliation time"
+        target_value: "< 500"  # 500ms
+        comparison: "less_than"
+      - name: "reconciliation_success_rate"
+        description: "Percentage of successful reconciliations"
+        target_value: "> 99.9"
+        comparison: "greater_than"
+        unit: "%"
+    
+  - name: "api_gateway_latency"
+    description: "Latency of API Gateway for bot communications"
+    type: "time"
+    unit: "milliseconds"
+    dimensions:
+      - "endpoint"
+      - "http_method"  # GET, POST, PUT, DELETE
+      - "status_code"
+      - "platform"
+    targets:
+      - name: "average_api_latency"
+        description: "Average API gateway latency"
+        target_value: "< 100"  # 100ms
+        comparison: "less_than"
+      - name: "p99_api_latency"
+        description: "99th percentile API gateway latency"
+        target_value: "< 500"  # 500ms
+        comparison: "less_than"
+    
+  - name: "api_gateway_error_rate"
+    description: "Error rate of API Gateway requests"
+    type: "percentage"
+    unit: "%"
+    dimensions:
+      - "endpoint"
+      - "http_method"
+      - "error_type"
+      - "platform"
+    targets:
+      - name: "overall_error_rate"
+        description: "Overall API gateway error rate"
+        target_value: "< 0.1"
+        comparison: "less_than"
+      - name: "5xx_error_rate"
+        description: "Server error rate (5xx status codes)"
+        target_value: "0"
+        comparison: "equal_to"
+
+  # Security Metrics
+  - name: "security_incidents"
+    description: "Number of security incidents related to chat bots"
+    type: "count"
+    unit: "count"
+    dimensions:
+      - "incident_type"  # unauthorized_access, data_leak, etc.
+      - "severity"       # low, medium, high, critical
+      - "platform"
+      - "resolution_time"
+    targets:
+      - name: "total_security_incidents"
+        description: "Total number of security incidents"
+        target_value: "0"
+        comparison: "equal_to"
+        time_window: "monthly"
+      - name: "critical_security_incidents"
+        description: "Number of critical security incidents"
+        target_value: "0"
+        comparison: "equal_to"
+        time_window: "all_time"
+    
+  - name: "authentication_attempts"
+    description: "Authentication attempts to bot services"
+    type: "count"
+    unit: "attempts"
+    dimensions:
+      - "platform"
+      - "success"  # true, false
+      - "authentication_method"
+      - "time_period"
+    targets:
+      - name: "failed_authentication_rate"
+        description: "Percentage of failed authentication attempts"
+        target_value: "< 5.0"
+        comparison: "less_than"
+        unit: "%"
+      - name: "authentication_success_rate"
+        description: "Percentage of successful authentication attempts"
+        target_value: "> 95.0"
+        comparison: "greater_than"
+        unit: "%"
+
+  # CI/CD Metrics
+  - name: "pipeline_execution_time"
+    description: "Time taken to execute CI/CD pipelines"
+    type: "time"
+    unit: "seconds"
+    dimensions:
+      - "pipeline_name"
+      - "pipeline_type"  # build, test, deploy, scan
+      - "status"         # success, failure
+      - "trigger"       # push, pull_request, manual, scheduled
+    targets:
+      - name: "average_build_time"
+        description: "Average build pipeline execution time"
+        target_value: "< 600"  # 10 minutes
+        comparison: "less_than"
+      - name: "pipeline_success_rate"
+        description: "Percentage of successful pipeline executions"
+        target_value: "> 95.0"
+        comparison: "greater_than"
+        unit: "%"
+    
+  - name: "pipeline_failures"
+    description: "Number and types of CI/CD pipeline failures"
+    type: "count"
+    unit: "count"
+    dimensions:
+      - "pipeline_name"
+      - "failure_type"  # compilation_error, test_failure, etc.
+      - "severity"
+      - "time_period"
+    targets:
+      - name: "total_pipeline_failures"
+        description: "Total number of pipeline failures"
+        target_value: "< 5"
+        comparison: "less_than"
+        time_window: "weekly"
+      - name: "critical_pipeline_failures"
+        description: "Number of critical pipeline failures"
+        target_value: "0"
+        comparison: "equal_to"
+        time_window: "daily"
+
+# Data Sources Configuration
+data_sources:
+  - name: "kubernetes_api"
+    description: "Kubernetes API for operator and CRD metrics"
+    type: "kubernetes"
+    config:
+      api_version: "v1"
+      resources:
+        - "chatbots"
+        - "botplatforms"
+        - "botconfigurations"
+      polling_interval: "30s"
+    
+  - name: "prometheus"
+    description: "Prometheus for system and performance metrics"
+    type: "prometheus"
+    config:
+      url: "http://prometheus-server:9090"
+      scrape_interval: "15s"
+      metrics:
+        - "chatbot_operator_*"
+        - "api_gateway_*"
+        - "linkerd_*"
+    
+  - name: "postgresql"
+    description: "PostgreSQL for business metrics and historical data"
+    type: "sql"
+    config:
+      host: "postgresql"
+      port: 5432
+      database: "chatbot_metrics"
+      schema: "public"
+      ssl: true
+    
+  - name: "tekton"
+    description: "Tekton for CI/CD pipeline metrics"
+    type: "tekton"
+    config:
+      namespace: "tekton-pipelines"
+      polling_interval: "60s"
+
+# Cube.js Schema Definition
+cube_schema:
+  cubes:
+    - name: "ChatBots"
+      description: "Chat bot instances and their metadata"
+      sql_table: "public.chatbots"
+      dimensions:
+        - name: "id"
+          sql: "id"
+          type: "string"
+          primary_key: true
+        - name: "name"
+          sql: "name"
+          type: "string"
+        - name: "platform"
+          sql: "platform"
+          type: "string"
+        - name: "team"
+          sql: "team"
+          type: "string"
+        - name: "region"
+          sql: "region"
+          type: "string"
+        - name: "status"
+          sql: "status"
+          type: "string"
+        - name: "created_at"
+          sql: "created_at"
+          type: "time"
+        - name: "updated_at"
+          sql: "updated_at"
+          type: "time"
+      measures:
+        - name: "count"
+          sql: "COUNT(*)"
+          type: "count"
+        - name: "active_count"
+          sql: "COUNT(*)"
+          type: "count"
+          filters:
+            - sql: "status = 'active'"
+    
+    - name: "ProvisioningEvents"
+      description: "Bot provisioning events and metrics"
+      sql_table: "public.provisioning_events"
+      dimensions:
+        - name: "id"
+          sql: "id"
+          type: "string"
+          primary_key: true
+        - name: "bot_id"
+          sql: "bot_id"
+          type: "string"
+        - name: "platform"
+          sql: "platform"
+          type: "string"
+        - name: "team"
+          sql: "team"
+          type: "string"
+        - name: "status"
+          sql: "status"
+          type: "string"
+        - name: "failure_type"
+          sql: "failure_type"
+          type: "string"
+        - name: "started_at"
+          sql: "started_at"
+          type: "time"
+        - name: "completed_at"
+          sql: "completed_at"
+          type: "time"
+      measures:
+        - name: "count"
+          sql: "COUNT(*)"
+          type: "count"
+        - name: "success_count"
+          sql: "COUNT(*)"
+          type: "count"
+          filters:
+            - sql: "status = 'success'"
+        - name: "failure_count"
+          sql: "COUNT(*)"
+          type: "count"
+          filters:
+            - sql: "status = 'failure'"
+        - name: "avg_duration"
+          sql: "AVG(EXTRACT(EPOCH FROM (completed_at - started_at)))"
+          type: "average"
+          unit: "seconds"
+    
+    - name: "MessageMetrics"
+      description: "Message volume and response metrics"
+      sql_table: "public.message_metrics"
+      dimensions:
+        - name: "id"
+          sql: "id"
+          type: "string"
+          primary_key: true
+        - name: "bot_id"
+          sql: "bot_id"
+          type: "string"
+        - name: "platform"
+          sql: "platform"
+          type: "string"
+        - name: "team"
+          sql: "team"
+          type: "string"
+        - name: "message_type"
+          sql: "message_type"
+          type: "string"
+        - name: "timestamp"
+          sql: "timestamp"
+          type: "time"
+      measures:
+        - name: "count"
+          sql: "COUNT(*)"
+          type: "count"
+        - name: "error_count"
+          sql: "COUNT(*)"
+          type: "count"
+          filters:
+            - sql: "message_type = 'error'"
+        - name: "avg_response_time"
+          sql: "AVG(response_time_ms)"
+          type: "average"
+          unit: "milliseconds"
+    
+    - name: "PipelineMetrics"
+      description: "CI/CD pipeline execution metrics"
+      sql_table: "public.pipeline_metrics"
+      dimensions:
+        - name: "id"
+          sql: "id"
+          type: "string"
+          primary_key: true
+        - name: "pipeline_name"
+          sql: "pipeline_name"
+          type: "string"
+        - name: "pipeline_type"
+          sql: "pipeline_type"
+          type: "string"
+        - name: "status"
+          sql: "status"
+          type: "string"
+        - name: "failure_type"
+          sql: "failure_type"
+          type: "string"
+        - name: "started_at"
+          sql: "started_at"
+          type: "time"
+        - name: "completed_at"
+          sql: "completed_at"
+          type: "time"
+      measures:
+        - name: "count"
+          sql: "COUNT(*)"
+          type: "count"
+        - name: "success_count"
+          sql: "COUNT(*)"
+          type: "count"
+          filters:
+            - sql: "status = 'success'"
+        - name: "failure_count"
+          sql: "COUNT(*)"
+          type: "count"
+          filters:
+            - sql: "status = 'failure'"
+        - name: "avg_duration"
+          sql: "AVG(EXTRACT(EPOCH FROM (completed_at - started_at)))"
+          type: "average"
+          unit: "seconds"
+
+# Dashboards Configuration
+dashboards:
+  - name: "Bot Operations Overview"
+    description: "High-level overview of bot operations and health"
+    sections:
+      - name: "Bot Status"
+        charts:
+          - type: "counter"
+            title: "Total Active Bots"
+            metric: "active_bots.count"
+            filters: {status: "active"}
+          - type: "pie"
+            title: "Bots by Platform"
+            metric: "active_bots.count"
+            group_by: "platform"
+      - name: "Provisioning Health"
+        charts:
+          - type: "gauge"
+            title: "Provisioning Success Rate"
+            metric: "bot_provisioning_success_rate.overall_success_rate"
+            target: 99.0
+          - type: "line"
+            title: "Provisioning Time Trend"
+            metric: "bot_provisioning_time.average_provisioning_time"
+            time_range: "last_7_days"
+      - name: "Message Volume"
+        charts:
+          - type: "line"
+            title: "Daily Message Volume"
+            metric: "bot_message_volume.count"
+            time_range: "last_30_days"
+            group_by: "time_period"
+          - type: "bar"
+            title: "Messages by Platform"
+            metric: "bot_message_volume.count"
+            group_by: "platform"
+
+  - name: "Performance Monitoring"
+    description: "Performance metrics for bots and operator"
+    sections:
+      - name: "Response Times"
+        charts:
+          - type: "line"
+            title: "Average Response Time"
+            metric: "bot_response_time.average_response_time"
+            time_range: "last_24_hours"
+          - type: "line"
+            title: "P95 Response Time"
+            metric: "bot_response_time.p95_response_time"
+            time_range: "last_24_hours"
+      - name: "Operator Performance"
+        charts:
+          - type: "line"
+            title: "Reconciliation Time"
+            metric: "operator_reconciliation_time.average_reconciliation_time"
+            time_range: "last_24_hours"
+          - type: "gauge"
+            title: "Reconciliation Success Rate"
+            metric: "operator_reconciliation_time.reconciliation_success_rate"
+            target: 99.9
+
+  - name: "Security Dashboard"
+    description: "Security-related metrics and incidents"
+    sections:
+      - name: "Security Overview"
+        charts:
+          - type: "counter"
+            title: "Security Incidents (Last 30 Days)"
+            metric: "security_incidents.count"
+            time_range: "last_30_days"
+          - type: "gauge"
+            title: "Authentication Success Rate"
+            metric: "authentication_attempts.authentication_success_rate"
+            target: 95.0
+      - name: "API Gateway Security"
+        charts:
+          - type: "gauge"
+            title: "API Gateway Error Rate"
+            metric: "api_gateway_error_rate.overall_error_rate"
+            target: 0.1
+          - type: "line"
+            title: "5xx Errors Over Time"
+            metric: "api_gateway_error_rate.count"
+            filters: {status_code: "5xx"}
+            time_range: "last_7_days"
+
+  - name: "CI/CD Pipeline Health"
+    description: "CI/CD pipeline performance and reliability"
+    sections:
+      - name: "Pipeline Overview"
+        charts:
+          - type: "gauge"
+            title: "Pipeline Success Rate"
+            metric: "pipeline_execution_time.pipeline_success_rate"
+            target: 95.0
+          - type: "counter"
+            title: "Pipeline Failures (Last 7 Days)"
+            metric: "pipeline_failures.count"
+            time_range: "last_7_days"
+      - name: "Pipeline Performance"
+        charts:
+          - type: "line"
+            title: "Average Build Time"
+            metric: "pipeline_execution_time.avg_duration"
+            filters: {pipeline_type: "build"}
+            time_range: "last_30_days"
+          - type: "bar"
+            title: "Failures by Type"
+            metric: "pipeline_failures.count"
+            group_by: "failure_type"
+            time_range: "last_30_days"
+
+# Alerts Configuration
+alerts:
+  - name: "High Provisioning Failure Rate"
+    description: "Alert when provisioning failure rate exceeds threshold"
+    metric: "bot_provisioning_success_rate.overall_success_rate"
+    condition: "< 95.0"
+    severity: "high"
+    notification:
+      - "email"
+      - "slack"
+    
+  - name: "Critical Security Incident"
+    description: "Alert when critical security incident occurs"
+    metric: "security_incidents.count"
+    condition: "> 0"
+    filters: {severity: "critical"}
+    severity: "critical"
+    notification:
+      - "email"
+      - "slack"
+      - "pagerduty"
+    
+  - name: "High API Gateway Error Rate"
+    description: "Alert when API gateway error rate exceeds threshold"
+    metric: "api_gateway_error_rate.overall_error_rate"
+    condition: "> 1.0"
+    severity: "high"
+    notification:
+      - "email"
+      - "slack"
+    
+  - name: "Pipeline Failure"
+    description: "Alert when CI/CD pipeline fails"
+    metric: "pipeline_failures.count"
+    condition: "> 0"
+    filters: {severity: "critical"}
+    severity: "medium"
+    notification:
+      - "email"
+      - "slack"
+    
+  - name: "High Response Time"
+    description: "Alert when average response time exceeds threshold"
+    metric: "bot_response_time.average_response_time"
+    condition: "> 2000"  # 2 seconds
+    severity: "medium"
+    notification:
+      - "email"
+      - "slack"
