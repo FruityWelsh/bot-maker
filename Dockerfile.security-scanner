@@ -27,6 +27,8 @@ RUN zypper refresh && \
     ca-certificates \
     ca-certificates-mozilla \
     nodejs24 \
+    nodejs24-devel \
+    npm \
     wget \
     && zypper clean --all
 
