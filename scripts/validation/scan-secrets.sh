@@ -30,11 +30,15 @@ if ! command -v betterleaks >/dev/null 2>&1; then
     exit 1
 fi
 
-# Use default betterleaks configuration (no custom config for now)
-# Note: The existing .gitleaks.toml is not compatible with betterleaks format
-# Use /dev/null to prevent betterleaks from loading .gitleaks.toml
-CONFIG_ARG="--config /dev/null"
-echo "⚠️  Using default Betterleaks configuration (ignoring .gitleaks.toml)"
+# Use betterleaks configuration
+CONFIG_FILE="$REPO_ROOT/.betterleaks.toml"
+if [ -f "$CONFIG_FILE" ]; then
+    echo "✅ Using custom Betterleaks configuration: $CONFIG_FILE"
+    CONFIG_ARG="--config=$CONFIG_FILE"
+else
+    echo "⚠️  Betterleaks configuration not found, using default"
+    CONFIG_ARG=""
+fi
 
 echo ""
 
