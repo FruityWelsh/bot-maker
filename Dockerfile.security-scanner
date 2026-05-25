@@ -26,18 +26,21 @@ RUN zypper refresh && \
     && zypper clean --all
 
 # Install Node.js 24 LTS
-# Note: SUSE BCI may not have nodejs24 yet, so we install via NodeSource
-RUN zypper install -y curl && \
-    curl -fsSL https://deb.nodesource.com/setup_24.x | bash - && \
-    zypper install -y nodejs
+# SUSE BCI is RPM-based, so we use the official Node.js binary
+ENV NODE_VERSION=24.0.0
+RUN curl -L https://nodejs.org/dist/v${NODE_VERSION}/node-v${NODE_VERSION}-linux-x64.tar.xz | tar -xJ -C /usr/local --strip-components=1 && \
+    ln -s /usr/local/bin/node /usr/bin/node && \
+    ln -s /usr/local/bin/npm /usr/bin/npm && \
+    ln -s /usr/local/bin/npx /usr/bin/npx
 
 # Install Deno 2.8.0 (preferred runtime)
 ENV DENO_VERSION=2.8.0
+ENV DENO_INSTALL=/usr/local/deno
 RUN curl -fsSL https://deno.land/x/install/install.sh | sh -s v${DENO_VERSION} && \
-    echo "export DENO_INSTALL=\"${HOME}/.deno\"" >> /etc/profile.d/deno.sh && \
-    echo "export PATH=\"\${DENO_INSTALL}/bin:\${PATH}\"" >> /etc/profile.d/deno.sh && \
-    ln -s ${HOME}/.deno/bin/deno /usr/local/bin/deno
-ENV PATH="${HOME}/.deno/bin:${PATH}"
+    mkdir -p ${DENO_INSTALL} && \
+    cp -r ~/.deno/* ${DENO_INSTALL}/ && \
+    ln -s ${DENO_INSTALL}/bin/deno /usr/local/bin/deno
+ENV PATH="${DENO_INSTALL}/bin:${PATH}"
 
 # Install Go 1.26.3
 ENV GO_VERSION=1.26.3
