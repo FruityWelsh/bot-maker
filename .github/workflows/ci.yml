@@ -27,6 +27,15 @@ jobs:
         with:
           fetch-depth: 0
       
+      - name: Update Git commit dates in documentation
+        run: |
+          # Replace "2026-05-25" placeholders with actual commit dates
+          chmod +x ./scripts/update-commit-dates.sh
+          ./scripts/update-commit-dates.sh --verbose
+          
+          # Show what was changed
+          git diff --name-only || true
+      
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:

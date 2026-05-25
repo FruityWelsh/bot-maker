@@ -323,7 +323,19 @@ package-container: build-container sign-container ## Build and sign container
 # ============================================================================
 
 .PHONY: generate
-generate: generate-sbom generate-provenance ## Generate all artifacts
+generate: generate-dates generate-sbom generate-provenance ## Generate all artifacts
+
+.PHONY: generate-dates
+generate-dates: ## Replace Git commit date placeholders with actual dates
+	@echo "📅 Updating Git commit dates in documentation..."
+	chmod +x ./scripts/update-commit-dates.sh
+	./scripts/update-commit-dates.sh --verbose
+
+.PHONY: check-dates
+check-dates: ## Check for remaining Git commit date placeholders
+	@echo "🔍 Checking for Git commit date placeholders..."
+	chmod +x ./scripts/update-commit-dates.sh
+	./scripts/update-commit-dates.sh --check
 
 .PHONY: generate-sbom
 generate-sbom: ## Generate SBOM

@@ -1,8 +1,8 @@
 /**
  * Date Validation Tests for ChatBot Operator
  * 
- * Rule: Do not manually add dates - use tools that reference real time
- * These tests ensure that all date references in documentation match Git commit dates
+ * Rule: All dates MUST be valid Git commit dates from repository history
+ * These tests ensure that all date references in documentation are actual Git commit dates
  */
 
 const fs = require('fs');
@@ -57,20 +57,25 @@ describe('Date Validation - No Manual Dates Rule', () => {
       });
     });
 
-    test('should use dynamic date references instead of manual dates', () => {
+    test('should use actual Git commit dates instead of placeholders', () => {
       filesWithDates.forEach(file => {
         const fullPath = path.join(__dirname, '../..', file.path);
         if (fs.existsSync(fullPath)) {
           const content = fs.readFileSync(fullPath, 'utf8');
           
-          // Check that dynamic date references exist
-          const hasDynamicRef = content.includes('Generated from Git commit date') ||
-                               content.includes('Generated from git commit date') ||
-                               content.includes('git commit date');
+          // Check that NO placeholders exist
+          const hasPlaceholder = content.includes('Generated from Git commit date') ||
+                                content.includes('Generated from git commit date') ||
+                                content.includes('git commit date');
           
-          // If the file has date-related content, it should use dynamic references
+          // Files should NOT have placeholders
+          expect(hasPlaceholder).toBe(false);
+          
+          // If the file has date-related content, it should have actual dates
           if (content.includes('created') || content.includes('date') || content.includes('updated')) {
-            expect(hasDynamicRef).toBe(true);
+            // Check for dates in YYYY-MM-DD format
+            const datePattern = /\b(\d{4}-\d{2}-\d{2})\b/;
+            expect(content).toMatch(datePattern);
           }
         }
       });
@@ -89,7 +94,8 @@ describe('Date Validation - No Manual Dates Rule', () => {
     test('should have scripts for dynamic date generation', () => {
       const dateScripts = [
         'scripts/generate-dates.js',
-        'scripts/update-dates.sh'
+        'scripts/update-dates.sh',
+        'scripts/update-commit-dates.sh'
       ];
 
       dateScripts.forEach(script => {
@@ -98,17 +104,17 @@ describe('Date Validation - No Manual Dates Rule', () => {
       });
     });
 
-    test('should have documentation about the no manual dates rule', () => {
+    test('should have documentation about the date management rule', () => {
       const contributingPath = path.join(__dirname, '../..', 'CONTRIBUTING.md');
       if (fs.existsSync(contributingPath)) {
         const content = fs.readFileSync(contributingPath, 'utf8');
-        expect(content).toMatch(/Do not manually add dates/);
+        expect(content).toMatch(/All dates MUST be valid Git commit dates/);
       }
     });
   });
 
   describe('Date Pattern Validation', () => {
-    test('should not contain dates in YAML frontmatter', () => {
+    test('should contain valid Git commit dates in YAML frontmatter', () => {
       const yamlFiles = [
         'docs/diagrams.md',
         'docs/bmml/value-proposition.yaml',
@@ -126,14 +132,16 @@ describe('Date Validation - No Manual Dates Rule', () => {
           const frontmatter = lines.slice(0, frontmatterEnd + 1).join('\n');
           
           if (frontmatter.includes('date:') || frontmatter.includes('created:')) {
-            // Should use dynamic reference
-            expect(frontmatter).toMatch(/Generated from Git commit date/);
+            // Should use actual date in YYYY-MM-DD format
+            expect(frontmatter).toMatch(/\b(\d{4}-\d{2}-\d{2})\b/);
+            // Should NOT use placeholder
+            expect(frontmatter).not.toMatch(/Generated from Git commit date/);
           }
         }
       });
     });
 
-    test('should not contain dates in JSON metadata', () => {
+    test('should contain valid Git commit dates in JSON metadata', () => {
       const jsonFiles = [
         'docs/omen/strategy.json'
       ];
@@ -145,8 +153,10 @@ describe('Date Validation - No Manual Dates Rule', () => {
           
           // Check for date fields in JSON
           if (content.includes('"created"') || content.includes('"date"')) {
-            // Should use dynamic reference
-            expect(content).toMatch(/Generated from Git commit date/);
+            // Should use actual date in YYYY-MM-DD format
+            expect(content).toMatch(/\b(\d{4}-\d{2}-\d{2})\b/);
+            // Should NOT use placeholder
+            expect(content).not.toMatch(/Generated from Git commit date/);
           }
         }
       });
@@ -173,9 +183,16 @@ module.exports = {
     return manualDates.length === 0;
   },
   
-  validateDynamicDateReference: (filePath) => {
+  validateHasActualDates: (filePath) => {
     const content = fs.readFileSync(filePath, 'utf8');
-    return content.includes('Generated from Git commit date') ||
-           content.includes('git commit date');
+    // Check for dates in YYYY-MM-DD format
+    const datePattern = /\b(\d{4}-\d{2}-\d{2})\b/;
+    return datePattern.test(content);
+  },
+  
+  validateNoPlaceholders: (filePath) => {
+    const content = fs.readFileSync(filePath, 'utf8');
+    return !content.includes('Generated from Git commit date') &&
+           !content.includes('git commit date');
   }
 };

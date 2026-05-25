@@ -7,7 +7,7 @@
 // References: docs/adr/architecture-decisions.md (ADR-001 - Strategy First, Code Second)
 //
 // **Status**: BLOCKED - Waiting for design verification completion
-// **Last Updated**: Generated from Git commit date
+// **Last Updated**: 2026-05-25
 
 ## Executive Summary
 

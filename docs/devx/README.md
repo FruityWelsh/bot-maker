@@ -343,7 +343,7 @@ Everything should be traceable:
 **Solution**: Run `./scripts/bump-version.sh <new-version>` to update all version files.
 
 **Error**: "Manual date detected"
-**Solution**: Replace manual dates with dynamic references like "Generated from Git commit date".
+**Solution**: Replace manual dates with dynamic references like "2026-05-25".
 
 **Error**: "Commit message validation failed"
 **Solution**: Use Conventional Commits format. See `.commitlintrc.js` for valid types.
