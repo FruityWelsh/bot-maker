@@ -46,12 +46,15 @@ ENV PATH="/usr/local/go/bin:/root/go/bin:${PATH}"
 ENV GOPATH=/root/go
 
 # Install betterleaks
-RUN zypper install -y curl && \
-    curl -L https://github.com/betterleaks/betterleaks/releases/latest/download/betterleaks_linux_x86_64 -o /usr/local/bin/betterleaks && \
-    chmod +x /usr/local/bin/betterleaks && zypper clean --all
+RUN zypper install -y curl tar && \
+    curl -L https://github.com/betterleaks/betterleaks/releases/latest/download/betterleaks_linux_x86_64.tar.gz -o /tmp/betterleaks.tar.gz && \
+    tar -xz -C /usr/local/bin -f /tmp/betterleaks.tar.gz betterleaks && \
+    chmod +x /usr/local/bin/betterleaks && \
+    rm /tmp/betterleaks.tar.gz && \
+    zypper clean --all
 
 # Create symlink for gitleaks compatibility
-RUN ln -s /usr/local/bin/betterleaks /usr/local/bin/gitleaks 2>/dev/null || true
+RUN ln -sf /usr/local/bin/betterleaks /usr/local/bin/gitleaks
 
 # Install gosec
 RUN go install github.com/securego/gosec/v2/cmd/gosec@latest

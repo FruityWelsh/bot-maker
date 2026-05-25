@@ -106,9 +106,11 @@ RUN curl -sfL https://raw.githubusercontent.com/securego/gosec/master/install.sh
 RUN go install golang.org/x/vuln/cmd/govulncheck@latest
 
 # Install betterleaks
-RUN zypper -n install --no-recommends curl && \
-    curl -L https://github.com/betterleaks/betterleaks/releases/latest/download/betterleaks_linux_x86_64 -o /usr/local/bin/betterleaks && \
-    chmod +x /usr/local/bin/betterleaks && zypper clean --all
+RUN zypper -n install --no-recommends curl tar && \
+    curl -L https://github.com/betterleaks/betterleaks/releases/latest/download/betterleaks_linux_x86_64.tar.gz -o /tmp/betterleaks.tar.gz && \
+    tar -xz -C /usr/local/bin -f /tmp/betterleaks.tar.gz betterleaks && \
+    chmod +x /usr/local/bin/betterleaks && \
+    rm /tmp/betterleaks.tar.gz && zypper clean --all
 
 # Stage 6: Final development environment
 FROM tools AS devpod
