@@ -150,11 +150,14 @@ jobs:
         with:
           fetch-depth: 0
       
-      - name: Install dependencies
-        run: npm ci
+      - name: Run Strategy Chain Validation
+        run: make test-strategy-chain
       
-      - name: Run DevX Tool Tests
-        run: make test-tools
+      - name: Run Toolchain Validation
+        run: make test-toolchain
+      
+      - name: Run Date Validation
+        run: make test-dates
 
   # ============================================================================
   # PHASE 3: VALIDATION - Strategy-to-BDD Stack and DevX Tools
