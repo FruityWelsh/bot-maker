@@ -223,8 +223,8 @@ jobs:
   # ============================================================================
   # PHASE 4: EXECUTION - DevX Tools Act on Validated Application Code
   # Priority: Only run after all security, DLP tests, and validation checks pass - HARD BLOCK
-  # These jobs need Go and Node.js, so they run on ubuntu-latest (not in container yet)
-  # TODO: Once container is working, extend it with Go and use it here too
+  # NOTE: Jobs in this phase require Go, which is not yet in the security-scanner container.
+  #       See TODO below and ADR-007 for details.
   # ============================================================================
   
   setup:
@@ -332,10 +332,13 @@ jobs:
       - name: Build Project
         run: make build
 
+  # NOTE: test-cncf-compliance and upload can use the security-scanner container
+  #       as they don't require Go, only Node.js which is already in the container.
   test-cncf-compliance:
     name: CNCF Compliance
     runs-on: ubuntu-latest
     needs: build
+    container: ghcr.io/fruitywelsh/security-scanner:latest
     
     steps:
       - name: Checkout repository
@@ -348,6 +351,8 @@ jobs:
 
   # ============================================================================
   # PHASE 5: ARTIFACT HANDLING
+  # NOTE: upload job can use the security-scanner container as it only needs
+  #       basic tools, no Go or Node.js required.
   # ============================================================================
   
   upload:
@@ -355,6 +360,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: [build, test-cncf-compliance]
     if: always()
+    container: ghcr.io/fruitywelsh/security-scanner:latest
     
     steps:
       - name: Checkout repository
