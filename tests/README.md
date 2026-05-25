@@ -2,7 +2,7 @@
 
 This directory contains all tests for the **ChatBot Operator** project. The test suite is organized to validate functionality at multiple levels: unit tests, integration tests, validation tests, and tool tests.
 
-**Strategy First, Code Second**: All tests in this project follow the principle that all development must be traceable to defined goals and architecture decisions. See [ADR-001](../contributors/adr/ADR-001-strategy-first-code-second.md) for details.
+**Strategy First, Code Second**: All tests in this project follow the principle that all development must be traceable to defined goals and architecture decisions. See [ADR-020](../contributors/adr/ADR-020-strategy-first-code-second.md) for details.
 
 ## 📁 Test Directory Structure
 
@@ -307,7 +307,7 @@ All tests must pass before:
 ## 🔗 Related Documentation
 
 - [CI/CD Pipeline Documentation](../docs/devx/IMPLEMENTATION_PLAN.md)
-- [ADR-001: Strategy First, Code Second](../contributors/adr/ADR-001-strategy-first-code-second.md)
+- [ADR-020: Strategy First, Code Second](../contributors/adr/ADR-020-strategy-first-code-second.md)
 - [ADR-007: Platform-Agnostic CI/CD Pipeline](../contributors/adr/devx-adrs.md#adr-007-platform-agnostic-cicd-pipeline)
 - [ADR-010: Behavior-Driven Development with Godog](../contributors/adr/devx-adrs.md#adr-010-behavior-driven-development-with-godog)
 - [ADR-011: JSON Schema Validation with AJV](../contributors/adr/devx-adrs.md#adr-011-json-schema-validation-with-ajv)
@@ -343,4 +343,4 @@ All tests must pass before:
 
 ---
 
-**Note**: This test suite is designed to be **platform-agnostic**, working consistently across GitHub Actions, GitLab CI, Tekton, and local development environments. All tests are orchestrated via the Makefile to ensure consistency. All tests follow the **Strategy First, Code Second** principle as documented in [ADR-001](../contributors/adr/ADR-001-strategy-first-code-second.md).
+**Note**: This test suite is designed to be **platform-agnostic**, working consistently across GitHub Actions, GitLab CI, Tekton, and local development environments. All tests are orchestrated via the Makefile to ensure consistency. All tests follow the **Strategy First, Code Second** principle as documented in [ADR-020](../contributors/adr/ADR-020-strategy-first-code-second.md).
