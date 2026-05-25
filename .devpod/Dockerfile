@@ -105,9 +105,10 @@ RUN curl -sfL https://raw.githubusercontent.com/securego/gosec/master/install.sh
 # Install govulncheck
 RUN go install golang.org/x/vuln/cmd/govulncheck@latest
 
-# Install gitleaks
-RUN curl -sL https://github.com/gitleaks/gitleaks/releases/download/v8.16.1/gitleaks_8.16.1_linux_x64.tar.gz | \
-    tar -xz -C /usr/local/bin gitleaks
+# Install betterleaks
+RUN apt-get update && apt-get install -y --no-install-recommends curl && \
+    curl -L https://github.com/betterleaks/betterleaks/releases/latest/download/betterleaks_linux_x86_64 -o /usr/local/bin/betterleaks && \
+    chmod +x /usr/local/bin/betterleaks && rm -rf /var/lib/apt/lists/*
 
 # Stage 6: Final development environment
 FROM tools AS devpod
