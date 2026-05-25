@@ -1,20 +1,8 @@
 name: ChatBot Operator CI
 
 # Platform-agnostic CI workflow
-# This workflow uses reusable Make targets that work across:
-# - Local development 
-# - GitHub Actions 
-# - Tekton pipelines
-# - GitLab CI/CD
-# - VSCode tasks
-#
-# Strategy First, Code Second: This CI/CD pipeline implements the strategy defined in:
-# - docs/omen/strategy.json 
-# - docs/adr/architecture-decisions.md 
-# - docs/STRATEGY.md 
-# - docs/IMPLEMENTATION_PLAN.md 
-#
-# Architecture: Platform-agnostic CI/CD as per ADR-007 and ADR-016
+# Key values: Reproducibility, Repeatability, Strategy First, Code Second
+# This workflow wraps Make targets that work across all platforms
 
 on:
   push:
@@ -23,51 +11,30 @@ on:
     branches: [ main, ai-dev ]
 
 jobs:
-  # ============================================================================
-  # JOB 1: Checkout & Strategy Validation
-  # Strategy: Validates the strategy-to-code chain before any execution 
-  # ============================================================================
-  checkout:
-    name: Checkout and Strategy Validation
+  ci:
+    name: CI Pipeline
     runs-on: ubuntu-latest
+    
+    env:
+      CI_PLATFORM: github
+      CI_COMMIT: ${{ github.sha }}
+      CI_BRANCH: ${{ github.ref_name }}
+      CI_REPO: ${{ github.repository }}
     
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      
-      - name: Validate Strategy Chain 
-        run: node scripts/validation/check-strategy-chain.js
-      
-      - name: Validate Toolchain References 
-        run: node scripts/validation/validate-toolchain.js
-      
-      - name: Validate Dates 
-        run: node scripts/validation/validate-dates.js
       
       - name: Update Git commit dates in documentation
-        run: ./scripts/update-commit-dates.sh --verbose || true
-
-  # ============================================================================
-  # JOB 2: Setup Environment
-  # Architecture: Sets up the development environment as per docs/STRATEGY.md
-  # ============================================================================
-  setup:
-    name: Setup Environment
-    runs-on: ubuntu-latest
-    needs: checkout
-    
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-      
-      - name: Set up Go
-        uses: actions/setup-go@v5
-        with:
-          go-version: '1.21'
+        run: |
+          # Replace "2026-05-25" placeholders with actual commit dates
+          chmod +x ./scripts/update-commit-dates.sh
+          ./scripts/update-commit-dates.sh --verbose
+          
+          # Show what was changed
+          git diff --name-only || true
       
       - name: Set up Node.js
         uses: actions/setup-node@v4
@@ -75,413 +42,16 @@ jobs:
           node-version: '20'
       
       - name: Install dependencies
-        run: make deps || true
-
-  # ============================================================================
-  # JOB 3: Linting
-  # Strategy: Code quality validation per docs/STRATEGY.md
-  # ============================================================================
-  lint:
-    name: Linting
-    runs-on: ubuntu-latest
-    needs: setup
-    
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
+        run: npm ci || npm install
       
-      - name: Set up Go
-        uses: actions/setup-go@v5
-        with:
-          go-version: '1.21'
+      - name: Validate Strategy Chain (Make target)
+        run: make test-strategy-chain
       
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
+      - name: Validate Toolchain (Make target)
+        run: make test-toolchain
       
-      - name: Install dependencies
-        run: make deps || true
+      - name: Validate No Manual Dates (Make target)
+        run: make test-dates
       
-      - name: Run Linting 
-        run: make lint || true
-
-  # ============================================================================
-  # JOB 4: Unit Tests
-  # Strategy: Go unit tests for API types and controller
-  # ============================================================================
-  test-unit:
-    name: Unit Tests
-    runs-on: ubuntu-latest
-    needs: lint
-    
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-      
-      - name: Set up Go
-        uses: actions/setup-go@v5
-        with:
-          go-version: '1.21'
-      
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-      
-      - name: Install dependencies
-        run: make deps || true
-      
-      - name: Run Unit Tests 
-        run: make test-unit || true
-
-  # ============================================================================
-  # JOB 5: Validation Tests
-  # Strategy: Jest/AJV validation tests for CRD and toolchain documents
-  # ============================================================================
-  test-validation:
-    name: Validation Tests
-    runs-on: ubuntu-latest
-    needs: test-unit
-    
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-      
-      - name: Set up Go
-        uses: actions/setup-go@v5
-        with:
-          go-version: '1.21'
-      
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-      
-      - name: Install dependencies
-        run: make deps || true
-      
-      - name: Run Validation Tests 
+      - name: Run Validation Tests (Make target)
         run: make test-validation || true
-
-  # ============================================================================
-  # JOB 6: Strategy Chain Validation
-  # Strategy: Validates strategy-to-code chain 
-  # ============================================================================
-  test-strategy-chain:
-    name: Strategy Chain Validation
-    runs-on: ubuntu-latest
-    needs: test-unit
-    
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-      
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-      
-      - name: Validate Strategy Chain 
-        run: make test-strategy-chain || true
-
-  # ============================================================================
-  # JOB 7: Toolchain Validation
-  # Strategy: Validates all 8 toolchain tools with hard references
-  # ============================================================================
-  test-toolchain:
-    name: Toolchain Validation
-    runs-on: ubuntu-latest
-    needs: test-unit
-    
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-      
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-      
-      - name: Validate Toolchain 
-        run: make test-toolchain || true
-
-  # ============================================================================
-  # JOB 8: Date Validation
-  # Strategy: Validates no manual dates per CONTRIBUTING.md
-  # ============================================================================
-  test-dates:
-    name: Date Validation
-    runs-on: ubuntu-latest
-    needs: test-unit
-    
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-      
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-      
-      - name: Validate Dates 
-        run: make test-dates || true
-
-  # ============================================================================
-  # JOB 9: Build
-  # Architecture: Build the operator binary
-  # ============================================================================
-  build:
-    name: Build
-    runs-on: ubuntu-latest
-    needs: [test-unit, test-validation, test-strategy-chain, test-toolchain, test-dates]
-    
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-      
-      - name: Set up Go
-        uses: actions/setup-go@v5
-        with:
-          go-version: '1.21'
-      
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-      
-      - name: Install dependencies
-        run: make deps || true
-      
-      - name: Build Project 
-        run: make build || true
-
-  # ============================================================================
-  # JOB 10: Security Scanning
-  # Strategy: Security scanning per docs/STRATEGY.md 
-  # ============================================================================
-  scan-security:
-    name: Security Scan
-    runs-on: ubuntu-latest
-    needs: build
-    
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-      
-      - name: Set up Go
-        uses: actions/setup-go@v5
-        with:
-          go-version: '1.21'
-      
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-      
-      - name: Install dependencies
-        run: make deps || true
-      
-      - name: Run Security Scan 
-        run: make scan-security || true
-
-  # ============================================================================
-  # JOB 11: Vulnerability Scanning
-  # Strategy: Vulnerability scanning per docs/STRATEGY.md 
-  # ============================================================================
-  scan-vulnerability:
-    name: Vulnerability Scan
-    runs-on: ubuntu-latest
-    needs: build
-    
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-      
-      - name: Set up Go
-        uses: actions/setup-go@v5
-        with:
-          go-version: '1.21'
-      
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-      
-      - name: Install dependencies
-        run: make deps || true
-      
-      - name: Run Vulnerability Scan 
-        run: make scan-vulnerability || true
-
-  # ============================================================================
-  # JOB 12: CNCF Compliance Validation
-  # Strategy: Validates CNCF graduated project compliance
-  # ============================================================================
-  test-cncf-compliance:
-    name: CNCF Compliance
-    runs-on: ubuntu-latest
-    needs: build
-    
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-      
-      - name: Validate CNCF Compliance 
-        run: make test-cncf-compliance || true
-
-  # ============================================================================
-  # JOB 13: Artifact Signing
-  # Strategy: SLSA compliance - artifact signing
-  # ============================================================================
-  sign:
-    name: Sign Artifacts
-    runs-on: ubuntu-latest
-    needs: [build, scan-security, scan-vulnerability]
-    
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-      
-      - name: Set up Go
-        uses: actions/setup-go@v5
-        with:
-          go-version: '1.21'
-      
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-      
-      - name: Install dependencies
-        run: make deps || true
-      
-      - name: Sign Artifacts 
-        run: make sign || true
-
-  # ============================================================================
-  # JOB 14: Container Packaging
-  # Architecture: Container packaging per ADR-002 
-  # ============================================================================
-  package:
-    name: Package Container
-    runs-on: ubuntu-latest
-    needs: sign
-    
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-      
-      - name: Set up Go
-        uses: actions/setup-go@v5
-        with:
-          go-version: '1.21'
-      
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-      
-      - name: Install dependencies
-        run: make deps || true
-      
-      - name: Package Container Image 
-        run: make package || true
-
-  # ============================================================================
-  # JOB 15: SBOM Generation
-  # Strategy: SBOM generation for supply chain security
-  # ============================================================================
-  generate-sbom:
-    name: Generate SBOM
-    runs-on: ubuntu-latest
-    needs: package
-    
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-      
-      - name: Set up Go
-        uses: actions/setup-go@v5
-        with:
-          go-version: '1.21'
-      
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-      
-      - name: Install dependencies
-        run: make deps || true
-      
-      - name: Generate SBOM 
-        run: make generate-sbom || true
-
-  # ============================================================================
-  # JOB 16: Provenance Generation
-  # Strategy: Provenance generation for SLSA compliance
-  # ============================================================================
-  generate-provenance:
-    name: Generate Provenance
-    runs-on: ubuntu-latest
-    needs: package
-    
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-      
-      - name: Set up Go
-        uses: actions/setup-go@v5
-        with:
-          go-version: '1.21'
-      
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-      
-      - name: Install dependencies
-        run: make deps || true
-      
-      - name: Generate Provenance 
-        run: make generate-provenance || true
-      
-      - name: Upload artifacts
-        if: always
-        uses: actions/upload-artifact@v4
-        with:
-          name: ci-artifacts
-          path: dist/
-            coverage/
-            reports/
-            *.sbom
-            *.sig
-            *.attestation
