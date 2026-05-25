@@ -43,17 +43,13 @@ ENV GO_VERSION=1.26.3
 RUN curl -L https://golang.org/dl/go${GO_VERSION}.linux-amd64.tar.gz | tar -xz -C /usr/local
 ENV PATH="/usr/local/go/bin:${PATH}"
 
-# Install BetterLeaks (improved Gitleaks fork)
-# BetterLeaks: https://github.com/betterleaks/betterleaks
-# Recommended replacement for Gitleaks with better performance and patterns
-# Using latest release from GitHub
-RUN curl -L -o /tmp/betterleaks.tar.gz https://github.com/betterleaks/betterleaks/releases/latest/download/betterleaks_linux_amd64.tar.gz && \
-    tar -xz -C /usr/local/bin -f /tmp/betterleaks.tar.gz betterleaks && \
-    chmod +x /usr/local/bin/betterleaks && \
-    rm /tmp/betterleaks.tar.gz
+# Install gitleaks via zypper (BetterLeaks may not have releases yet)
+# If BetterLeaks becomes available, replace this with BetterLeaks installation
+RUN zypper install -y gitleaks
 
-# Create symlink for compatibility with existing scripts that expect gitleaks
-RUN ln -s /usr/local/bin/betterleaks /usr/local/bin/gitleaks
+# Create symlink for BetterLeaks compatibility (future-proofing)
+RUN ln -s /usr/bin/gitleaks /usr/local/bin/betterleaks 2>/dev/null || \
+    ln -s /usr/bin/gitleaks /usr/local/bin/gitleaks
 
 # Install gosec
 RUN go install github.com/securego/gosec/v2/cmd/gosec@latest
