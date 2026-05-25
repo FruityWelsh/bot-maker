@@ -107,9 +107,9 @@ RUN go install golang.org/x/vuln/cmd/govulncheck@latest
 
 # Install betterleaks
 RUN zypper -n install --no-recommends wget && \
-    wget -q --show-progress https://github.com/betterleaks/betterleaks/releases/download/v1.3.1/betterleaks_1.3.1_linux_x86_64.tar.gz -O /tmp/betterleaks.tar.gz && \
+    wget -q --show-progress https://github.com/betterleaks/betterleaks/releases/download/v1.3.1/betterleaks_1.3.1_linux_x64.tar.gz -O /tmp/betterleaks.tar.gz && \
     tar -xz -C /tmp -f /tmp/betterleaks.tar.gz && \
-    mv /tmp/betterleaks_1.3.1_linux_x86_64 /usr/local/bin/betterleaks && \
+    mv /tmp/betterleaks_1.3.1_linux_x64 /usr/local/bin/betterleaks && \
     chmod +x /usr/local/bin/betterleaks && \
     rm /tmp/betterleaks.tar.gz && zypper clean --all
 
