@@ -510,4 +510,3 @@ jobs:
         with:
           name: ci-artifacts
           path: "dist/ coverage/ reports/ *.sbom *.sig *.attestation"
-        continue-on-error: true
