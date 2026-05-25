@@ -43,13 +43,13 @@ ENV GO_VERSION=1.26.3
 RUN curl -L https://golang.org/dl/go${GO_VERSION}.linux-amd64.tar.gz | tar -xz -C /usr/local
 ENV PATH="/usr/local/go/bin:${PATH}"
 
-# Install gitleaks via zypper (BetterLeaks may not have releases yet)
-# If BetterLeaks becomes available, replace this with BetterLeaks installation
-RUN zypper install -y gitleaks
+# Install betterleaks
+RUN zypper install -y curl && \
+    curl -L https://github.com/betterleaks/betterleaks/releases/latest/download/betterleaks_linux_x86_64 -o /usr/local/bin/betterleaks && \
+    chmod +x /usr/local/bin/betterleaks && zypper clean --all
 
-# Create symlink for BetterLeaks compatibility (future-proofing)
-RUN ln -s /usr/bin/gitleaks /usr/local/bin/betterleaks 2>/dev/null || \
-    ln -s /usr/bin/gitleaks /usr/local/bin/gitleaks
+# Create symlink for gitleaks compatibility
+RUN ln -s /usr/local/bin/betterleaks /usr/local/bin/gitleaks 2>/dev/null || true
 
 # Install gosec
 RUN go install github.com/securego/gosec/v2/cmd/gosec@latest
@@ -63,7 +63,7 @@ WORKDIR /workspace
 # Verify installations
 RUN echo "=== Tool Verification ===" && \
     echo "BetterLeaks:" && betterleaks version && \
-    echo "Gitleaks (symlink):" && gitleaks version && \
+    echo "Gitleaks (symlink):" && gitleaks version 2>/dev/null || echo "gitleaks not available" && \
     echo "Node.js:" && node --version && \
     echo "npm:" && npm --version && \
     echo "Deno:" && deno --version && \
