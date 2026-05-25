@@ -3,29 +3,41 @@
 # This container has all security scanning tools pre-installed
 # Used in CI pipeline to avoid installing tools in each job
 #
+# Base: SUSE BCI (Base Container Image) - SUSE Linux Enterprise
+# Security Scanner: Gitleaks (official)
+#
 # References: docs/strategy/omen/strategy.json (Security Goal AG004)
 # References: docs/contributors/adr/devx-adrs.md (ADR-018 - Secret Scanning with Gitleaks)
 # References: docs/contributors/adr/architecture-decisions.md (ADR-004 - Security Architecture)
 
-FROM node:20-bookworm
+# Use SUSE BCI base - SUSE Linux Enterprise based image
+FROM registry.suse.com/bci/bci-base:latest
 
 # Install system dependencies
-RUN apt-get update && \
-    apt-get install -y --no-install-recommends \
+RUN zypper refresh && \
+    zypper install -y \
     curl \
     git \
+    tar \
+    gzip \
     ca-certificates \
-    && rm -rf /var/lib/apt/lists/*
+    ca-certificates-mozilla \
+    && zypper clean --all
+
+# Install Node.js 20
+RUN zypper install -y nodejs20
 
 # Install Go
 ENV GO_VERSION=1.21.0
 RUN curl -L https://golang.org/dl/go${GO_VERSION}.linux-amd64.tar.gz | tar -xz -C /usr/local
 ENV PATH="/usr/local/go/bin:${PATH}"
 
-# Install Gitleaks
-RUN curl -sL https://github.com/gitleaks/gitleaks/releases/latest/download/gitleaks_linux_x64.tar.gz | \
-    tar -xz -C /usr/local/bin gitleaks && \
-    chmod +x /usr/local/bin/gitleaks
+# Install Gitleaks - use specific version
+ENV GITLEAKS_VERSION=8.18.0
+RUN curl -L -o /tmp/gitleaks.tar.gz https://github.com/gitleaks/gitleaks/releases/download/v${GITLEAKS_VERSION}/gitleaks_${GITLEAKS_VERSION}_linux_x64.tar.gz && \
+    tar -xz -C /usr/local/bin -f /tmp/gitleaks.tar.gz gitleaks && \
+    chmod +x /usr/local/bin/gitleaks && \
+    rm /tmp/gitleaks.tar.gz
 
 # Install gosec
 RUN go install github.com/securego/gosec/v2/cmd/gosec@latest
@@ -38,12 +50,12 @@ WORKDIR /workspace
 
 # Verify installations
 RUN echo "=== Tool Verification ===" && \
+    echo "Gitleaks:" && gitleaks version && \
     echo "Node.js:" && node --version && \
     echo "npm:" && npm --version && \
     echo "Go:" && go version && \
-    echo "gitleaks:" && gitleaks version 2>/dev/null || echo "gitleaks: installed (version check may vary)" && \
-    echo "gosec:" && gosec -version 2>/dev/null || echo "gosec: installed (version check may vary)" && \
-    echo "govulncheck:" && govulncheck -version 2>/dev/null || echo "govulncheck: installed (version check may vary)" && \
+    echo "gosec:" && gosec -version && \
+    echo "govulncheck:" && govulncheck -version && \
     echo "=== All tools installed successfully ==="
 
 # Default command
