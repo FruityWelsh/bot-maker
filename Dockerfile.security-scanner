@@ -26,7 +26,6 @@ RUN zypper refresh && \
     ca-certificates \
     ca-certificates-mozilla \
     nodejs24 \
-    nodejs24-npm \
     && zypper clean --all
 
 # Install Deno 2.8.0 (preferred runtime) using official binary
@@ -66,7 +65,7 @@ RUN echo "=== Tool Verification ===" && \
     echo "BetterLeaks:" && (test -x /usr/local/bin/betterleaks && echo "betterleaks installed" || echo "betterleaks not available") && \
     echo "Gitleaks (symlink):" && (test -x /usr/local/bin/gitleaks && echo "gitleaks available" || echo "gitleaks not available") && \
     echo "Node.js:" && node --version && \
-    echo "npm:" && npm --version && \
+    echo "npm:" && (which npm && npm --version || echo "npm not available") && \
     echo "Deno:" && deno --version && \
     echo "Go:" && go version && \
     echo "gosec:" && gosec -version && \
