@@ -67,9 +67,11 @@ jobs:
           context: .
           file: Dockerfile.security-scanner
           push: true
-          tags: ghcr.io/${{ github.repository }}/security-scanner:latest
+          tags: ghcr.io/${{ github.repository }}/security-scanner:latest,ghcr.io/${{ github.repository }}/security-scanner:${{ github.sha }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
+          provenance: false
+          sbom: false
 
   # ============================================================================
   # PHASE 1: DATA LOSS PREVENTION (DLP) AND SECURITY
@@ -102,7 +104,9 @@ jobs:
     name: Secret Scanning (DLP)
     runs-on: ubuntu-latest
     needs: [checkout, build-security-container]
-    container: ghcr.io/${{ github.repository }}/security-scanner:latest
+    container:
+      image: ghcr.io/${{ github.repository }}/security-scanner:${{ github.sha }}
+      options: --workdir /workspace
     
     steps:
       - name: Checkout repository
@@ -120,7 +124,9 @@ jobs:
     name: Security Scanning
     runs-on: ubuntu-latest
     needs: [checkout, build-security-container]
-    container: ghcr.io/${{ github.repository }}/security-scanner:latest
+    container:
+      image: ghcr.io/${{ github.repository }}/security-scanner:${{ github.sha }}
+      options: --workdir /workspace
     
     steps:
       - name: Checkout repository
@@ -138,7 +144,9 @@ jobs:
     name: Vulnerability Scanning
     runs-on: ubuntu-latest
     needs: [checkout, build-security-container]
-    container: ghcr.io/${{ github.repository }}/security-scanner:latest
+    container:
+      image: ghcr.io/${{ github.repository }}/security-scanner:${{ github.sha }}
+      options: --workdir /workspace
     
     steps:
       - name: Checkout repository
@@ -164,7 +172,9 @@ jobs:
     name: DevX Tool Tests
     runs-on: ubuntu-latest
     needs: [scan-secrets, scan-security, scan-vulnerability]
-    container: ghcr.io/${{ github.repository }}/security-scanner:latest
+    container:
+      image: ghcr.io/${{ github.repository }}/security-scanner:${{ github.sha }}
+      options: --workdir /workspace
     
     steps:
       - name: Checkout repository
@@ -192,7 +202,9 @@ jobs:
     name: Strategy Chain Validation
     runs-on: ubuntu-latest
     needs: [scan-secrets, scan-security, scan-vulnerability, test-tools]
-    container: ghcr.io/${{ github.repository }}/security-scanner:latest
+    container:
+      image: ghcr.io/${{ github.repository }}/security-scanner:${{ github.sha }}
+      options: --workdir /workspace
     
     steps:
       - name: Checkout repository
@@ -211,7 +223,9 @@ jobs:
     name: Toolchain Validation
     runs-on: ubuntu-latest
     needs: [scan-secrets, scan-security, scan-vulnerability, test-tools]
-    container: ghcr.io/${{ github.repository }}/security-scanner:latest
+    container:
+      image: ghcr.io/${{ github.repository }}/security-scanner:${{ github.sha }}
+      options: --workdir /workspace
     
     steps:
       - name: Checkout repository
@@ -230,7 +244,9 @@ jobs:
     name: Date Validation
     runs-on: ubuntu-latest
     needs: [scan-secrets, scan-security, scan-vulnerability, test-tools]
-    container: ghcr.io/${{ github.repository }}/security-scanner:latest
+    container:
+      image: ghcr.io/${{ github.repository }}/security-scanner:${{ github.sha }}
+      options: --workdir /workspace
     
     steps:
       - name: Checkout repository
@@ -249,7 +265,9 @@ jobs:
     name: Validation Tests
     runs-on: ubuntu-latest
     needs: [validate-strategy, validate-toolchain, validate-dates]
-    container: ghcr.io/${{ github.repository }}/security-scanner:latest
+    container:
+      image: ghcr.io/${{ github.repository }}/security-scanner:${{ github.sha }}
+      options: --workdir /workspace
     
     steps:
       - name: Checkout repository
