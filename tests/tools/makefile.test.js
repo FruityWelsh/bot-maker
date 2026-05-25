@@ -209,7 +209,7 @@ describe('Makefile Platform-Agnostic CI/CD', () => {
     test('should have scan-security target', () => {
       expect(makefileContent).toContain('scan-security:');
       expect(makefileContent).toContain('gosec');
-      expect(makefileContent).toContain('gitleaks');
+      expect(makefileContent).toContain('betterleaks');
     });
 
     test('should have scan-vulnerability target', () => {

@@ -6,7 +6,7 @@
 # References: docs/DESIGN_VERIFICATION.md (Design Verification)
 # References: docs/IMPLEMENTATION_PLAN.md (Implementation Plan)
 # References: scripts/validation/ (Validation Scripts)
-# References: .gitleaks.toml (Secret Scanning)
+# References: .betterleaks.toml (Secret Scanning)
 # References: .commitlintrc.js (Conventional Commits)
 # References: .vale.ini (Documentation Linting)
 #
@@ -28,7 +28,7 @@ Feature: DevX Workflow Automation
       | Implementation Plan | docs/IMPLEMENTATION_PLAN.md | Implementation roadmap |
       | Pre-commit Hooks | .git/hooks/ | Local validation |
       | CI/CD | .github/workflows/ci.yml | Remote validation |
-      | Secret Scanning | .gitleaks.toml | Prevent secret commits |
+      | Secret Scanning | .betterleaks.toml | Prevent secret commits |
       | Commit Linting | .commitlintrc.js | Enforce commit format |
       | Documentation Linting | .vale.ini | Enforce doc standards |
 
@@ -159,7 +159,7 @@ Feature: DevX Workflow Automation
       | Implementation Plan | docs/IMPLEMENTATION_PLAN.md |
       | Pre-commit Hooks | scripts/setup-git-hooks.sh |
       | Validation Scripts | scripts/validation/ |
-      | Secret Scanning | .gitleaks.toml |
+      | Secret Scanning | .betterleaks.toml |
       | Commit Linting | .commitlintrc.js |
 
   Scenario: CONTRIBUTING.md explains the workflow
@@ -239,7 +239,7 @@ Feature: DevX Workflow Automation
       | kubectl | latest | Kubernetes CLI |
       | kubebuilder | 3.12.0 | Kubernetes operator SDK |
       | godog | v0.12.6 | BDD testing |
-      | gitleaks | latest | Secret scanning |
+      | betterleaks | latest | Secret scanning |
       | commitlint | latest | Commit message linting |
       | vale | latest | Documentation linting |
 

@@ -49,7 +49,7 @@ Focus on the development workflow, toolchain, and automation:
 | ADR-015 | Vale with OpenSUSE Rules for Documentation Linting | ✅ Accepted | Documentation |
 | ADR-016 | Stubbed GitLab and Tekton for Local Testing | ✅ Accepted | Testing |
 | ADR-017 | Conventional Commits Validation | ✅ Accepted | Git Workflow |
-| ADR-018 | Secret Scanning with Gitleaks | ✅ Accepted | Security |
+| ADR-018 | Secret Scanning with Betterleaks | ✅ Accepted | Security |
 | ADR-019 | CNCF Graduated Project Compliance Validation | ✅ Accepted | Compliance |
 
 ## 🎯 ADR Categorization Rationale
@@ -112,7 +112,7 @@ All ADRs follow this standard template:
 - ADR-001 (Operator Pattern) enables ADR-007 (CI/CD Pipeline)
 - ADR-002 (Kubebuilder) works with ADR-012 (Makefile)
 - ADR-003 (Multi-Platform) tested via ADR-010 (Godog)
-- ADR-004 (Linkerd) validated by ADR-018 (Gitleaks)
+- ADR-004 (Linkerd) validated by ADR-018 (Betterleaks)
 - ADR-005 (RBAC/ABAC) enforced in ADR-017 (Conventional Commits)
 - ADR-008 (Cube.js) documented in ADR-009 (React-Markdown)
 - ADR-020 (Strategy First) guides all ADRs

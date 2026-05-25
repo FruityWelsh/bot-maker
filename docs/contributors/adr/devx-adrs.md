@@ -384,25 +384,26 @@ footer
 
 ---
 
-## ADR-018: Secret Scanning with Gitleaks
+## ADR-018: Secret Scanning with Betterleaks
 
 **Status**: Accepted  
 **Date**: 2026-05-25  
 **Context**: Need to prevent accidental commitment of secrets and sensitive data  
-**Decision**: Use Gitleaks for secret scanning in pre-push hooks and CI pipeline  
+**Decision**: Use Betterleaks for secret scanning in pre-push hooks and CI pipeline  
 **Consequences**: 
 - ✅ Prevention of secret leaks
-- ✅ Comprehensive pattern matching
+- ✅ Comprehensive pattern matching (100+ rule types)
 - ✅ Integration with pre-push hooks
 - ✅ Integration with CI pipeline
 - ✅ Customizable patterns
+- ✅ Better filtering with CEL validation
 - ⚠️ False positives require tuning
 
 **Implementation**:
-- **Gitleaks Config**: `.gitleaks.toml`
+- **Betterleaks Config**: `.betterleaks.toml`
 - **Pre-push Hook**: Secret scanning before push
 - **CI Integration**: Secret scanning in all pipelines
-- **Custom Patterns**: Project-specific secret patterns
+- **Custom Patterns**: Project-specific secret patterns via prefilter
 
 **References**: 
 - BMML Security Goal S001: Secret Protection

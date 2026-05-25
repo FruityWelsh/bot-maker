@@ -191,7 +191,7 @@ The project provides automated tools to enforce policies:
 
 | Tool | Configuration | Purpose |
 |------|---------------|---------|
-| **Secret Scanning** | [.gitleaks.toml](.gitleaks.toml) | Prevent committing secrets |
+| **Secret Scanning** | [.betterleaks.toml](.betterleaks.toml) | Prevent committing secrets |
 | **Commit Message Linting** | [.commitlintrc.js](.commitlintrc.js) | Enforce Conventional Commits |
 | **Documentation Linting** | [.vale.ini](.vale.ini) | Enforce documentation standards |
 | **Version Verification** | `make verify-versions` | Ensure version consistency |

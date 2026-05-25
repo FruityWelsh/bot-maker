@@ -2,7 +2,7 @@
 // ========================================================
 // Security and DLP pipeline design for ChatBot Operator CI/CD
 // References: docs/strategy/omen/strategy.json (Security Goal AG004 - Zero Trust)
-// References: docs/contributors/adr/devx-adrs.md (ADR-018 - Secret Scanning with Gitleaks)
+// References: docs/contributors/adr/devx-adrs.md (ADR-018 - Secret Scanning with Betterleaks)
 // References: docs/contributors/adr/architecture-decisions.md (ADR-004 - Security Architecture with Linkerd)
 // References: ../common/toolchain.md (Complete Toolchain Overview)
 //
@@ -22,7 +22,7 @@ The ChatBot Operator CI/CD pipeline implements a **Security-First** approach wit
 │                                                                     │
 │  PHASE 1: DATA LOSS PREVENTION (DLP) AND SECURITY                  │
 │  ├─ checkout: Checkout repository                                  │
-│  ├─ scan-secrets: Secret scanning with Gitleaks (ADR-018)          │
+│  ├─ scan-secrets: Secret scanning with Betterleaks (ADR-018)      │
 │  ├─ scan-security: Static analysis with gosec                     │
 │  └─ scan-vulnerability: Vulnerability scanning with govulncheck   │
 │                                                                     │
@@ -57,15 +57,15 @@ The ChatBot Operator CI/CD pipeline implements a **Security-First** approach wit
 
 ### Job Definitions
 
-#### 1.1 scan-secrets: Secret Scanning with Gitleaks
+#### 1.1 scan-secrets: Secret Scanning with Betterleaks
 
 **Purpose**: Detect and prevent accidental commitment of secrets and sensitive data
 
-**Tool**: [Gitleaks](https://github.com/gitleaks/gitleaks) v8.x
+**Tool**: [Betterleaks](https://github.com/betterleaks/betterleaks) v1.3.x
 
 **Configuration**:
-- Configuration file: `.gitleaks.toml`
-- Custom patterns for project-specific secrets
+- Configuration file: `.betterleaks.toml`
+- Uses default betterleaks configuration with project-specific filters
 - Integrated with pre-push Git hooks
 
 **Detected Secret Types**:
@@ -86,10 +86,10 @@ The ChatBot Operator CI/CD pipeline implements a **Security-First** approach wit
 **Test Coverage**:
 - `tests/tools/security-dlp.test.js` - Comprehensive secret detection tests
 - Test data generated with fake credentials in various formats
-- Validates Gitleaks configuration file exists and has proper patterns
+- Validates Betterleaks configuration file exists and has proper patterns
 
 **References**:
-- ADR-018: Secret Scanning with Gitleaks
+- ADR-018: Secret Scanning with Betterleaks
 - Security Goal AG004: Zero Trust Implementation
 
 #### 1.2 scan-security: Static Analysis with gosec
@@ -433,21 +433,16 @@ setup:
 
 ## Configuration Files
 
-### .gitleaks.toml
+### .betterleaks.toml
 
-Custom Gitleaks configuration with project-specific patterns:
+Betterleaks configuration with project-specific filters:
+
+The project uses the default Betterleaks configuration with additional prefilter rules to exclude documentation files that contain example test patterns.
 
 ```toml
-[extend]
-useDefault = true
-
-[[rules]]
-id = "chatbot-operator-api-key"
-description = "ChatBot Operator API Key"
-regex = "(?:chatbot|bot-maker)_[a-zA-Z0-9]{32,}"
-tags = ["api", "chatbot"]
-
-[[rules]]
+# Uses default betterleaks configuration
+# Additional prefilter rules added for project-specific exclusions
+```
 id = "slack-webhook-url"
 description = "Slack Webhook URL"
 regex = "https://hooks\.slack\.com/services/T[A-Z0-9]+/B[A-Z0-9]+/[A-Za-z0-9]+"
@@ -499,13 +494,13 @@ scan-vulnerability: ## Run vulnerability scanning
 
 ### Updating Security Tools
 
-1. **Gitleaks**: Update to latest version and refresh patterns
+1. **Betterleaks**: Update to latest version and refresh patterns
    ```bash
-   # Update gitleaks
-   brew upgrade gitleaks  # macOS
+   # Update betterleaks
+   brew upgrade betterleaks  # macOS
    
    # Or download latest release
-   curl -sL https://github.com/gitleaks/gitleaks/releases/latest/download/gitleaks_linux_x64.tar.gz | tar -xz -C /usr/local/bin gitleaks
+   curl -sL https://github.com/betterleaks/betterleaks/releases/latest/download/betterleaks_linux_x64.tar.gz | tar -xz -C /usr/local/bin betterleaks
    ```
 
 2. **gosec**: Update to latest version
@@ -520,14 +515,14 @@ scan-vulnerability: ## Run vulnerability scanning
 
 ### Adding New Secret Patterns
 
-Add custom patterns to `.gitleaks.toml`:
+The project uses the default Betterleaks configuration. To add custom patterns, modify `.betterleaks.toml`:
 
 ```toml
+# Add custom rules to the default configuration
 [[rules]]
 id = "new-service-token"
 description = "New Service API Token"
 regex = "newservice_[a-zA-Z0-9]{40}"
-tags = ["api", "newservice"]
 ```
 
 ### Adding New Test Cases
@@ -550,7 +545,7 @@ test('should detect new secret type', () => {
 
 ## Related Documents
 
-- [ADR-018: Secret Scanning with Gitleaks](../contributors/adr/devx-adrs.md#adr-018-secret-scanning-with-gitleaks)
+- [ADR-018: Secret Scanning with Betterleaks](../contributors/adr/devx-adrs.md#adr-018-secret-scanning-with-betterleaks)
 - [ADR-004: Security Architecture with Linkerd](../contributors/adr/application-adrs.md#adr-004-security-architecture-with-linkerd)
 - [ADR-001: Strategy First, Code Second](../contributors/adr/application-adrs.md#adr-001-use-kubernetes-operator-pattern)
 - [Design Verification Document](./DESIGN_VERIFICATION.md)

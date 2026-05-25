@@ -237,7 +237,7 @@ Then("I should get the expected output", function() {
 ## 🔍 Test Validation
 
 ### Pre-push Hooks
-- Secret scanning with Gitleaks
+- Secret scanning with Betterleaks
 - Linting checks
 - Basic test validation
 

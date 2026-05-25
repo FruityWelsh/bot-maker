@@ -205,7 +205,7 @@ describe('DevX Workflow', () => {
         'SEMANTIC_VERSIONING.md',
         'DESIGN_VERIFICATION.md',
         'IMPLEMENTATION_PLAN.md',
-        '.gitleaks.toml',
+        '.betterleaks.toml',
         '.commitlintrc.js',
         '.vale.ini',
         'verify-versions',
@@ -250,8 +250,8 @@ describe('DevX Workflow', () => {
   // Configuration Files Tests
   // ==========================
   describe('Configuration Files', () => {
-    test('should have .gitleaks.toml for secret scanning', () => {
-      expect(fileExists('.gitleaks.toml')).toBe(true);
+    test('should have .betterleaks.toml for secret scanning', () => {
+      expect(fileExists('.betterleaks.toml')).toBe(true);
     });
 
     test('should have .commitlintrc.js for commit linting', () => {
@@ -291,7 +291,7 @@ describe('DevX Workflow', () => {
         'git',
         'kubectl',
         'kubebuilder',
-        'gitleaks'
+        'betterleaks'
       ];
 
       requiredTools.forEach(tool => {
