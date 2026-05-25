@@ -3,7 +3,7 @@
 # =====================
 # Scans the repository for secrets before commit
 # References: docs/omen/strategy.json (Security Goal AG004)
-# References: docs/adr/architecture-decisions.md (ADR-004 - Security with Linkerd)
+# References: docs/contributors/adr/architecture-decisions.md (ADR-004 - Security with Linkerd)
 
 set -e
 
@@ -19,35 +19,37 @@ fi
 # Get the repository root
 REPO_ROOT=$(git rev-parse --show-toplevel)
 
-# Check if gitleaks is installed
-if ! command -v gitleaks >/dev/null 2>&1; then
-    echo "❌ Gitleaks not found!"
+# Check if betterleaks is installed
+if ! command -v betterleaks >/dev/null 2>&1; then
+    echo "❌ Betterleaks not found!"
     echo ""
-    echo "Install Gitleaks:"
-    echo "  macOS: brew install gitleaks"
-    echo "  Linux: sudo apt install gitleaks"
-    echo "  Or download from: https://github.com/gitleaks/gitleaks"
-    echo ""
-    echo "Alternatively, install using:"
-    echo "  curl -sL https://github.com/gitleaks/gitleaks/releases/latest/download/gitleaks_linux_x64.tar.gz | tar -xz -C /usr/local/bin gitleaks"
+    echo "Install Betterleaks:"
+    echo "  macOS: brew install betterleaks"
+    echo "  Linux: Download from https://github.com/betterleaks/betterleaks/releases"
+    echo "  Or: curl -L https://github.com/betterleaks/betterleaks/releases/latest/download/betterleaks_linux_x86_64.tar.gz | tar -xz -C /usr/local/bin"
     exit 1
 fi
 
-# Check for gitleaks configuration
-CONFIG_FILE="$REPO_ROOT/.gitleaks.toml"
+# Check for betterleaks configuration
+CONFIG_FILE="$REPO_ROOT/.betterleaks.toml"
 if [ ! -f "$CONFIG_FILE" ]; then
-    echo "⚠️  Gitleaks configuration not found at $CONFIG_FILE"
+    # Fallback to gitleaks config for compatibility
+    CONFIG_FILE="$REPO_ROOT/.gitleaks.toml"
+fi
+
+if [ ! -f "$CONFIG_FILE" ]; then
+    echo "⚠️  Betterleaks configuration not found at $CONFIG_FILE"
     echo "Using default configuration"
     CONFIG_ARG=""
 else
-    echo "✅ Using custom Gitleaks configuration: $CONFIG_FILE"
+    echo "✅ Using custom Betterleaks configuration: $CONFIG_FILE"
     CONFIG_ARG="--config=$CONFIG_FILE"
 fi
 
 echo ""
 
-# Run gitleaks scan
-if gitleaks detect --source="$REPO_ROOT" --verbose $CONFIG_ARG; then
+# Run betterleaks scan
+if betterleaks git "$REPO_ROOT" --no-git $CONFIG_ARG; then
     echo ""
     echo "✅ No secrets detected!"
     exit 0

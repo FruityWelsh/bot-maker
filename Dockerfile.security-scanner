@@ -1,5 +1,26 @@
+# This container has all security scanning tools pre-installed
+# Used in CI pipeline to avoid installing tools in each job
+#
+# Base: SUSE BCI (Base Container Image) - SUSE Linux Enterprise
+# Security Scanner: BetterLeaks (improved Gitleaks fork)
+# BetterLeaks: https://github.com/betterleaks/betterleaks
+#
+# References: docs/strategy/omen/strategy.json (Security Goal AG004)
+# References: docs/contributors/adr/devx-adrs.md (ADR-018 - Secret Scanning with Gitleaks)
+# References: docs/contributors/adr/architecture-decisions.md (ADR-004 - Security Architecture)
+=======
 # Security Scanner Container for ChatBot Operator CI/CD
 # ============================================================
+# This container has all security scanning tools pre-installed
+# Used in CI pipeline to avoid installing tools in each job
+#
+# Base: SUSE BCI (Base Container Image) - SUSE Linux Enterprise
+# Security Scanner: BetterLeaks
+# BetterLeaks: https://github.com/betterleaks/betterleaks
+#
+# References: docs/strategy/omen/strategy.json (Security Goal AG004)
+# References: docs/contributors/adr/devx-adrs.md (ADR-018 - Secret Scanning)
+# References: docs/contributors/adr/architecture-decisions.md (ADR-004 - Security Architecture)============================================================
 # This container has all security scanning tools pre-installed
 # Used in CI pipeline to avoid installing tools in each job
 #
@@ -53,9 +74,6 @@ RUN zypper install -y curl tar && \
     rm /tmp/betterleaks.tar.gz && \
     zypper clean --all
 
-# Create symlink for gitleaks compatibility
-RUN ln -sf /usr/local/bin/betterleaks /usr/local/bin/gitleaks
-
 # Install gosec
 RUN go install github.com/securego/gosec/v2/cmd/gosec@latest
 
@@ -68,7 +86,6 @@ WORKDIR /workspace
 # Verify installations
 RUN echo "=== Tool Verification ===" && \
     echo "BetterLeaks:" && (test -x /usr/local/bin/betterleaks && echo "betterleaks installed" || echo "betterleaks not available") && \
-    echo "Gitleaks (symlink):" && (test -x /usr/local/bin/gitleaks && echo "gitleaks available" || echo "gitleaks not available") && \
     echo "Node.js:" && node --version && \
     echo "npm:" && (test -x /usr/bin/npm && echo "npm installed" || echo "npm not available") && \
     echo "Deno:" && deno --version && \
