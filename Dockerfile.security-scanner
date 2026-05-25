@@ -48,7 +48,8 @@ ENV GOPATH=/root/go
 # Install betterleaks
 RUN zypper install -y curl tar && \
     curl -L https://github.com/betterleaks/betterleaks/releases/latest/download/betterleaks_linux_x86_64.tar.gz -o /tmp/betterleaks.tar.gz && \
-    tar -xz -C /usr/local/bin -f /tmp/betterleaks.tar.gz betterleaks && \
+    tar -xz -C /tmp -f /tmp/betterleaks.tar.gz && \
+    mv /tmp/betterleaks* /usr/local/bin/betterleaks && \
     chmod +x /usr/local/bin/betterleaks && \
     rm /tmp/betterleaks.tar.gz && \
     zypper clean --all
