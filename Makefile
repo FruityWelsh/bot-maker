@@ -204,6 +204,11 @@ test-tools: ## Run tool tests
 	@echo "🧪 Running tool tests..."
 	npm test -- tests/tools/
 
+.PHONY: test-devx
+test-devx: ## Run DevX workflow tests
+	@echo "🧪 Running DevX workflow tests..."
+	npm run test:devx
+
 .PHONY: test-strategy-chain
 test-strategy-chain: ## Validate strategy-to-code chain
 	@echo "🔗 Validating strategy-to-code chain..."

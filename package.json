@@ -8,9 +8,14 @@
     "test:validation": "jest tests/schemas/validation.js",
     "test:tools": "jest tests/tools/",
     "test:dates": "jest tests/validation/dates.test.js",
+    "test:devx": "jest tests/devx/",
     "test:all": "jest tests/",
     "check:strategy": "node scripts/validation/check-strategy-chain.js",
-    "validate:all": "npm run check:strategy && npm run test:all"
+    "check:toolchain": "node scripts/validation/validate-toolchain.js",
+    "check:dates": "node scripts/validation/validate-dates.js",
+    "check:versions": "make verify-versions",
+    "validate:all": "npm run check:strategy && npm run check:toolchain && npm run check:dates && npm run check:versions && npm run test:all",
+    "validate:devx": "npm run check:strategy && npm run check:toolchain && npm run check:dates && npm run check:versions && npm run test:devx"
   },
   "keywords": [
     "kubernetes",
