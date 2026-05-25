@@ -11,10 +11,10 @@
 # References: docs/contributors/adr/devx-adrs.md (ADR-018 - Secret Scanning with Gitleaks)
 # References: docs/contributors/adr/architecture-decisions.md (ADR-004 - Security Architecture)
 
-# Use SUSE BCI Node.js 24 image as base
-FROM registry.suse.com/bci/bci-nodejs:24
+# Use SUSE BCI base - SUSE Linux Enterprise based image
+FROM registry.suse.com/bci/bci-base:latest
 
-# Install additional system dependencies
+# Install system dependencies including Node.js 24
 RUN zypper refresh && \
     zypper install -y \
     curl \
@@ -24,6 +24,7 @@ RUN zypper refresh && \
     xz \
     ca-certificates \
     ca-certificates-mozilla \
+    nodejs24 \
     && zypper clean --all
 
 # Install Deno 2.8.0 (preferred runtime)
