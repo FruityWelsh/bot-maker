@@ -292,7 +292,7 @@ describe('Makefile Platform-Agnostic CI/CD', () => {
 
     test('should have help target with colored output', () => {
       expect(makefileContent).toContain('help:');
-      expect(makefileContent).toContain('\033[36m');  // Color codes
+      expect(makefileContent).toContain('\\033[36m');  // Color codes
     });
   });
 });
