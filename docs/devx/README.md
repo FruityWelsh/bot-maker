@@ -18,6 +18,7 @@ This section contains documentation for **Developer Experience Engineers** who d
 |----------|---------|----------|
 | [IMPLEMENTATION_PLAN.md](./IMPLEMENTATION_PLAN.md) | Implementation roadmap and toolchain setup | DevX Engineers |
 | [DESIGN_VERIFICATION.md](./DESIGN_VERIFICATION.md) | Design verification processes and criteria | DevX Engineers |
+| [SECURITY_DLP_PIPELINE.md](./SECURITY_DLP_PIPELINE.md) | Security and DLP pipeline design with test setup | DevX Engineers, Security Team |
 | [SEMANTIC_VERSIONING.md](./SEMANTIC_VERSIONING.md) | Versioning strategy and release management | DevX Engineers |
 | [gh-cli-workflow-view.md](./gh-cli-workflow-view.md) | GitHub CLI workflow documentation | DevX Engineers |
 
@@ -75,6 +76,7 @@ Strategy → DevX → Core Application → Operations
 
 ### Quality & Validation
 - [DESIGN_VERIFICATION.md](./DESIGN_VERIFICATION.md) - Design verification processes
+- [SECURITY_DLP_PIPELINE.md](./SECURITY_DLP_PIPELINE.md) - Security and DLP pipeline design
 - [SEMANTIC_VERSIONING.md](./SEMANTIC_VERSIONING.md) - Versioning and release strategy
 
 ## 🔧 DevX Toolchain
