@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- 
 ArchiMate Enterprise Architecture Model for ChatBot Operator
-References: ../../strategy/omen/strategy.json (upstream)
-Downstream: ../../strategy/bmml/value-proposition.yaml
+References: ../../../strategy/omen/strategy.json (upstream)
+Downstream: ../../../strategy/bmml/value-proposition.yaml
 -->
 <archimate:model xmlns:archimate="http://www.archimatetool.com/archimate" 
                  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -11,8 +11,8 @@ Downstream: ../../strategy/bmml/value-proposition.yaml
                  version="1.0.0">
     
     <metadata>
-        <property key="strategy_reference" value="../../strategy/omen/strategy.json"/>
-        <property key="downstream_reference" value="../../strategy/bmml/value-proposition.yaml"/>
+        <property key="strategy_reference" value="../../../strategy/omen/strategy.json"/>
+        <property key="downstream_reference" value="../../../strategy/bmml/value-proposition.yaml"/>
         <property key="created" value="Generated from Git commit date"/>
         <property key="author" value="Strategy Coder"/>
     </metadata>

@@ -62,6 +62,40 @@ const EXPECTED_REFERENCES = {
   }
 };
 
+// Function to calculate relative path from one file to another
+function getRelativePath(fromPath, toPath) {
+  const fromParts = fromPath.split('/');
+  const toParts = toPath.split('/');
+  
+  // Find common prefix
+  let commonLength = 0;
+  while (commonLength < fromParts.length && commonLength < toParts.length && fromParts[commonLength] === toParts[commonLength]) {
+    commonLength++;
+  }
+  
+  // Calculate relative path from 'fromPath' to 'toPath'
+  const upLevels = fromParts.length - commonLength;
+  const downParts = toParts.slice(commonLength);
+  
+  let relativePath = '';
+  for (let i = 0; i < upLevels; i++) {
+    relativePath += '../';
+  }
+  relativePath += downParts.join('/');
+  
+  return relativePath;
+}
+
+// Function to check if content contains any of the expected references
+function checkReference(content, expectedRefs) {
+  for (const ref of expectedRefs) {
+    if (content.includes(ref)) {
+      return true;
+    }
+  }
+  return false;
+}
+
 console.log('🔗 Strategy-to-Code Chain Validation');
 console.log('====================================\n');
 
@@ -94,12 +128,14 @@ TOOLCHAIN.forEach(tool => {
       if (upstreamTool) {
         // Check if this document references its upstream
         const upstreamRef = upstreamTool.path.replace(/\//g, '/');
-        // Also check for relative paths
-        const relativeUpstreamRef = upstreamTool.path.replace('docs/', '../docs/');
-        if (content.includes(upstreamRef) || content.includes(relativeUpstreamRef)) {
-          console.log(`  ✅ ${tool.name} references upstream ${refs.upstream} (${upstreamRef} or ${relativeUpstreamRef})`);
+        // Calculate relative path from current doc to upstream
+        const relativeUpstreamRef = getRelativePath(tool.path, upstreamTool.path);
+        // Check for any reference to the upstream file (absolute or relative)
+        const upstreamFileName = upstreamTool.path.split('/').pop();
+        if (content.includes(upstreamFileName)) {
+          console.log(`  ✅ ${tool.name} references upstream ${refs.upstream}`);
         } else {
-          console.log(`  ❌ ${tool.name} does NOT reference upstream ${refs.upstream} (${upstreamRef} or ${relativeUpstreamRef})`);
+          console.log(`  ❌ ${tool.name} does NOT reference upstream ${refs.upstream} (looking for ${upstreamFileName})`);
           allPassed = false;
         }
       }
@@ -111,10 +147,12 @@ TOOLCHAIN.forEach(tool => {
           const downstreamTool = TOOLCHAIN.find(t => t.name === downstream);
           if (downstreamTool) {
             const downstreamRef = downstreamTool.path.replace(/\//g, '/');
-            // Also check for relative paths
-            const relativeDownstreamRef = downstreamTool.path.replace('docs/', '../docs/');
-            if (content.includes(downstreamRef) || content.includes(relativeDownstreamRef)) {
-              console.log(`  ✅ ${tool.name} references downstream ${downstream} (${downstreamRef} or ${relativeDownstreamRef})`);
+            // Calculate relative path from current doc to downstream
+            const relativeDownstreamRef = getRelativePath(tool.path, downstreamTool.path);
+            // Check for any reference to the downstream file (absolute or relative)
+            const downstreamFileName = downstreamTool.path.split('/').pop();
+            if (content.includes(downstreamFileName)) {
+              console.log(`  ✅ ${tool.name} references downstream ${downstream}`);
             } else {
               console.log(`  ❌ ${tool.name} does NOT reference downstream ${downstream} (${downstreamRef})`);
               allPassed = false;

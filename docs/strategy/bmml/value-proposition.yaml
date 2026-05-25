@@ -1,14 +1,14 @@
 # BMML Value Proposition for ChatBot Operator
-# References: ../../contributors/archimate/enterprise-architecture.xml (upstream)
-# Downstream: ../../contributors/adr/architecture-decisions.md
+# References: ../../../contributors/archimate/enterprise-architecture.xml (upstream)
+# Downstream: ../../../contributors/adr/architecture-decisions.md
 
 version: "0.1.0-dev"
 name: "ChatBot Operator Value Proposition"
 created: "2026-05-25"
 author: "Strategy Coder"
 references:
-  upstream: "../../contributors/archimate/enterprise-architecture.xml"
-  downstream: "../../contributors/adr/architecture-decisions.md"
+  upstream: "../../../contributors/archimate/enterprise-architecture.xml"
+  downstream: "../../../contributors/adr/architecture-decisions.md"
 
 business_motivation:
   vision: "Kubernetes-native chat bot management with automated provisioning and lifecycle management"
