@@ -15,6 +15,11 @@ name: ChatBot Operator CI
 # - docs/devx/IMPLEMENTATION_PLAN.md Implementation guidance
 #
 # Architecture: Platform-agnostic CI/CD as per ADR-007 and ADR-016
+#
+# Pipeline Flow:
+# 1. Data Loss Prevention (DLP) - Secret scanning and malicious code checks
+# 2. Validation - Strategy-to-BDD stack and DevX tools validation
+# 3. Execution - DevX tools act on validated application code
 
 on:
   push:
@@ -24,11 +29,14 @@ on:
 
 jobs:
   # ============================================================================
-  # JOB 1: Checkout and Strategy Validation
-  # Strategy: Validates the strategy-to-code chain before any execution ADR-001
+  # PHASE 1: DATA LOSS PREVENTION (DLP) AND SECURITY
+  # Priority: Run security checks FIRST to prevent data loss and detect issues early
+  # ============================================================================
+  
+  # JOB 1: Checkout Repository
   # ============================================================================
   checkout:
-    name: Checkout and Strategy Validation
+    name: Checkout Repository
     runs-on: ubuntu-latest
     
     steps:
@@ -37,26 +45,200 @@ jobs:
         with:
           fetch-depth: 0
       
-      - name: Validate Strategy Chain
-        run: node scripts/validation/check-strategy-chain.js
-      
-      - name: Validate Toolchain References
-        run: node scripts/validation/validate-toolchain.js
-      
-      - name: Validate Dates
-        run: node scripts/validation/validate-dates.js
-      
       - name: Update Git commit dates in documentation
         run: ./scripts/update-commit-dates.sh --verbose || true
+  
+  # JOB 2: Secret Scanning (Data Loss Prevention)
+  # References: docs/contributors/adr/devx-adrs.md ADR-018 - Secret Scanning with Gitleaks
+  # ============================================================================
+  scan-secrets:
+    name: Secret Scanning (DLP)
+    runs-on: ubuntu-latest
+    needs: checkout
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      
+      - name: Run Secret Scan
+        run: make scan-secrets || true
+  
+  # JOB 3: Security Scanning
+  # ============================================================================
+  scan-security:
+    name: Security Scanning
+    runs-on: ubuntu-latest
+    needs: checkout
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.21'
+      
+      - name: Run Security Scans
+        run: make scan-security || true
+  
+  # JOB 4: Vulnerability Scanning
+  # ============================================================================
+  scan-vulnerability:
+    name: Vulnerability Scanning
+    runs-on: ubuntu-latest
+    needs: checkout
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.21'
+      
+      - name: Run Vulnerability Scans
+        run: make scan-vulnerability || true
 
   # ============================================================================
-  # JOB 2: Setup Environment
-  # Architecture: Sets up the development environment as per docs/strategy/STRATEGY.md
+  # PHASE 2: VALIDATION - Strategy-to-BDD Stack and DevX Tools
+  # Priority: Validate all strategy and toolchain references before execution
+  # ============================================================================
+  
+  # JOB 5: Strategy Chain Validation
+  # References: docs/contributors/adr/architecture-decisions.md ADR-001 - Strategy First, Code Second
+  # ============================================================================
+  validate-strategy:
+    name: Strategy Chain Validation
+    runs-on: ubuntu-latest
+    needs: [scan-secrets, scan-security, scan-vulnerability]
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      
+      - name: Validate Strategy Chain
+        run: make test-strategy-chain
+  
+  # JOB 6: Toolchain Validation
+  # References: docs/contributors/adr/architecture-decisions.md ADR-008 - Business Metrics with Cube.js
+  # ============================================================================
+  validate-toolchain:
+    name: Toolchain Validation
+    runs-on: ubuntu-latest
+    needs: [scan-secrets, scan-security, scan-vulnerability]
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      
+      - name: Validate Toolchain
+        run: make test-toolchain
+  
+  # JOB 7: Date Validation
+  # References: CONTRIBUTING.md - No manual dates rule
+  # ============================================================================
+  validate-dates:
+    name: Date Validation
+    runs-on: ubuntu-latest
+    needs: [scan-secrets, scan-security, scan-vulnerability]
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      
+      - name: Validate Dates
+        run: make test-dates
+  
+  # JOB 8: Validation Tests (Jest/AJV)
+  # References: docs/contributors/adr/devx-adrs.md ADR-011 - JSON Schema Validation with AJV
+  # ============================================================================
+  test-validation:
+    name: Validation Tests
+    runs-on: ubuntu-latest
+    needs: [validate-strategy, validate-toolchain, validate-dates]
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      
+      - name: Install dependencies
+        run: npm ci || npm install
+      
+      - name: Run Validation Tests
+        run: make test-validation || true
+  
+  # JOB 9: Tool Tests (DevX Tools)
+  # References: docs/contributors/adr/devx-adrs.md ADR-010 - Behavior-Driven Development with Godog
+  # ============================================================================
+  test-tools:
+    name: DevX Tool Tests
+    runs-on: ubuntu-latest
+    needs: [validate-strategy, validate-toolchain, validate-dates]
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      
+      - name: Install dependencies
+        run: npm ci || npm install
+      
+      - name: Run DevX Tool Tests
+        run: make test-tools || true
+
+  # ============================================================================
+  # PHASE 3: EXECUTION - DevX Tools Act on Validated Application Code
+  # Priority: Only run after all security and validation checks pass
+  # ============================================================================
+  
+  # JOB 10: Setup Environment
   # ============================================================================
   setup:
     name: Setup Environment
     runs-on: ubuntu-latest
-    needs: checkout
+    needs: [scan-secrets, scan-security, scan-vulnerability, validate-strategy, validate-toolchain, validate-dates]
     
     steps:
       - name: Checkout repository
@@ -76,10 +258,8 @@ jobs:
       
       - name: Install dependencies
         run: make deps || true
-
-  # ============================================================================
-  # JOB 3: Linting
-  # Strategy: Code quality validation per docs/strategy/STRATEGY.md
+  
+  # JOB 11: Linting
   # ============================================================================
   lint:
     name: Linting
@@ -107,10 +287,8 @@ jobs:
       
       - name: Run Linting
         run: make lint || true
-
-  # ============================================================================
-  # JOB 4: Unit Tests
-  # Strategy: Go unit tests for API types and controller
+  
+  # JOB 12: Unit Tests
   # ============================================================================
   test-unit:
     name: Unit Tests
@@ -138,136 +316,13 @@ jobs:
       
       - name: Run Unit Tests
         run: make test-unit || true
-
-  # ============================================================================
-  # JOB 5: Validation Tests
-  # Strategy: Jest/AJV validation tests for CRD and toolchain documents
-  # ============================================================================
-  test-validation:
-    name: Validation Tests
-    runs-on: ubuntu-latest
-    needs: setup
-    
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-      
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-      
-      - name: Install dependencies
-        run: npm ci || npm install
-      
-      - name: Run Validation Tests
-        run: make test-validation || true
-
-  # ============================================================================
-  # JOB 6: Strategy Chain Validation
-  # Strategy: Validates strategy-to-code chain ADR-001
-  # ============================================================================
-  test-strategy-chain:
-    name: Strategy Chain Validation
-    runs-on: ubuntu-latest
-    needs: checkout
-    
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-      
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-      
-      - name: Validate Strategy Chain
-        run: make test-strategy-chain
-
-  # ============================================================================
-  # JOB 7: Toolchain Validation
-  # Strategy: Validates all 8 toolchain tools with hard references
-  # ============================================================================
-  test-toolchain:
-    name: Toolchain Validation
-    runs-on: ubuntu-latest
-    needs: checkout
-    
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-      
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-      
-      - name: Validate Toolchain
-        run: make test-toolchain
-
-  # ============================================================================
-  # JOB 8: Date Validation
-  # Strategy: Validates no manual dates per CONTRIBUTING.md
-  # ============================================================================
-  test-dates:
-    name: Date Validation
-    runs-on: ubuntu-latest
-    needs: checkout
-    
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-      
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-      
-      - name: Validate Dates
-        run: make test-dates
-
-  # ============================================================================
-  # JOB 9: Tool Tests
-  # Strategy: Tests for CI/CD tools and Makefile
-  # ============================================================================
-  test-tools:
-    name: Tool Tests
-    runs-on: ubuntu-latest
-    needs: setup
-    
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-      
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-      
-      - name: Install dependencies
-        run: npm ci || npm install
-      
-      - name: Run Tool Tests
-        run: make test-tools || true
-
-  # ============================================================================
-  # JOB 10: Build
-  # Architecture: Build the operator binary
+  
+  # JOB 13: Build
   # ============================================================================
   build:
     name: Build
     runs-on: ubuntu-latest
-    needs: [test-unit, test-validation, test-strategy-chain, test-toolchain, test-dates, test-tools]
+    needs: [test-unit, test-validation, test-tools]
     
     steps:
       - name: Checkout repository
@@ -290,10 +345,9 @@ jobs:
       
       - name: Build Project
         run: make build || true
-
-  # ============================================================================
-  # JOB 11: CNCF Compliance Validation
-  # Strategy: Validates CNCF graduated project compliance
+  
+  # JOB 14: CNCF Compliance Validation
+  # References: docs/contributors/adr/devx-adrs.md ADR-019 - CNCF Graduated Project Compliance Validation
   # ============================================================================
   test-cncf-compliance:
     name: CNCF Compliance
@@ -310,30 +364,15 @@ jobs:
         run: make test-cncf-compliance || true
 
   # ============================================================================
-  # JOB 12: Secret Scanning
-  # Strategy: Scan for secrets in the repository
+  # PHASE 4: ARTIFACT HANDLING
   # ============================================================================
-  scan-secrets:
-    name: Secret Scanning
-    runs-on: ubuntu-latest
-    needs: checkout
-    
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-      
-      - name: Run Secret Scan
-        run: make scan-secrets || true
-
-  # ============================================================================
-  # JOB 13: Upload Artifacts
+  
+  # JOB 15: Upload Artifacts
   # ============================================================================
   upload:
     name: Upload Artifacts
     runs-on: ubuntu-latest
-    needs: [build, test-cncf-compliance, scan-secrets, lint, test-unit, test-validation, test-tools]
+    needs: [build, test-cncf-compliance, scan-secrets, scan-security, scan-vulnerability, lint, test-unit, test-validation, test-tools]
     if: always()
     
     steps:
