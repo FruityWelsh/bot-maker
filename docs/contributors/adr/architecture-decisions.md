@@ -33,7 +33,6 @@ Focus on the development workflow, toolchain, and automation:
 | ADR-004 | Security Architecture with Linkerd | ✅ Accepted | Security |
 | ADR-005 | RBAC/ABAC Integration Strategy | ✅ Accepted | Security |
 | ADR-008 | Business Metrics with Cube.js | ✅ Accepted | Observability |
-| ADR-020 | Strategy First, Code Second | ✅ Accepted | Development Workflow |
 
 ### Developer Experience Architecture Decisions
 | ID | Title | Status | Focus |
@@ -51,6 +50,7 @@ Focus on the development workflow, toolchain, and automation:
 | ADR-017 | Conventional Commits Validation | ✅ Accepted | Git Workflow |
 | ADR-018 | Secret Scanning with Gitleaks | ✅ Accepted | Security |
 | ADR-019 | CNCF Graduated Project Compliance Validation | ✅ Accepted | Compliance |
+| ADR-020 | Strategy First, Code Second | ✅ Accepted | Development Workflow |
 
 ## 🎯 ADR Categorization Rationale
 
@@ -101,8 +101,8 @@ All ADRs follow this standard template:
 
 | Metric | Application ADRs | DevX ADRs | Total |
 |--------|------------------|------------|-------|
-| Total ADRs | 7 | 10 | 17 |
-| Accepted | 7 | 10 | 17 |
+| Total ADRs | 6 | 11 | 17 |
+| Accepted | 6 | 11 | 17 |
 | Rejected | 0 | 0 | 0 |
 | Deprecated | 0 | 0 | 0 |
 
@@ -115,7 +115,6 @@ All ADRs follow this standard template:
 - ADR-004 (Linkerd) validated by ADR-018 (Gitleaks)
 - ADR-005 (RBAC/ABAC) enforced in ADR-017 (Conventional Commits)
 - ADR-008 (Cube.js) documented in ADR-009 (React-Markdown)
-- ADR-020 (Strategy First) guides all ADRs
 
 ### DevX ADRs → Application ADRs
 - ADR-006 (GitOps) deploys ADR-001 (Operator Pattern)
@@ -124,6 +123,7 @@ All ADRs follow this standard template:
 - ADR-010 (Godog) tests ADR-004 (Linkerd)
 - ADR-011 (AJV) validates ADR-005 (RBAC/ABAC)
 - ADR-012 (Makefile) orchestrates all ADRs
+- ADR-020 (Strategy First) guides all ADRs
 
 ## 🎯 Success Criteria
 
