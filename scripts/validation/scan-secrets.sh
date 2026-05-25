@@ -32,18 +32,13 @@ fi
 
 # Check for betterleaks configuration
 CONFIG_FILE="$REPO_ROOT/.betterleaks.toml"
-if [ ! -f "$CONFIG_FILE" ]; then
-    # Fallback to gitleaks config for compatibility
-    CONFIG_FILE="$REPO_ROOT/.gitleaks.toml"
-fi
-
-if [ ! -f "$CONFIG_FILE" ]; then
+if [ -f "$CONFIG_FILE" ]; then
+    echo "✅ Using custom Betterleaks configuration: $CONFIG_FILE"
+    CONFIG_ARG="--config=$CONFIG_FILE"
+else
     echo "⚠️  Betterleaks configuration not found at $CONFIG_FILE"
     echo "Using default configuration"
     CONFIG_ARG=""
-else
-    echo "✅ Using custom Betterleaks configuration: $CONFIG_FILE"
-    CONFIG_ARG="--config=$CONFIG_FILE"
 fi
 
 echo ""
