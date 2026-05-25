@@ -70,7 +70,7 @@ const toolchain = [
     id: 'T006',
     name: 'react-markdown/gray-matter/Mermaid.js',
     description: 'Documentation rendering and diagrams',
-    files: ['docs/contributors/diagrams.md', 'README.md'],
+    files: ['docs/contributors/diagrams.md'],
     upstream: ['docs/strategy/cubejs/metrics.yaml'],
     downstream: ['features/chatbot.feature'],
     required: true

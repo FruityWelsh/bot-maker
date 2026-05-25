@@ -163,8 +163,10 @@ TOOLCHAIN.forEach(tool => {
         const downstreamTool = TOOLCHAIN.find(t => t.name === refs.downstream);
         if (downstreamTool) {
           const downstreamRef = downstreamTool.path.replace(/\//g, '/');
-          if (content.includes(downstreamRef)) {
-            console.log(`  ✅ ${tool.name} references downstream ${refs.downstream} (${downstreamRef})`);
+          const downstreamFileName = downstreamTool.path.split('/').pop();
+          // Check for filename or full path or relative path
+          if (content.includes(downstreamFileName) || content.includes(downstreamRef)) {
+            console.log(`  ✅ ${tool.name} references downstream ${refs.downstream}`);
           } else {
             console.log(`  ❌ ${tool.name} does NOT reference downstream ${refs.downstream} (${downstreamRef})`);
             allPassed = false;

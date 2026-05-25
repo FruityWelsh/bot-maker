@@ -1,7 +1,7 @@
 /**
  * CI/CD Configuration Tests for ChatBot Operator
- * References: docs/omen/strategy.json (upstream)
- * References: docs/adr/architecture-decisions.md (ADR-012)
+ * References: docs/strategy/omen/strategy.json (upstream)
+ * References: docs/contributors/adr/architecture-decisions.md (ADR-012)
  * References: features/chatbot.feature (upstream)
  * 
  * These tests validate that all CI/CD configurations properly wrap the Makefile targets
@@ -11,8 +11,8 @@
 const fs = require('fs');
 const path = require('path');
 
-// References: docs/omen/strategy.json - Developer Environment Goal DG001
-// References: docs/adr/architecture-decisions.md - ADR-012
+// References: docs/strategy/omen/strategy.json - Developer Environment Goal DG001
+// References: docs/contributors/adr/architecture-decisions.md - ADR-012
 
 describe('CI/CD Platform Configurations', () => {
   describe('GitHub Actions Configuration', () => {
@@ -299,8 +299,8 @@ describe('CI/CD Platform Configurations', () => {
   });
 });
 
-// References: docs/omen/strategy.json - Developer Environment Goal DG002
-// References: docs/adr/architecture-decisions.md - ADR-012
+// References: docs/strategy/omen/strategy.json - Developer Environment Goal DG002
+// References: docs/contributors/adr/architecture-decisions.md - ADR-012
 describe('CI/CD Cross-Reference Validation', () => {
   test('should reference upstream strategy documents', () => {
     const githubWorkflowPath = path.join(__dirname, '../../.github/workflows/ci.yml');
@@ -311,7 +311,7 @@ describe('CI/CD Cross-Reference Validation', () => {
   });
 
   test('should be referenced by ADR-012', () => {
-    const adrPath = path.join(__dirname, '../../docs/adr/architecture-decisions.md');
+    const adrPath = path.join(__dirname, '../../docs/contributors/adr/architecture-decisions.md');
     const adrContent = fs.readFileSync(adrPath, 'utf8');
     
     expect(adrContent).toContain('GitHub Actions');
@@ -323,7 +323,7 @@ describe('CI/CD Cross-Reference Validation', () => {
 
   test('should follow the toolchain reference pattern', () => {
     // CI/CD configs -> Makefile -> ADR-012 -> ADR -> BMML -> ArchiMate -> Omen
-    const adrPath = path.join(__dirname, '../../docs/adr/architecture-decisions.md');
+    const adrPath = path.join(__dirname, '../../docs/contributors/adr/architecture-decisions.md');
     const adrContent = fs.readFileSync(adrPath, 'utf8');
     
     // ADR-012 should reference the Makefile
@@ -337,8 +337,8 @@ describe('CI/CD Cross-Reference Validation', () => {
   });
 });
 
-// References: docs/omen/strategy.json - Developer Environment Goal DG003
-// References: docs/adr/architecture-decisions.md - ADR-012
+// References: docs/strategy/omen/strategy.json - Developer Environment Goal DG003
+// References: docs/contributors/adr/architecture-decisions.md - ADR-012
 describe('CI/CD Platform Consistency', () => {
   test('should have consistent Make target calls across platforms', () => {
     const githubWorkflowPath = path.join(__dirname, '../../.github/workflows/ci.yml');
