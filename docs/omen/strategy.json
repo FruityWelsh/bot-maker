@@ -78,7 +78,7 @@
       },
       {
         "id": "DG002",
-        "description": "Clean GitOps workflow with frequent commits and rebase strategy",
+        "description": "Clean GitOps workflow with frequent commits and rebase strategy as a development lifecycle design goal. The application enables GitOps by being a Kubernetes CRD.",
         "priority": "medium",
         "successCriteria": "Feature branches, conventional commits, regular pushes, PR workflow",
         "category": "developer_experience"

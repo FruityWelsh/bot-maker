@@ -67,7 +67,7 @@ C4Context
     Rel(chatbotOperator, twilio, "Manages bots", "Twilio API")
     Rel(chatbotOperator, monitoring, "Reports metrics", "Prometheus")
     Rel(chatbotOperator, database, "Stores data", "SQL")
-    Rel(ciCd, chatbotOperator, "Deploys", "GitOps")
+    Rel(ciCd, chatbotOperator, "Deploys", "GitOps (enabled by CRD)")
 ```
 
 ---
@@ -355,7 +355,7 @@ flowchart TD
         M -->|Generates| O[Provenance]
     end
     
-    subgraph GitOps
+    subgraph GitOps (Deployment Pattern)
         G -->|New Image| P[Argo CD]
         P -->|Syncs| Q[Git Repository]
         Q -->|Contains| R[Kubernetes Manifests]

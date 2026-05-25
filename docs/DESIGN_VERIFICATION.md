@@ -66,7 +66,7 @@
   - ADR-003: Platform-specific provisioners
   - ADR-004: Linkerd for Zero Trust
   - ADR-005: OPA/Gatekeeper for ABAC
-  - ADR-006: Argo CD for GitOps
+  - ADR-006: GitOps workflow as development lifecycle design goal (enabled by CRD design)
   - ADR-007: Makefile as single source of truth
   - ADR-008: Cube.js for business metrics
   - ADR-009: React-Markdown + Mermaid.js
