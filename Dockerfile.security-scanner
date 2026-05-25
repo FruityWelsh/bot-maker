@@ -1,14 +1,3 @@
-# This container has all security scanning tools pre-installed
-# Used in CI pipeline to avoid installing tools in each job
-#
-# Base: SUSE BCI (Base Container Image) - SUSE Linux Enterprise
-# Security Scanner: BetterLeaks (improved Gitleaks fork)
-# BetterLeaks: https://github.com/betterleaks/betterleaks
-#
-# References: docs/strategy/omen/strategy.json (Security Goal AG004)
-# References: docs/contributors/adr/devx-adrs.md (ADR-018 - Secret Scanning with Gitleaks)
-# References: docs/contributors/adr/architecture-decisions.md (ADR-004 - Security Architecture)
-=======
 # Security Scanner Container for ChatBot Operator CI/CD
 # ============================================================
 # This container has all security scanning tools pre-installed
@@ -20,16 +9,6 @@
 #
 # References: docs/strategy/omen/strategy.json (Security Goal AG004)
 # References: docs/contributors/adr/devx-adrs.md (ADR-018 - Secret Scanning)
-# References: docs/contributors/adr/architecture-decisions.md (ADR-004 - Security Architecture)============================================================
-# This container has all security scanning tools pre-installed
-# Used in CI pipeline to avoid installing tools in each job
-#
-# Base: SUSE BCI (Base Container Image) - SUSE Linux Enterprise
-# Security Scanner: BetterLeaks (improved Gitleaks fork)
-# BetterLeaks: https://github.com/betterleaks/betterleaks
-#
-# References: docs/strategy/omen/strategy.json (Security Goal AG004)
-# References: docs/contributors/adr/devx-adrs.md (ADR-018 - Secret Scanning with Gitleaks)
 # References: docs/contributors/adr/architecture-decisions.md (ADR-004 - Security Architecture)
 
 # Use SUSE BCI base - SUSE Linux Enterprise based image
