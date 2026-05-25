@@ -136,7 +136,8 @@ kubebuilder: ## Install Kubebuilder
 .PHONY: kustomize
 kustomize: ## Install Kustomize
 	@echo "📦 Installing Kustomize..."
-	curl -s "https://raw.githubusercontent.com/kubernetes-sigs/kustomize/master/hack/install_kustomize.sh" | bash -s -- $(KUSTOMIZE_VERSION) $(BINARY_DIR)
+	@mkdir -p $(BINARY_DIR)
+	curl -L https://github.com/kubernetes-sigs/kustomize/releases/download/kustomize%2F$(KUSTOMIZE_VERSION)/kustomize_$(KUSTOMIZE_VERSION)_linux_amd64.tar.gz | tar xz -C $(BINARY_DIR)
 
 # ============================================================================
 # LINTING TARGETS
