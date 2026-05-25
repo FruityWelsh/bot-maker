@@ -2,6 +2,8 @@
 
 This directory contains all tests for the **ChatBot Operator** project. The test suite is organized to validate functionality at multiple levels: unit tests, integration tests, validation tests, and tool tests.
 
+**Strategy First, Code Second**: All tests in this project follow the principle that all development must be traceable to defined goals and architecture decisions. See [ADR-001](../contributors/adr/ADR-001-strategy-first-code-second.md) for details.
+
 ## 📁 Test Directory Structure
 
 ```
@@ -19,6 +21,7 @@ tests/
 - **Purpose**: Validate individual functions and methods
 - **Framework**: Go's built-in `testing` package
 - **Run**: `make test-unit` or `go test ./...`
+- **Coverage**: Minimum 80% code coverage required
 
 ### 2. DevX Tool Tests
 - **Location**: `tests/devx/`
@@ -44,7 +47,7 @@ tests/
 
 #### Run All Tests
 ```bash
-make ci-test
+make ci
 ```
 
 #### Run Specific Test Types
@@ -71,31 +74,52 @@ make test-dates
 make test-cncf-compliance
 ```
 
-### CI Pipeline
+### CI/CD Pipeline
 
 All tests are automatically executed in the CI pipeline:
 - **GitHub Actions**: `.github/workflows/ci.yml`
 - **GitLab CI**: `.gitlab-ci.yml`
 - **Tekton**: `.tekton/pipeline.yaml`
 
-The pipeline enforces the following order:
-1. Security scanning (DLP)
-2. DevX tool tests
-3. Strategy validation
-4. Toolchain validation
-5. Date validation
-6. Unit tests
-7. Validation tests
-8. CNCF compliance
+The pipeline enforces the following order (all are HARD BLOCK):
+1. **Phase 1: DLP (Data Loss Prevention)**
+   - Secret scanning
+   - Security scanning
+   - Vulnerability scanning
+
+2. **Phase 2: DLP Tests**
+   - DevX tool tests
+
+3. **Phase 3: Validation**
+   - Strategy chain validation
+   - Toolchain validation
+   - Date validation
+   - Validation tests (Jest/AJV)
+
+4. **Phase 4: Execution**
+   - Setup environment
+   - Linting
+   - Unit tests
+   - Build
+   - CNCF compliance validation
+
+5. **Phase 5: Artifact Handling**
+   - Sign artifacts
+   - Publish artifacts
+   - Upload artifacts
 
 ## 📊 Test Coverage
 
 ### Coverage Requirements
-- **Minimum**: 80% code coverage for all packages
-- **Target**: 90% code coverage
-- **Critical paths**: 100% coverage required
+| Metric | Target | Current |
+|--------|--------|---------|
+| Unit Test Coverage | 90% | [Check CI] |
+| Integration Test Coverage | 80% | [Check CI] |
+| Validation Test Coverage | 100% | [Check CI] |
+| Test Execution Time | < 5 min | [Check CI] |
+| Test Success Rate | 100% | [Check CI] |
 
-### Coverage Reports
+### Coverage Reporting
 - Generated during CI pipeline
 - Uploaded as artifacts: `coverage/`
 - View with: `make coverage-report`
@@ -109,6 +133,8 @@ The pipeline enforces the following order:
 3. Follow the pattern:
 
 ```go
+// Strategy: BMML Goal G001 - Kubernetes CRD Development
+// ADR: ADR-002 - Use Kubebuilder Framework
 package mypackage
 
 import (
@@ -281,9 +307,11 @@ All tests must pass before:
 ## 🔗 Related Documentation
 
 - [CI/CD Pipeline Documentation](../docs/devx/IMPLEMENTATION_PLAN.md)
-- [ADR-010: Behavior-Driven Development with Godog](../docs/contributors/adr/devx-adrs.md#adr-010-behavior-driven-development-with-godog)
-- [ADR-011: JSON Schema Validation with AJV](../docs/contributors/adr/devx-adrs.md#adr-011-json-schema-validation-with-ajv)
-- [ADR-012: Makefile as Single Source of Truth for CI/CD](../docs/contributors/adr/devx-adrs.md#adr-012-makefile-as-single-source-of-truth-for-cicd)
+- [ADR-001: Strategy First, Code Second](../contributors/adr/ADR-001-strategy-first-code-second.md)
+- [ADR-007: Platform-Agnostic CI/CD Pipeline](../contributors/adr/devx-adrs.md#adr-007-platform-agnostic-cicd-pipeline)
+- [ADR-010: Behavior-Driven Development with Godog](../contributors/adr/devx-adrs.md#adr-010-behavior-driven-development-with-godog)
+- [ADR-011: JSON Schema Validation with AJV](../contributors/adr/devx-adrs.md#adr-011-json-schema-validation-with-ajv)
+- [ADR-012: Makefile as Single Source of Truth for CI/CD](../contributors/adr/devx-adrs.md#adr-012-makefile-as-single-source-of-truth-for-cicd)
 
 ## 🤝 Contributing
 
@@ -315,4 +343,4 @@ All tests must pass before:
 
 ---
 
-**Note**: This test suite is designed to be **platform-agnostic**, working consistently across GitHub Actions, GitLab CI, Tekton, and local development environments. All tests are orchestrated via the Makefile to ensure consistency.
+**Note**: This test suite is designed to be **platform-agnostic**, working consistently across GitHub Actions, GitLab CI, Tekton, and local development environments. All tests are orchestrated via the Makefile to ensure consistency. All tests follow the **Strategy First, Code Second** principle as documented in [ADR-001](../contributors/adr/ADR-001-strategy-first-code-second.md).
