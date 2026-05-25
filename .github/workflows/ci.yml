@@ -39,12 +39,6 @@ jobs:
   # This MUST complete first so all other jobs can use it
   # ============================================================================
   
-  build-security-container:
-    name: Build Security Scanner Container
-    runs-on: ubuntu-latest
-    
-    steps:
-=======
   # JOB 0: Build Security Scanner Container
   # ============================================================================
   build-security-container:
@@ -53,11 +47,6 @@ jobs:
     permissions:
       contents: read
       packages: write
-    
-    steps:============================================================================
-  build-security-container:
-    name: Build Security Scanner Container
-    runs-on: ubuntu-latest
     
     steps:
       - name: Checkout repository
