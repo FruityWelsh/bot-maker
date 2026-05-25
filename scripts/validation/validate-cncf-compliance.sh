@@ -43,7 +43,7 @@ else
 fi
 
 # Check for secret scanning
-if [ -f ".gitleaks.toml" ] || grep -rq "gitleaks\|trufflehog\|detect-secrets" .github/workflows/ 2>/dev/null; then
+if [ -f ".betterleaks.toml" ] || grep -rq "betterleaks\|trufflehog\|detect-secrets" .github/workflows/ 2>/dev/null; then
     echo "  ✅ Secret scanning configured"
 else
     echo "  ⚠️  Consider adding secret scanning"
