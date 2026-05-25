@@ -22,7 +22,7 @@ name: ChatBot Operator CI
 # 3. Validation - Strategy-to-BDD stack and DevX tools validation (HARD BLOCK)
 # 4. Execution - DevX tools act on validated application code (HARD BLOCK)
 #
-# IMPORTANT: No || true or other bypass methods are used. All jobs must pass.
+# IMPORTANT: NO BYPASS METHODS. All jobs must pass. Test in pipeline.
 
 on:
   push:
@@ -50,7 +50,7 @@ jobs:
           fetch-depth: 0
       
       - name: Update Git commit dates in documentation
-        run: ./scripts/update-commit-dates.sh --verbose || true
+        run: ./scripts/update-commit-dates.sh --verbose
   
   # JOB 2: Secret Scanning (Data Loss Prevention) - HARD BLOCK
   # References: docs/contributors/adr/devx-adrs.md ADR-018 - Secret Scanning with Gitleaks
@@ -72,7 +72,7 @@ jobs:
           chmod +x /usr/local/bin/gitleaks
       
       - name: Run Secret Scan
-        run: gitleaks detect --source="." --verbose --config=.gitleaks.toml
+        run: make scan-secrets
   
   # JOB 3: Security Scanning - HARD BLOCK
   # ============================================================================
@@ -96,7 +96,7 @@ jobs:
         run: go install github.com/securego/gosec/v2/cmd/gosec@latest
       
       - name: Run Security Scans
-        run: gosec -include=G101,G201,G301 ./...
+        run: make scan-security
   
   # JOB 4: Vulnerability Scanning - HARD BLOCK
   # ============================================================================
@@ -116,8 +116,11 @@ jobs:
         with:
           go-version: '1.21'
       
+      - name: Install govulncheck
+        run: go install golang.org/x/vuln/cmd/govulncheck@latest
+      
       - name: Run Vulnerability Scans
-        run: go install golang.org/x/vuln/cmd/govulncheck@latest && govulncheck ./...
+        run: make scan-vulnerability
 
   # ============================================================================
   # PHASE 2: DLP TESTS - Tests that validate the scan jobs themselves
@@ -149,7 +152,7 @@ jobs:
         run: npm ci
       
       - name: Run DevX Tool Tests
-        run: npx jest tests/tools/security-dlp.test.js --testTimeout=30000
+        run: make test-tools
 
   # ============================================================================
   # PHASE 3: VALIDATION - Strategy-to-BDD Stack and DevX Tools
@@ -177,7 +180,7 @@ jobs:
           node-version: '20'
       
       - name: Validate Strategy Chain
-        run: node scripts/validation/check-strategy-chain.js
+        run: make test-strategy-chain
   
   # JOB 7: Toolchain Validation - HARD BLOCK
   # References: docs/contributors/adr/architecture-decisions.md ADR-008 - Business Metrics with Cube.js
@@ -199,7 +202,7 @@ jobs:
           node-version: '20'
       
       - name: Validate Toolchain
-        run: node scripts/validation/validate-toolchain.js
+        run: make test-toolchain
   
   # JOB 8: Date Validation - HARD BLOCK
   # References: CONTRIBUTING.md - No manual dates rule
@@ -221,7 +224,7 @@ jobs:
           node-version: '20'
       
       - name: Validate Dates
-        run: node scripts/validation/validate-dates.js
+        run: make test-dates
   
   # JOB 9: Validation Tests (Jest/AJV) - HARD BLOCK
   # References: docs/contributors/adr/devx-adrs.md ADR-011 - JSON Schema Validation with AJV
@@ -246,7 +249,7 @@ jobs:
         run: npm ci
       
       - name: Run Validation Tests
-        run: npx jest tests/schemas/validation.js --testTimeout=30000
+        run: make test-validation
 
   # ============================================================================
   # PHASE 4: EXECUTION - DevX Tools Act on Validated Application Code
