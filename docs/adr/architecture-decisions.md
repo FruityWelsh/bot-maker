@@ -416,7 +416,7 @@ This allows the same Make targets to adapt their behavior based on the platform.
 | Component | Technology | Purpose | Reference |
 |-----------|------------|---------|-----------|
 | **GitOps** | Argo CD | Continuous delivery | ADR-006 |
-| **CI/CD** | Tekton | Pipeline automation | ADR-007 |
+| **CI/CD** | GitHub Actions, GitLab CI, Tekton | Pipeline automation | ADR-007 |
 | **Documentation** | React-Markdown, Mermaid.js | Safe rendering | ADR-009 |
 | **BDD Testing** | Godog | Behavior testing | ADR-010 |
 | **Validation** | AJV | JSON schema validation (Node.js, testing only) | ADR-011 |
@@ -441,7 +441,9 @@ graph TD
     B -->|Integrates with| K[RBAC/ABAC System]
     K -->|Uses| L[OPA/Gatekeeper]
     M[Argo CD] -->|Deploys| B
-    N[Tekton] -->|Builds| B
+    N[GitHub Actions] -->|Builds| B
+    O[GitLab CI] -->|Builds| B
+    P[Tekton] -->|Builds| B
 ```
 
 ### Data Flow Architecture

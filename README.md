@@ -126,7 +126,7 @@ bot-maker/
 | Component | Technology | Purpose | Status |
 |-----------|------------|---------|--------|
 | **GitOps** | Argo CD | Continuous delivery | 📋 Planned |
-| **CI/CD** | Tekton | Pipeline automation | 📋 Planned |
+| **CI/CD** | GitHub Actions, GitLab CI, Tekton | Pipeline automation | 📋 Planned |
 | **Documentation** | React-Markdown, Mermaid.js | Safe rendering | ✅ Implemented |
 | **BDD Testing** | Godog | Behavior testing | ✅ Implemented |
 | **Validation** | AJV | JSON schema validation (Node.js, testing only) | ✅ Implemented |
@@ -171,7 +171,7 @@ bot-maker/
 - ✅ Kubernetes (Container Orchestration)
 - ✅ Linkerd (Service Mesh)
 - ✅ Argo CD (GitOps)
-- ✅ Tekton (CI/CD)
+- ✅ GitHub Actions, GitLab CI, Tekton (CI/CD)
 - ✅ OPA/Gatekeeper (Policy)
 
 ## 🚀 GitOps Workflow
@@ -286,7 +286,7 @@ This project is licensed under the Apache License 2.0 - see the [LICENSE](LICENS
 - **SUSE/RGS** - For RKE2 and enterprise Kubernetes solutions
 - **Linkerd** - For service mesh and Zero Trust security
 - **Argo CD** - For GitOps continuous delivery
-- **Tekton** - For Kubernetes-native CI/CD pipelines
+- **GitHub Actions, GitLab CI, Tekton** - For CI/CD pipelines (all platforms supported)
 
 ## 📞 Contact
 
