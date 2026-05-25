@@ -18,9 +18,9 @@ name: ChatBot Operator CI
 
 on:
   push:
-    branches: [ main, vibe/* ]
+    branches: [ main, ai-dev, vibe/* ]
   pull_request:
-    branches: [ main ]
+    branches: [ main, ai-dev ]
 
 jobs:
   # ============================================================================
