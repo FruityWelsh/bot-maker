@@ -5,26 +5,26 @@
 # References: docs/adr/architecture-decisions.md (ADR-012)
 
 # Stage 1: Base image with essential tools
-FROM ubuntu:22.04 AS base
+FROM registry.opensuse.org/bci/bci-base:latest AS base
 
 # Set environment variables
-ARG DEBIAN_FRONTEND=noninteractive
 ENV TZ=UTC
 ENV LANG=C.UTF-8
 ENV LC_ALL=C.UTF-8
 
 # Install system dependencies
-RUN apt-get update && apt-get install -y --no-install-recommends \
+RUN zypper -n refresh && zypper -n install --no-recommends \
     ca-certificates \
+    ca-certificates-mozilla \
     curl \
     wget \
     git \
     make \
-    build-essential \
+    gcc \
+    gcc-c++ \
     pkg-config \
     gnupg2 \
-    software-properties-common \
-    && rm -rf /var/lib/apt/lists/*
+    && zypper clean --all
 
 # Stage 2: Install Go
 FROM base AS go
@@ -87,7 +87,7 @@ RUN pip3 install yamllint==1.30.0
 RUN npm install -g markdownlint-cli@0.37.0
 
 # Install shellcheck
-RUN apt-get update && apt-get install -y --no-install-recommends shellcheck && rm -rf /var/lib/apt/lists/*
+RUN zypper -n install --no-recommends shellcheck && zypper clean --all
 
 # Install cosign
 RUN curl -LO https://github.com/sigstore/cosign/releases/latest/download/cosign-linux-amd64 \
@@ -106,9 +106,9 @@ RUN curl -sfL https://raw.githubusercontent.com/securego/gosec/master/install.sh
 RUN go install golang.org/x/vuln/cmd/govulncheck@latest
 
 # Install betterleaks
-RUN apt-get update && apt-get install -y --no-install-recommends curl && \
+RUN zypper -n install --no-recommends curl && \
     curl -L https://github.com/betterleaks/betterleaks/releases/latest/download/betterleaks_linux_x86_64 -o /usr/local/bin/betterleaks && \
-    chmod +x /usr/local/bin/betterleaks && rm -rf /var/lib/apt/lists/*
+    chmod +x /usr/local/bin/betterleaks && zypper clean --all
 
 # Stage 6: Final development environment
 FROM tools AS devpod
