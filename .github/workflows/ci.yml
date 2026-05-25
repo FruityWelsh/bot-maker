@@ -22,6 +22,7 @@ name: ChatBot Operator CI
 # 2. DLP Tests - Tests that validate the scan jobs themselves (HARD BLOCK)
 # 3. Validation - Strategy-to-BDD stack and DevX tools validation (HARD BLOCK)
 # 4. Execution - DevX tools act on validated application code (HARD BLOCK)
+# 5. Artifact Handling - Sign, publish, and deploy
 #
 # IMPORTANT: NO BYPASS METHODS. All jobs must pass. Test in pipeline.
 # Container build is FIRST to ensure it's available for scan jobs.
@@ -350,6 +351,70 @@ jobs:
   # PHASE 5: ARTIFACT HANDLING
   # ============================================================================
   
+  # JOB: Sign Artifacts
+  sign-artifacts:
+    name: Sign Artifacts
+    runs-on: ubuntu-latest
+    needs: build
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      
+      - name: Set up Cosign
+        uses: sigstore/cosign-installer@v3
+      
+      - name: Sign artifacts
+        run: make ci-sign
+
+  # JOB: Publish Artifacts
+  publish-artifacts:
+    name: Publish Artifacts
+    runs-on: ubuntu-latest
+    needs: sign-artifacts
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+      
+      - name: Publish artifacts
+        run: make ci-package
+
+  # JOB: Deploy to Cluster (Manual)
+  deploy:
+    name: Deploy to Cluster
+    runs-on: ubuntu-latest
+    needs: publish-artifacts
+    if: github.ref == 'refs/heads/main'
+    environment:
+      name: production
+      url: https://bot-maker.example.com
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      
+      - name: Set up kubectl
+        uses: azure/setup-kubectl@v3
+      
+      - name: Deploy
+        run: make ci-deploy
+
   upload:
     name: Upload Artifacts
     runs-on: ubuntu-latest
