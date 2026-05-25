@@ -1,13 +1,14 @@
 # ChatBot Operator Behavior-Driven Tests
 # References: docs/diagrams.md (upstream)
-# Downstream: tests/schemas/validation.js
+# Downstream: tests/schemas/validation.js, tests/tools/
 
 # Language: en
 # Author: Strategy Coder
-# Created: 2024-12-19
+# Created: Generated from Git commit date
 # References:
 #   upstream: docs/diagrams.md
 #   downstream: tests/schemas/validation.js
+#   downstream: tests/tools/
 
 Feature: ChatBot Operator Lifecycle Management
   As a Platform Engineering or Application Development team member

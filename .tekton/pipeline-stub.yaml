@@ -1,0 +1,92 @@
+# Stubbed Tekton Pipeline for Local Testing
+# ===========================================
+# This is a stubbed version that can be tested locally without requiring Tekton
+# Platform-agnostic CI workflow
+# References: docs/omen/strategy.json (Developer Environment Goal DG001)
+# References: docs/adr/architecture-decisions.md (ADR-012 - Platform-agnostic CI/CD)
+
+apiVersion: tekton.dev/v1
+kind: Pipeline
+metadata:
+  name: chatbot-operator-ci-stub
+  labels:
+    app: chatbot-operator
+    type: ci-pipeline
+    stub: "true"
+  annotations:
+    description: "Stubbed Platform-agnostic CI pipeline for ChatBot Operator. Wraps Make targets for local testing."
+    author: "Strategy Coder"
+    version: "Generated from Git commit date"
+    references: "docs/omen/strategy.json, docs/adr/architecture-decisions.md"
+    note: "This is a stubbed version for local testing without Tekton cluster"
+
+spec:
+  description: |
+    Stubbed ChatBot Operator CI Pipeline
+    ====================================
+    Platform-agnostic CI workflow
+    This Tekton pipeline stub wraps the platform-agnostic Make targets.
+    References: docs/omen/strategy.json (Developer Environment Goal DG001)
+    References: docs/adr/architecture-decisions.md (ADR-012 - Platform-agnostic CI/CD)
+    
+    For local testing without Tekton:
+      - Use: make tekton-ci
+      - Or run make targets directly: make ci-lint, make ci-test, etc.
+    
+    The actual Tekton pipeline would run on a Kubernetes cluster with Tekton installed.
+  
+  # Stubbed pipeline - tasks are defined but won't run without Tekton
+  tasks:
+    - name: setup
+      description: "Setup dependencies (stubbed)"
+      taskRef:
+        name: chatbot-operator-setup-stub
+      params:
+        - name: git-url
+          value: $(params.git-url)
+    
+    - name: lint
+      description: "Run linting (stubbed)"
+      runAfter: [setup]
+      taskRef:
+        name: chatbot-operator-lint-stub
+    
+    - name: test
+      description: "Run tests (stubbed)"
+      runAfter: [lint]
+      taskRef:
+        name: chatbot-operator-test-stub
+    
+    - name: build
+      description: "Build application (stubbed)"
+      runAfter: [test]
+      taskRef:
+        name: chatbot-operator-build-stub
+    
+    - name: scan
+      description: "Run security scans (stubbed)"
+      runAfter: [build]
+      taskRef:
+        name: chatbot-operator-scan-stub
+    
+    - name: sign
+      description: "Sign artifacts (stubbed)"
+      runAfter: [scan]
+      taskRef:
+        name: chatbot-operator-sign-stub
+    
+    - name: package
+      description: "Package artifacts (stubbed)"
+      runAfter: [sign]
+      taskRef:
+        name: chatbot-operator-package-stub
+
+  params:
+    - name: git-url
+      type: string
+      description: "Git repository URL"
+      default: "https://github.com/FruityWelsh/bot-maker"
+
+---
+# Stubbed note: This pipeline requires Tekton to be installed on a Kubernetes cluster.
+# For local testing, use the Makefile targets directly.

@@ -2,13 +2,13 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "metadata": {
     "name": "chatbot-operator-strategy",
-    "version": "1.0.0",
+    "version": "0.1.0-dev",
     "description": "Strategy definition for Kubernetes-native chat bot management",
     "created": "Generated from Git commit date",
     "author": "Strategy Coder",
     "references": {
       "upstream": null,
-      "downstream": ["archimate/enterprise-architecture.xml"]
+      "downstream": ["docs/archimate/enterprise-architecture.xml"]
     }
   },
   "vision": {
@@ -53,6 +53,27 @@
         "description": "Platform-agnostic CI/CD with open-source tools",
         "priority": "medium",
         "successCriteria": "Works with GitLab, Forgejo, GitHub, Tekton",
+        "category": "developer_experience"
+      },
+      {
+        "id": "DG004",
+        "description": "Containerized development environment with DevPod for reproducibility",
+        "priority": "medium",
+        "successCriteria": "DevPod configuration provides complete development environment with all tools pre-installed",
+        "category": "developer_experience"
+      },
+      {
+        "id": "DG005",
+        "description": "Local testing and GitHub Actions passing as gate before pushing/merging",
+        "priority": "high",
+        "successCriteria": "Pre-push hooks validate all checks locally, ensuring GitHub Actions will pass",
+        "category": "developer_experience"
+      },
+      {
+        "id": "DG006",
+        "description": "Documentation correctness checking with Vale using OpenSUSE rules",
+        "priority": "medium",
+        "successCriteria": "Vale configuration with OpenSUSE base rules validates all documentation",
         "category": "developer_experience"
       },
       {

@@ -144,8 +144,8 @@ const validBotCredential = {
     type: 'apiToken',
     valueEncrypted: 'encrypted-token-data',
     encryptionAlgorithm: 'AES-256-GCM',
-    expiresAt: '2024-12-31T23:59:59Z',
-    lastRotated: '2024-01-01T00:00:00Z',
+    expiresAt: 'Generated from Git commit date',
+    lastRotated: 'Generated from Git commit date',
     rotationSchedule: '30d'
   }
 };
@@ -228,7 +228,7 @@ const validAdr = {
     {
       id: 'ADR-001',
       status: 'Accepted',
-      date: '2024-12-19',
+      date: 'Generated from Git commit date',
       context: 'Need to manage chat bot lifecycles as Kubernetes resources',
       decision: 'Implement as Kubernetes Operator using Kubebuilder framework',
       consequences: [

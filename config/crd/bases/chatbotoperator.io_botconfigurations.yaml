@@ -1,0 +1,400 @@
+---
+# BotConfiguration Custom Resource Definition
+# ============================================
+# Defines the BotConfiguration resource for managing bot configurations
+# References: docs/omen/strategy.json (Application Goal AG001)
+# References: docs/adr/architecture-decisions.md (ADR-001)
+# References: features/chatbot.feature (BDD scenarios)
+
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  name: botconfigurations.chatbotoperator.io
+  labels:
+    app: chatbot-operator
+    version: v1alpha1
+    group: chatbotoperator.io
+    kind: BotConfiguration
+  annotations:
+    description: "BotConfiguration resource defines configuration for a chat bot"
+    author: "Strategy Coder"
+    version: "Generated from Git commit date"
+    references: "docs/omen/strategy.json, docs/adr/architecture-decisions.md, features/chatbot.feature"
+
+spec:
+  group: chatbotoperator.io
+  versions:
+    - name: v1alpha1
+      served: true
+      storage: true
+      schema:
+        openAPIV3Schema:
+          type: object
+          properties:
+            spec:
+              type: object
+              required:
+                - chatBotRef
+                - configuration
+              properties:
+                chatBotRef:
+                  type: object
+                  description: "Reference to the ChatBot this configuration applies to"
+                  required:
+                    - name
+                  properties:
+                    name:
+                      type: string
+                      description: "Name of the ChatBot resource"
+                      examples: ["customer-support-bot"]
+                    
+                    namespace:
+                      type: string
+                      description: "Namespace of the ChatBot resource (defaults to same as BotConfiguration)"
+                      default: ""
+                
+                configuration:
+                  type: object
+                  description: "Configuration for the bot"
+                  required:
+                    - handlers
+                  properties:
+                    handlers:
+                      type: array
+                      description: "List of message handlers"
+                      minItems: 1
+                      items:
+                        type: object
+                        required:
+                          - name
+                          - type
+                          - pattern
+                          - action
+                        properties:
+                          name:
+                            type: string
+                            description: "Name of the handler"
+                            examples: ["greeting-handler"]
+                          
+                          type:
+                            type: string
+                            description: "Type of handler"
+                            enum: [keyword, regex, intent, command]
+                            examples: ["keyword"]
+                          
+                          pattern:
+                            type: string
+                            description: "Pattern to match against messages"
+                            examples: ["hello", "^help$", "/start"]
+                          
+                          action:
+                            type: object
+                            description: "Action to take when pattern matches"
+                            required:
+                              - type
+                            properties:
+                              type:
+                                type: string
+                                description: "Type of action"
+                                enum: [reply, forward, webhook, command, workflow]
+                                examples: ["reply"]
+                              
+                              reply:
+                                type: object
+                                description: "Reply action configuration"
+                                properties:
+                                  message:
+                                    type: string
+                                    description: "Message to reply with"
+                                    examples: ["Hello! How can I help you?"]
+                                  
+                                  format:
+                                    type: string
+                                    description: "Format of the reply"
+                                    enum: [text, markdown, html]
+                                    default: "text"
+                              
+                              forward:
+                                type: object
+                                description: "Forward action configuration"
+                                properties:
+                                  target:
+                                    type: string
+                                    description: "Target to forward to (user, channel, webhook)"
+                                    examples: ["@admin", "#support-channel"]
+                                  
+                                  webhookURL:
+                                    type: string
+                                    format: uri
+                                    description: "Webhook URL to forward to"
+                              
+                              webhook:
+                                type: object
+                                description: "Webhook action configuration"
+                                required:
+                                  - url
+                                properties:
+                                  url:
+                                    type: string
+                                    format: uri
+                                    description: "Webhook URL to call"
+                                  
+                                  method:
+                                    type: string
+                                    description: "HTTP method"
+                                    enum: [GET, POST, PUT, PATCH, DELETE]
+                                    default: "POST"
+                                  
+                                  headers:
+                                    type: object
+                                    additionalProperties:
+                                      type: string
+                                  
+                                  body:
+                                    type: string
+                                    description: "Request body template"
+                              
+                              command:
+                                type: object
+                                description: "Command action configuration"
+                                properties:
+                                  command:
+                                    type: string
+                                    description: "Command to execute"
+                                    examples: ["/bin/process-message"]
+                                  
+                                  args:
+                                    type: array
+                                    items:
+                                      type: string
+                                  
+                                  timeoutSeconds:
+                                    type: integer
+                                    default: 30
+                              
+                              workflow:
+                                type: object
+                                description: "Workflow action configuration"
+                                properties:
+                                  steps:
+                                    type: array
+                                    items:
+                                      type: object
+                                      required:
+                                        - action
+                                      properties:
+                                        action:
+                                          type: string
+                                          description: "Action to perform"
+                                        
+                                        next:
+                                          type: string
+                                          description: "Next step if this succeeds"
+                    
+                    defaultHandler:
+                      type: object
+                      description: "Default handler for messages that don't match any pattern"
+                      properties:
+                        type:
+                          type: string
+                          enum: [reply, forward, webhook, command, workflow]
+                          default: "reply"
+                        
+                        reply:
+                          type: object
+                          properties:
+                            message:
+                              type: string
+                              default: "I'm sorry, I didn't understand that. Can you rephrase?"
+                    
+                    plugins:
+                      type: array
+                      description: "List of plugins to load"
+                      items:
+                        type: object
+                        required:
+                          - name
+                        properties:
+                          name:
+                            type: string
+                            description: "Name of the plugin"
+                            examples: ["sentiment-analysis", "translation"]
+                          
+                          enabled:
+                            type: boolean
+                            default: true
+                          
+                          configuration:
+                            type: object
+                            additionalProperties:
+                              type: string
+                    
+                    settings:
+                      type: object
+                      description: "General bot settings"
+                      properties:
+                        language:
+                          type: string
+                          description: "Default language for the bot"
+                          default: "en"
+                          examples: ["en", "es", "fr"]
+                        
+                        timezone:
+                          type: string
+                          description: "Timezone for the bot"
+                          default: "UTC"
+                          examples: ["UTC", "America/New_York"]
+                        
+                        logging:
+                          type: object
+                          properties:
+                            level:
+                              type: string
+                              enum: [debug, info, warn, error]
+                              default: "info"
+                            
+                            format:
+                              type: string
+                              enum: [json, text]
+                              default: "json"
+                        
+                        rateLimiting:
+                          type: object
+                          properties:
+                            enabled:
+                              type: boolean
+                              default: true
+                            
+                            maxMessagesPerMinute:
+                              type: integer
+                              default: 100
+                              minimum: 1
+                              maximum: 1000
+                    
+                    integrations:
+                      type: object
+                      description: "External integrations"
+                      properties:
+                        database:
+                          type: object
+                          description: "Database integration"
+                          properties:
+                            enabled:
+                              type: boolean
+                              default: false
+                            
+                            type:
+                              type: string
+                              enum: [postgres, mysql, mongodb, redis]
+                            
+                            connectionString:
+                              type: string
+                              description: "Database connection string (reference to Secret)"
+                        
+                        cache:
+                          type: object
+                          description: "Cache integration"
+                          properties:
+                            enabled:
+                              type: boolean
+                              default: false
+                            
+                            type:
+                              type: string
+                              enum: [redis, memcached]
+                            
+                            ttlSeconds:
+                              type: integer
+                              default: 300
+                        
+                        analytics:
+                          type: object
+                          description: "Analytics integration"
+                          properties:
+                            enabled:
+                              type: boolean
+                              default: false
+                            
+                            provider:
+                              type: string
+                              enum: [google, mixpanel, amplitude]
+                
+                labels:
+                  type: object
+                  additionalProperties:
+                    type: string
+                
+                annotations:
+                  type: object
+                  additionalProperties:
+                    type: string
+            
+            status:
+              type: object
+              description: "Status of the BotConfiguration resource"
+              properties:
+                phase:
+                  type: string
+                  description: "Current phase"
+                  enum: [Pending, Applying, Ready, Failed, Deleted]
+                
+                message:
+                  type: string
+                  description: "Human-readable message"
+                
+                reason:
+                  type: string
+                  description: "Machine-readable reason"
+                
+                lastTransitionTime:
+                  type: string
+                  format: date-time
+                
+                lastAppliedTime:
+                  type: string
+                  format: date-time
+                  description: "Time when configuration was last applied"
+                
+                appliedConfiguration:
+                  type: object
+                  description: "The configuration that was last applied"
+                
+                lastError:
+                  type: object
+                  properties:
+                    message:
+                      type: string
+                    
+                    time:
+                      type: string
+                      format: date-time
+                    
+                    count:
+                      type: integer
+                      default: 0
+                
+                metrics:
+                  type: object
+                  properties:
+                    configurationChanges:
+                      type: integer
+                      description: "Number of configuration changes"
+                      default: 0
+                    
+                    lastChangeTime:
+                      type: string
+                      format: date-time
+
+  scope: Namespaced
+  names:
+    plural: botconfigurations
+    singular: botconfiguration
+    kind: BotConfiguration
+    shortNames:
+      - bc
+      - config
+
+---
+# References: docs/omen/strategy.json (Application Goal AG001)
+# References: docs/adr/architecture-decisions.md (ADR-001)
+# References: features/chatbot.feature (BDD scenarios)

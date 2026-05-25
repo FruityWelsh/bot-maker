@@ -1,0 +1,391 @@
+---
+# BotPlatform Custom Resource Definition
+# ======================================
+# Defines the BotPlatform resource for configuring platform-specific settings
+# References: docs/omen/strategy.json (Application Goal AG001)
+# References: docs/adr/architecture-decisions.md (ADR-001, ADR-003)
+# References: features/chatbot.feature (BDD scenarios)
+
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  name: botplatforms.chatbotoperator.io
+  labels:
+    app: chatbot-operator
+    version: v1alpha1
+    group: chatbotoperator.io
+    kind: BotPlatform
+  annotations:
+    description: "BotPlatform resource defines platform-specific configuration and provisioning settings"
+    author: "Strategy Coder"
+    version: "Generated from Git commit date"
+    references: "docs/omen/strategy.json, docs/adr/architecture-decisions.md, features/chatbot.feature"
+
+spec:
+  group: chatbotoperator.io
+  versions:
+    - name: v1alpha1
+      served: true
+      storage: true
+      schema:
+        openAPIV3Schema:
+          type: object
+          properties:
+            spec:
+              type: object
+              required:
+                - platformType
+                - name
+              properties:
+                platformType:
+                  type: string
+                  description: "The type of chat platform"
+                  enum: [slack, matrix, discord, twilio]
+                  examples: ["slack"]
+                
+                name:
+                  type: string
+                  description: "Name of this platform configuration"
+                  minLength: 1
+                  maxLength: 63
+                  pattern: "^[a-z0-9]([-a-z0-9]*[a-z0-9])?$"
+                  examples: ["slack-prod"]
+                
+                displayName:
+                  type: string
+                  description: "User-friendly display name"
+                  maxLength: 100
+                  examples: ["Slack Production"]
+                
+                description:
+                  type: string
+                  description: "Description of this platform configuration"
+                  maxLength: 500
+                
+                api:
+                  type: object
+                  description: "API configuration for the platform"
+                  required:
+                    - baseURL
+                  properties:
+                    baseURL:
+                      type: string
+                      description: "Base URL for the platform API"
+                      format: uri
+                      examples: ["https://slack.com/api"]
+                    
+                    version:
+                      type: string
+                      description: "API version to use"
+                      default: "v1"
+                      examples: ["v1", "v2"]
+                    
+                    rateLimit:
+                      type: integer
+                      description: "API rate limit per minute"
+                      default: 60
+                      minimum: 1
+                      maximum: 1000
+                    
+                    timeoutSeconds:
+                      type: integer
+                      description: "API request timeout"
+                      default: 30
+                      minimum: 5
+                      maximum: 300
+                
+                authentication:
+                  type: object
+                  description: "Authentication configuration"
+                  required:
+                    - method
+                  properties:
+                    method:
+                      type: string
+                      description: "Authentication method"
+                      enum: [oauth2, apiKey, bearerToken, basicAuth]
+                      examples: ["oauth2"]
+                    
+                    oauth2:
+                      type: object
+                      description: "OAuth2 configuration"
+                      properties:
+                        clientID:
+                          type: string
+                          description: "OAuth2 client ID"
+                        
+                        clientSecret:
+                          type: string
+                          description: "Reference to Secret containing client secret"
+                        
+                        tokenURL:
+                          type: string
+                          format: uri
+                          description: "OAuth2 token endpoint"
+                        
+                        scopes:
+                          type: array
+                          items:
+                            type: string
+                          description: "Required OAuth2 scopes"
+                          examples: [["chat:write", "users:read"]]
+                    
+                    apiKey:
+                      type: object
+                      description: "API key configuration"
+                      properties:
+                        headerName:
+                          type: string
+                          description: "HTTP header name for API key"
+                          default: "X-API-Key"
+                        
+                        secretName:
+                          type: string
+                          description: "Reference to Secret containing API key"
+                    
+                    bearerToken:
+                      type: object
+                      description: "Bearer token configuration"
+                      properties:
+                        secretName:
+                          type: string
+                          description: "Reference to Secret containing bearer token"
+                    
+                    basicAuth:
+                      type: object
+                      description: "Basic auth configuration"
+                      properties:
+                        username:
+                          type: string
+                          description: "Username for basic auth"
+                        
+                        passwordSecretName:
+                          type: string
+                          description: "Reference to Secret containing password"
+                
+                provisioning:
+                  type: object
+                  description: "Provisioning configuration for this platform"
+                  required:
+                    - provisionerImage
+                  properties:
+                    provisionerImage:
+                      type: string
+                      description: "Container image for the provisioner"
+                      examples: ["ghcr.io/fruitywelsh/chatbot-provisioner-slack:v1.0.0"]
+                    
+                    provisionerCommand:
+                      type: array
+                      items:
+                        type: string
+                      description: "Command to run the provisioner"
+                      default: ["/provisioner"]
+                    
+                    provisionerArgs:
+                      type: array
+                      items:
+                        type: string
+                      description: "Arguments for the provisioner"
+                    
+                    environment:
+                      type: array
+                      items:
+                        type: object
+                        required:
+                          - name
+                        properties:
+                          name:
+                            type: string
+                          
+                          value:
+                            type: string
+                          
+                          valueFrom:
+                            type: object
+                            properties:
+                              secretKeyRef:
+                                type: object
+                                properties:
+                                  name:
+                                    type: string
+                                  key:
+                                    type: string
+                    
+                    resources:
+                      type: object
+                      description: "Resource requirements for provisioner"
+                      properties:
+                        limits:
+                          type: object
+                          properties:
+                            cpu:
+                              type: string
+                              default: "500m"
+                            
+                            memory:
+                              type: string
+                              default: "256Mi"
+                        
+                        requests:
+                          type: object
+                          properties:
+                            cpu:
+                              type: string
+                              default: "100m"
+                            
+                            memory:
+                              type: string
+                              default: "128Mi"
+                    
+                    timeoutSeconds:
+                      type: integer
+                      description: "Provisioning timeout"
+                      default: 300
+                      minimum: 30
+                      maximum: 3600
+                
+                webhook:
+                  type: object
+                  description: "Webhook configuration"
+                  properties:
+                    enabled:
+                      type: boolean
+                      default: true
+                    
+                    pathPrefix:
+                      type: string
+                      description: "Prefix for webhook paths"
+                      default: "/webhook"
+                    
+                    port:
+                      type: integer
+                      description: "Port for webhook server"
+                      default: 8080
+                      minimum: 1024
+                      maximum: 65535
+                    
+                    tls:
+                      type: object
+                      description: "TLS configuration for webhooks"
+                      properties:
+                        enabled:
+                          type: boolean
+                          default: true
+                        
+                        certManager:
+                          type: object
+                          properties:
+                            enabled:
+                              type: boolean
+                              default: true
+                            
+                            issuerName:
+                              type: string
+                              default: "letsencrypt-prod"
+                            
+                            issuerKind:
+                              type: string
+                              default: "ClusterIssuer"
+                
+                monitoring:
+                  type: object
+                  description: "Monitoring configuration"
+                  properties:
+                    enabled:
+                      type: boolean
+                      default: true
+                    
+                    metrics:
+                      type: object
+                      properties:
+                        enabled:
+                          type: boolean
+                          default: true
+                        
+                        port:
+                          type: integer
+                          default: 9090
+                
+                labels:
+                  type: object
+                  additionalProperties:
+                    type: string
+                
+                annotations:
+                  type: object
+                  additionalProperties:
+                    type: string
+            
+            status:
+              type: object
+              description: "Status of the BotPlatform resource"
+              properties:
+                phase:
+                  type: string
+                  description: "Current phase"
+                  enum: [Pending, Configuring, Ready, Failed, Deleted]
+                
+                message:
+                  type: string
+                  description: "Human-readable message"
+                
+                reason:
+                  type: string
+                  description: "Machine-readable reason"
+                
+                lastTransitionTime:
+                  type: string
+                  format: date-time
+                
+                provisionerStatus:
+                  type: string
+                  description: "Status of the provisioner"
+                  enum: [NotReady, Ready, Failed]
+                
+                apiStatus:
+                  type: string
+                  description: "Status of API connectivity"
+                  enum: [NotConnected, Connected, Failed]
+                
+                lastError:
+                  type: object
+                  properties:
+                    message:
+                      type: string
+                    
+                    time:
+                      type: string
+                      format: date-time
+                    
+                    count:
+                      type: integer
+                      default: 0
+                
+                metrics:
+                  type: object
+                  properties:
+                    apiCalls:
+                      type: integer
+                      default: 0
+                    
+                    errors:
+                      type: integer
+                      default: 0
+                    
+                    lastApiCallTime:
+                      type: string
+                      format: date-time
+
+  scope: Namespaced
+  names:
+    plural: botplatforms
+    singular: botplatform
+    kind: BotPlatform
+    shortNames:
+      - bp
+      - platform
+
+---
+# References: docs/omen/strategy.json (Application Goal AG001)
+# References: docs/adr/architecture-decisions.md (ADR-001, ADR-003)
+# References: features/chatbot.feature (BDD scenarios)

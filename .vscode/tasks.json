@@ -1,0 +1,207 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "ChatBot Operator: Full CI Pipeline",
+      "type": "shell",
+      "command": "make ci",
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "problemMatcher": [],
+      "detail": "Platform-agnostic CI workflow. Runs the complete CI pipeline (lint, test, build, scan, sign, package). This is the same target that GitHub Actions, GitLab CI, and Tekton wrap. References: docs/omen/strategy.json (Developer Environment Goal DG001), docs/adr/architecture-decisions.md (ADR-012 - Platform-agnostic CI/CD)",
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "focus": true,
+        "echo": true
+      }
+    },
+    {
+      "label": "ChatBot Operator: Lint",
+      "type": "shell",
+      "command": "make ci-lint",
+      "group": "test",
+      "problemMatcher": [],
+      "detail": "Runs all linting checks. Same target wrapped by CI platforms.",
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared",
+        "echo": true
+      }
+    },
+    {
+      "label": "ChatBot Operator: Test",
+      "type": "shell",
+      "command": "make ci-test",
+      "group": "test",
+      "problemMatcher": [],
+      "detail": "Runs all tests (unit, integration, validation, behavior). Same target wrapped by CI platforms.",
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared",
+        "echo": true
+      }
+    },
+    {
+      "label": "ChatBot Operator: Build",
+      "type": "shell",
+      "command": "make ci-build",
+      "group": "build",
+      "problemMatcher": [],
+      "detail": "Builds the application. Same target wrapped by CI platforms.",
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared",
+        "echo": true
+      }
+    },
+    {
+      "label": "ChatBot Operator: Security Scan",
+      "type": "shell",
+      "command": "make ci-scan",
+      "group": "test",
+      "problemMatcher": [],
+      "detail": "Runs security scanning. Same target wrapped by CI platforms.",
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared",
+        "echo": true
+      }
+    },
+    {
+      "label": "ChatBot Operator: Sign Artifacts",
+      "type": "shell",
+      "command": "make ci-sign",
+      "group": "build",
+      "problemMatcher": [],
+      "detail": "Signs artifacts. Same target wrapped by CI platforms.",
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared",
+        "echo": true
+      }
+    },
+    {
+      "label": "ChatBot Operator: Package",
+      "type": "shell",
+      "command": "make ci-package",
+      "group": "build",
+      "problemMatcher": [],
+      "detail": "Packages artifacts. Same target wrapped by CI platforms.",
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared",
+        "echo": true
+      }
+    },
+    {
+      "label": "ChatBot Operator: Install Dependencies",
+      "type": "shell",
+      "command": "make deps",
+      "group": "build",
+      "problemMatcher": [],
+      "detail": "Installs all dependencies (Go, Node, tools). Same target wrapped by CI platforms.",
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared",
+        "echo": true
+      }
+    },
+    {
+      "label": "ChatBot Operator: Clean",
+      "type": "shell",
+      "command": "make clean",
+      "group": "build",
+      "problemMatcher": [],
+      "detail": "Cleans all build artifacts. Same target wrapped by CI platforms.",
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared",
+        "echo": true
+      }
+    },
+    {
+      "label": "ChatBot Operator: Doctor",
+      "type": "shell",
+      "command": "make doctor",
+      "group": "test",
+      "problemMatcher": [],
+      "detail": "Checks development environment setup.",
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared",
+        "echo": true
+      }
+    },
+    {
+      "label": "ChatBot Operator: Help",
+      "type": "shell",
+      "command": "make help",
+      "group": "none",
+      "problemMatcher": [],
+      "detail": "Shows all available Make targets.",
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared",
+        "echo": true
+      }
+    },
+    {
+      "label": "Generate: GitHub Actions Workflow",
+      "type": "shell",
+      "command": "make github-ci",
+      "group": "build",
+      "problemMatcher": [],
+      "detail": "Generates GitHub Actions workflow configuration that wraps the Make targets.",
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared",
+        "echo": true
+      }
+    },
+    {
+      "label": "Generate: GitLab CI Configuration",
+      "type": "shell",
+      "command": "make gitlab-ci",
+      "group": "build",
+      "problemMatcher": [],
+      "detail": "Generates GitLab CI/CD configuration that wraps the Make targets.",
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared",
+        "echo": true
+      }
+    },
+    {
+      "label": "Generate: Tekton Pipeline",
+      "type": "shell",
+      "command": "make tekton-ci",
+      "group": "build",
+      "problemMatcher": [],
+      "detail": "Generates Tekton pipeline manifests that wrap the Make targets.",
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared",
+        "echo": true
+      }
+    },
+    {
+      "label": "Generate: All Platform Configurations",
+      "type": "shell",
+      "command": "make all-platforms",
+      "group": "build",
+      "problemMatcher": [],
+      "detail": "Generates all platform-specific CI/CD configurations (GitHub, GitLab, Tekton, VSCode).",
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared",
+        "echo": true
+      }
+    }
+  ],
+  "inputs": [],
+  "outputs": [],
+  "excludes": []
+}

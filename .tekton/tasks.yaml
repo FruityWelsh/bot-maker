@@ -1,3 +1,6 @@
+    Installs all dependencies for the ChatBot Operator.
+    This is just a wrapper around: make deps
+=======
 apiVersion: tekton.dev/v1
 kind: Task
 metadata:
@@ -8,11 +11,18 @@ metadata:
   annotations:
     description: "Setup task - Installs dependencies. Wraps 'make deps'"
     author: "Strategy Coder"
+    version: "Generated from Git commit date"
+    references: "docs/omen/strategy.json, docs/adr/architecture-decisions.md"
 
 spec:
   description: |
     Setup Task
     ==========
+    Platform-agnostic CI workflow
+    Installs all dependencies for the ChatBot Operator.
+    References: docs/omen/strategy.json (Developer Environment Goal DG001)
+    References: docs/adr/architecture-decisions.md (ADR-012 - Platform-agnostic CI/CD)
+    This is just a wrapper around: make deps==========
     Installs all dependencies for the ChatBot Operator.
     This is just a wrapper around: make deps
   
@@ -413,170 +423,6 @@ spec:
         make ci
         echo "✅ Full pipeline complete"
 
-    Cleans up build artifacts.
-    This is just a wrapper around: make clean
-  
-  workspaces:
-    - name: source
-      description: Source code workspace
-    
-    - name: artifacts
-      description: Build artifacts workspace
-
-  steps:
-    - name: cleanup
-      image: alpine:latest
-      workingDir: $(workspaces.source.path)
-      script: |
-        echo "🧹 Cleaning up..."
-        
-        # Set CI environment variables for Make targets
-        export CI_PLATFORM=tekton
-        
-        # Clean up using Make targets
-        make clean
-        echo "✅ Cleanup complete"
-=======
-    Validates that all code follows Strategy First, Code Second principle.
-    This is just a wrapper around: npm run check:strategy
-  
-  workspaces:
-    - name: source
-      description: Source code workspace
-    
-    - name: artifacts
-      description: Build artifacts workspace
-
-  steps:
-    - name: validate-strategy
-      image: node:20-alpine
-      workingDir: $(workspaces.source.path)
-      script: |
-        echo "🔗 Validating strategy-to-code chain..."
-        
-        # Set CI environment variables for Make targets
-        export CI_PLATFORM=tekton
-        
-        # Install dependencies
-        npm install
-        
-        # Validate strategy chain using npm script
-        npm run check:strategy
-        echo "✅ Strategy chain validation complete"
-=======
----
-apiVersion: tekton.dev/v1
-kind: Task
-metadata:
-  name: chatbot-operator-validate-strategy
-  labels:
-    app: chatbot-operator
-    type: ci-task
-  annotations:
-    description: "Strategy validation task - Validates strategy-to-code chain. Wraps 'npm run check:strategy'"
-    author: "Strategy Coder"
-
-spec:
-  description: |
-    Strategy Validation Task
-    ========================
-    Validates that all code follows Strategy First, Code Second principle.
-    This is just a wrapper around: npm run check:strategy
-  
-  workspaces:
-    - name: source
-      description: Source code workspace
-    
-    - name: artifacts
-      description: Build artifacts workspace
-
-  steps:
-    - name: validate-strategy
-      image: node:20-alpine
-      workingDir: $(workspaces.source.path)
-      script: |
-        echo "🔗 Validating strategy-to-code chain..."
-        
-        # Set CI environment variables for Make targets
-        export CI_PLATFORM=tekton
-        
-        # Install dependencies
-        npm install
-        
-        # Validate strategy chain using npm script
-        npm run check:strategy
-        echo "✅ Strategy chain validation complete"
-
----
-apiVersion: tekton.dev/v1
-kind: Task
-metadata:
-  name: chatbot-operator-validate-dates
-  labels:
-    app: chatbot-operator
-    type: ci-task
-  annotations:
-    description: "Date validation task - Validates no manual dates. Wraps 'npm test -- tests/validation/dates.test.js'"
-    author: "Strategy Coder"
-
-spec:
-  description: |
-    Date Validation Task
-    ====================
-    Validates that no manual dates exist in documentation.
-    Rule: Do not manually add dates - use tools that reference real time
-    This is just a wrapper around: npm test -- tests/validation/dates.test.js
-  
-  workspaces:
-    - name: source
-      description: Source code workspace
-    
-    - name: artifacts
-      description: Build artifacts workspace
-
-  steps:
-    - name: validate-dates
-      image: node:20-alpine
-      workingDir: $(workspaces.source.path)
-      script: |
-        echo "📅 Validating no manual dates..."
-        
-        # Set CI environment variables for Make targets
-        export CI_PLATFORM=tekton
-        
-        # Install dependencies
-        npm install
-        
-        # Validate dates using npm script
-        npm test -- tests/validation/dates.test.js
-        echo "✅ Date validation complete"========================
-    Validates that all code follows Strategy First, Code Second principle.
-    This is just a wrapper around: npm run check:strategy
-  
-  workspaces:
-    - name: source
-      description: Source code workspace
-    
-    - name: artifacts
-      description: Build artifacts workspace
-
-  steps:
-    - name: validate-strategy
-      image: node:20-alpine
-      workingDir: $(workspaces.source.path)
-      script: |
-        echo "🔗 Validating strategy-to-code chain..."
-        
-        # Set CI environment variables for Make targets
-        export CI_PLATFORM=tekton
-        
-        # Install dependencies
-        npm install
-        
-        # Validate strategy chain using npm script
-        npm run check:strategy
-        echo "✅ Strategy chain validation complete"
-
 ---
 apiVersion: tekton.dev/v1
 kind: Task
@@ -593,29 +439,6 @@ spec:
   description: |
     Cleanup Task
     ============
-    Cleans up build artifacts.
-    This is just a wrapper around: make clean
-  
-  workspaces:
-    - name: source
-      description: Source code workspace
-    
-    - name: artifacts
-      description: Build artifacts workspace
-
-  steps:
-    - name: cleanup
-      image: alpine:latest
-      workingDir: $(workspaces.source.path)
-      script: |
-        echo "🧹 Cleaning up..."
-        
-        # Set CI environment variables for Make targets
-        export CI_PLATFORM=tekton
-        
-        # Clean up using Make targets
-        make clean
-        echo "✅ Cleanup complete"============
     Cleans up build artifacts.
     This is just a wrapper around: make clean
   

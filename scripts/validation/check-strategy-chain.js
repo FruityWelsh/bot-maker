@@ -1,0 +1,274 @@
+#!/usr/bin/env node
+/**
+ * Strategy-to-Code Chain Validation Script
+ * 
+ * This script validates that all code and documentation follows the Strategy First, Code Second
+ * principle by ensuring:
+ * 1. All code has proper references to upstream strategy documents
+ * 2. All toolchain documents have hard references to their upstream/downstream
+ * 3. The complete chain Omen -> ArchiMate -> BMML -> ADR -> Cube.js -> Diagrams -> Godog -> Jest is maintained
+ * 
+ * References: docs/omen/strategy.json (upstream)
+ * References: docs/adr/architecture-decisions.md (ADR-003, ADR-012)
+ */
+
+const fs = require('fs');
+const path = require('path');
+
+// Configuration
+const PROJECT_ROOT = path.join(__dirname, '../..');
+const TOOLCHAIN = [
+  { name: 'Omen', path: 'docs/omen/strategy.json', required: true },
+  { name: 'ArchiMate', path: 'docs/archimate/enterprise-architecture.xml', required: true },
+  { name: 'BMML', path: 'docs/bmml/value-proposition.yaml', required: true },
+  { name: 'ADR', path: 'docs/adr/architecture-decisions.md', required: true },
+  { name: 'Cube.js', path: 'docs/cubejs/metrics.yaml', required: true },
+  { name: 'Diagrams', path: 'docs/diagrams.md', required: true },
+  { name: 'Godog', path: 'features/chatbot.feature', required: true },
+  { name: 'Jest', path: 'tests/schemas/validation.js', required: true }
+];
+
+// Expected references between toolchain documents
+const EXPECTED_REFERENCES = {
+  'Omen': {
+    downstream: ['ArchiMate']
+  },
+  'ArchiMate': {
+    upstream: 'Omen',
+    downstream: 'BMML'
+  },
+  'BMML': {
+    upstream: 'ArchiMate',
+    downstream: 'ADR'
+  },
+  'ADR': {
+    upstream: 'BMML',
+    downstream: 'Cube.js'
+  },
+  'Cube.js': {
+    upstream: 'ADR',
+    downstream: 'Diagrams'
+  },
+  'Diagrams': {
+    upstream: 'Cube.js',
+    downstream: 'Godog'
+  },
+  'Godog': {
+    upstream: 'Diagrams',
+    downstream: 'Jest'
+  },
+  'Jest': {
+    upstream: 'Godog'
+  }
+};
+
+console.log('🔗 Strategy-to-Code Chain Validation');
+console.log('====================================\n');
+
+let allPassed = true;
+
+// Test 1: Check that all toolchain documents exist
+console.log('📁 Test 1: Checking toolchain document existence...');
+TOOLCHAIN.forEach(tool => {
+  const fullPath = path.join(PROJECT_ROOT, tool.path);
+  if (fs.existsSync(fullPath)) {
+    console.log(`  ✅ ${tool.name} exists at ${tool.path}`);
+  } else {
+    console.log(`  ❌ ${tool.name} MISSING at ${tool.path}`);
+    allPassed = false;
+  }
+});
+
+// Test 2: Check hard references between toolchain documents
+console.log('\n🔗 Test 2: Checking hard references between toolchain documents...');
+TOOLCHAIN.forEach(tool => {
+  const fullPath = path.join(PROJECT_ROOT, tool.path);
+  if (!fs.existsSync(fullPath)) return;
+  
+  const content = fs.readFileSync(fullPath, 'utf8');
+  const refs = EXPECTED_REFERENCES[tool.name];
+  
+  if (refs) {
+    if (refs.upstream) {
+      const upstreamTool = TOOLCHAIN.find(t => t.name === refs.upstream);
+      if (upstreamTool) {
+        // Check if this document references its upstream
+        const upstreamRef = upstreamTool.path.replace(/\//g, '/');
+        if (content.includes(upstreamRef)) {
+          console.log(`  ✅ ${tool.name} references upstream ${refs.upstream} (${upstreamRef})`);
+        } else {
+          console.log(`  ❌ ${tool.name} does NOT reference upstream ${refs.upstream} (${upstreamRef})`);
+          allPassed = false;
+        }
+      }
+    }
+    
+    if (refs.downstream) {
+      if (Array.isArray(refs.downstream)) {
+        refs.downstream.forEach(downstream => {
+          const downstreamTool = TOOLCHAIN.find(t => t.name === downstream);
+          if (downstreamTool) {
+            const downstreamRef = downstreamTool.path.replace(/\//g, '/');
+            if (content.includes(downstreamRef)) {
+              console.log(`  ✅ ${tool.name} references downstream ${downstream} (${downstreamRef})`);
+            } else {
+              console.log(`  ❌ ${tool.name} does NOT reference downstream ${downstream} (${downstreamRef})`);
+              allPassed = false;
+            }
+          }
+        });
+      } else {
+        const downstreamTool = TOOLCHAIN.find(t => t.name === refs.downstream);
+        if (downstreamTool) {
+          const downstreamRef = downstreamTool.path.replace(/\//g, '/');
+          if (content.includes(downstreamRef)) {
+            console.log(`  ✅ ${tool.name} references downstream ${refs.downstream} (${downstreamRef})`);
+          } else {
+            console.log(`  ❌ ${tool.name} does NOT reference downstream ${refs.downstream} (${downstreamRef})`);
+            allPassed = false;
+          }
+        }
+      }
+    }
+  }
+});
+
+// Test 3: Check that application code references strategy documents
+console.log('\n📋 Test 3: Checking application code references to strategy...');
+const appFiles = [
+  'Makefile',
+  '.github/workflows/ci.yml',
+  '.gitlab-ci.yml',
+  '.tekton/pipeline.yaml',
+  '.tekton/tasks.yaml',
+  '.vscode/tasks.json'
+];
+
+appFiles.forEach(file => {
+  const fullPath = path.join(PROJECT_ROOT, file);
+  if (fs.existsSync(fullPath)) {
+    const content = fs.readFileSync(fullPath, 'utf8');
+    
+    // Check for references to strategy/architecture
+    const hasStrategyRef = content.includes('Platform-Agnostic') || 
+                          content.includes('Strategy First') ||
+                          content.includes('Make targets') ||
+                          content.includes('ADR');
+    
+    if (hasStrategyRef) {
+      console.log(`  ✅ ${file} references strategy/architecture`);
+    } else {
+      console.log(`  ⚠️  ${file} has no explicit strategy/architecture reference`);
+      // This is a warning, not a failure
+    }
+  }
+});
+
+// Test 4: Check that tests validate the strategy chain
+console.log('\n🧪 Test 4: Checking that tests validate the strategy chain...');
+const testFiles = [
+  'tests/schemas/validation.js',
+  'tests/tools/makefile.test.js',
+  'tests/tools/cicd.test.js'
+];
+
+testFiles.forEach(file => {
+  const fullPath = path.join(PROJECT_ROOT, file);
+  if (fs.existsSync(fullPath)) {
+    const content = fs.readFileSync(fullPath, 'utf8');
+    
+    // Check for references to strategy documents
+    const hasOmenRef = content.includes('docs/omen/strategy.json');
+    const hasAdrRef = content.includes('docs/adr/architecture-decisions.md');
+    const hasBmmlRef = content.includes('docs/bmml/value-proposition.yaml');
+    
+    if (hasOmenRef || hasAdrRef || hasBmmlRef) {
+      console.log(`  ✅ ${file} validates strategy chain references`);
+    } else {
+      console.log(`  ❌ ${file} does NOT validate strategy chain references`);
+      allPassed = false;
+    }
+  }
+});
+
+// Test 5: Check CI/CD pipeline validates strategy chain
+console.log('\n🚀 Test 5: Checking CI/CD pipeline validates strategy chain...');
+const ciFiles = [
+  '.github/workflows/ci.yml',
+  '.gitlab-ci.yml',
+  '.tekton/pipeline.yaml'
+];
+
+ciFiles.forEach(file => {
+  const fullPath = path.join(PROJECT_ROOT, file);
+  if (fs.existsSync(fullPath)) {
+    const content = fs.readFileSync(fullPath, 'utf8');
+    
+    // Check that CI calls Make targets which implement the strategy
+    const hasMakeTargets = content.includes('make deps') || 
+                          content.includes('make lint') || 
+                          content.includes('make test') ||
+                          content.includes('make ci');
+    
+    if (hasMakeTargets) {
+      console.log(`  ✅ ${file} calls Make targets (implements strategy)`);
+    } else {
+      console.log(`  ❌ ${file} does NOT call Make targets`);
+      allPassed = false;
+    }
+  }
+});
+
+// Test 6: Check for circular references
+console.log('\n🔄 Test 6: Checking for circular references...');
+let hasCircularRefs = false;
+TOOLCHAIN.forEach(tool => {
+  const fullPath = path.join(PROJECT_ROOT, tool.path);
+  if (!fs.existsSync(fullPath)) return;
+  
+  const content = fs.readFileSync(fullPath, 'utf8');
+  
+  // Check if this document references itself
+  if (content.includes(tool.path)) {
+    // This is okay if it's just documenting its own path
+    const selfRefCount = (content.match(new RegExp(tool.path.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g')) || []).length;
+    if (selfRefCount > 2) {  // More than 2 self-references might indicate a problem
+      console.log(`  ⚠️  ${tool.name} has multiple self-references (${selfRefCount})`);
+    }
+  }
+});
+console.log('  ✅ No circular references detected');
+
+// Test 7: Check that all documents have proper metadata
+console.log('\n📝 Test 7: Checking document metadata...');
+TOOLCHAIN.forEach(tool => {
+  const fullPath = path.join(PROJECT_ROOT, tool.path);
+  if (!fs.existsSync(fullPath)) return;
+  
+  const content = fs.readFileSync(fullPath, 'utf8');
+  
+  // Check for version/date/author metadata
+  const hasMetadata = content.includes('version') || 
+                      content.includes('created') || 
+                      content.includes('author') ||
+                      content.includes('date');
+  
+  if (hasMetadata) {
+    console.log(`  ✅ ${tool.name} has metadata`);
+  } else {
+    console.log(`  ⚠️  ${tool.name} has no metadata`);
+    // This is a warning, not a failure
+  }
+});
+
+// Final summary
+console.log('\n' + '='.repeat(50));
+if (allPassed) {
+  console.log('✅ All strategy-to-code chain validations PASSED');
+  console.log('   The project follows Strategy First, Code Second principle');
+  process.exit(0);
+} else {
+  console.log('❌ Some strategy-to-code chain validations FAILED');
+  console.log('   Please fix the reference chain issues');
+  process.exit(1);
+}

@@ -170,6 +170,174 @@ npm run check:strategy
 npm run validate:all
 ```
 
+### Developer Experience (DevX) Workflow
+
+This project enforces a comprehensive **Developer Experience (DevX) workflow** to ensure consistency, quality, and security. All contributors must follow this workflow.
+
+#### DevX Policies and Guidelines
+
+| Policy | Document | Purpose |
+|--------|----------|---------|
+| **Semantic Versioning** | [docs/SEMANTIC_VERSIONING.md](docs/SEMANTIC_VERSIONING.md) | Enforce versioning rules |
+| **Design Verification** | [docs/DESIGN_VERIFICATION.md](docs/DESIGN_VERIFICATION.md) | Track design completeness |
+| **Implementation Plan** | [docs/IMPLEMENTATION_PLAN.md](docs/IMPLEMENTATION_PLAN.md) | Document implementation roadmap |
+| **Strategy First, Code Second** | [docs/adr/architecture-decisions.md](docs/adr/architecture-decisions.md#adr-001) | Core development principle |
+
+**⚠️ IMPORTANT**: Implementation is currently **BLOCKED** until design verification is complete. See [IMPLEMENTATION_PLAN.md](docs/IMPLEMENTATION_PLAN.md) for details.
+
+#### DevX Automation Tools
+
+The project provides automated tools to enforce policies:
+
+| Tool | Configuration | Purpose |
+|------|---------------|---------|
+| **Secret Scanning** | [.gitleaks.toml](.gitleaks.toml) | Prevent committing secrets |
+| **Commit Message Linting** | [.commitlintrc.js](.commitlintrc.js) | Enforce Conventional Commits |
+| **Documentation Linting** | [.vale.ini](.vale.ini) | Enforce documentation standards |
+| **Version Verification** | `make verify-versions` | Ensure version consistency |
+| **Strategy Chain Validation** | `make test-strategy-chain` | Verify design references |
+| **Toolchain Validation** | `make test-toolchain` | Verify all 8 tools exist |
+| **Date Validation** | `make test-dates` | Prevent manual dates |
+
+#### DevX Workflow Steps
+
+1. **Set up your environment**
+   ```bash
+   # Clone the repository
+   git clone https://github.com/FruityWelsh/bot-maker.git
+   cd bot-maker
+   
+   # Install dependencies
+   npm install
+   make go-deps
+   make tools-deps
+   
+   # Set up pre-commit hooks (REQUIRED)
+   ./scripts/setup-git-hooks.sh
+   ```
+
+2. **Create a feature branch**
+   ```bash
+   git checkout -b vibe/your-feature-description-uuid
+   ```
+
+3. **Make your changes**
+   - Follow the **Strategy First, Code Second** principle
+   - Ensure all code traces back to documented strategy
+   - Add hard references to design documents
+
+4. **Run local validations**
+   ```bash
+   # Verify version consistency
+   make verify-versions
+   
+   # Run linting
+   make lint
+   
+   # Run tests
+   make test
+   
+   # Validate strategy chain
+   make test-strategy-chain
+   
+   # Validate toolchain
+   make test-toolchain
+   
+   # Validate dates
+   make test-dates
+   
+   # Scan for secrets
+   make scan-secrets
+   
+   # Or run all validations
+   make ci
+   ```
+
+5. **Commit your changes**
+   ```bash
+   # Use Conventional Commits format
+   git add .
+   git commit -m "feat: add new feature"
+   # Pre-commit hooks will run automatically
+   ```
+
+6. **Push and create PR**
+   ```bash
+   git push origin vibe/your-feature-description-uuid
+   # Open PR on GitHub
+   ```
+
+7. **CI will run all validations**
+   - All pre-commit checks run in CI
+   - Additional CI-specific validations
+   - PR is blocked if any check fails
+
+#### Pre-commit Hooks
+
+Pre-commit hooks automatically run the following checks:
+
+```bash
+# 1. Secret scanning
+scripts/validation/scan-secrets.sh
+
+# 2. Strategy chain validation
+scripts/validation/check-strategy-chain.js
+
+# 3. Toolchain validation
+scripts/validation/validate-toolchain.js
+
+# 4. Date validation
+scripts/validation/validate-dates.js
+
+# 5. Version consistency
+make verify-versions
+
+# 6. Commit message validation
+scripts/validation/validate-commit-message.sh
+```
+
+**If any hook fails, the commit is aborted.**
+
+#### Version Management
+
+**Current Version**: `0.1.0-dev` (Pre-release)
+
+- **All version numbers MUST be synchronized** across:
+  - `VERSION` file
+  - `package.json`
+  - `docs/omen/strategy.json`
+  - `docs/bmml/value-proposition.yaml`
+  - `docs/adr/architecture-decisions.md`
+  - `docs/cubejs/metrics.yaml`
+  - `docs/diagrams.md`
+
+- **To bump the version**:
+  ```bash
+  # For development versions
+  ./scripts/bump-version.sh 0.2.0-dev
+  
+  # For stable releases (requires all requirements met)
+  ./scripts/bump-version.sh 1.0.0
+  ```
+
+- **NO version should be `1.0.0` or higher** until first stable release
+- See [SEMANTIC_VERSIONING.md](docs/SEMANTIC_VERSIONING.md) for full policy
+
+#### BDD Testing for DevX
+
+The DevX workflow itself is tested using BDD:
+- **Feature file**: [features/devx_workflow.feature](features/devx_workflow.feature)
+- **Scenarios**: 20+ scenarios covering all DevX automation
+
+To run DevX tests:
+```bash
+# Using Godog (Go BDD framework)
+godog features/devx_workflow.feature
+
+# Or using Node.js
+npm run test:devx
+```
+
 ### Platform-Agnostic CI/CD
 
 The project uses a **platform-agnostic CI/CD** approach where:
@@ -447,6 +615,20 @@ When submitting a Pull Request:
 - [Architecture Diagrams](docs/diagrams.md) - System architecture
 - [Behavior Tests](features/chatbot.feature) - Test scenarios
 - [Validation Tests](tests/schemas/validation.js) - Schema validation
+
+## 📅 Date Management Rule
+
+**Rule: Do not manually add dates - use tools that reference real time**
+
+All dates in documentation must be dynamically generated from Git commit dates or use real-time references. This ensures:
+- **Reproducibility**: Dates are always accurate and traceable
+- **Repeatability**: Same process produces same results
+- **Maintainability**: No manual date updates needed
+
+Use one of these approaches:
+- Reference Git commit date: `Generated from Git commit date`
+- Use scripts: `scripts/generate-dates.js` or `scripts/update-dates.sh`
+- Use environment variables: `$CI_COMMIT_DATE`, `$BUILD_DATE`
 
 ## 🙏 Code of Conduct
 
