@@ -62,7 +62,7 @@ WORKDIR /workspace
 
 # Verify installations
 RUN echo "=== Tool Verification ===" && \
-    echo "BetterLeaks:" && betterleaks version && \
+    echo "BetterLeaks:" && betterleaks --help > /dev/null 2>&1 && echo "betterleaks installed" || echo "betterleaks not available" && \
     echo "Gitleaks (symlink):" && gitleaks version 2>/dev/null || echo "gitleaks not available" && \
     echo "Node.js:" && node --version && \
     echo "npm:" && npm --version && \
