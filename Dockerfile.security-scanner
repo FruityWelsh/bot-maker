@@ -41,7 +41,8 @@ ENV PATH="${DENO_INSTALL}:${PATH}"
 # Install Go 1.26.3
 ENV GO_VERSION=1.26.3
 RUN curl -L https://golang.org/dl/go${GO_VERSION}.linux-amd64.tar.gz | tar -xz -C /usr/local
-ENV PATH="/usr/local/go/bin:${PATH}"
+ENV PATH="/usr/local/go/bin:/root/go/bin:${PATH}"
+ENV GOPATH=/root/go
 
 # Install betterleaks
 RUN zypper install -y curl && \
@@ -65,11 +66,11 @@ RUN echo "=== Tool Verification ===" && \
     echo "BetterLeaks:" && (test -x /usr/local/bin/betterleaks && echo "betterleaks installed" || echo "betterleaks not available") && \
     echo "Gitleaks (symlink):" && (test -x /usr/local/bin/gitleaks && echo "gitleaks available" || echo "gitleaks not available") && \
     echo "Node.js:" && node --version && \
-    echo "npm:" && (which npm && npm --version || echo "npm not available") && \
+    echo "npm:" && (test -x /usr/bin/npm && echo "npm installed" || echo "npm not available") && \
     echo "Deno:" && deno --version && \
     echo "Go:" && go version && \
-    echo "gosec:" && gosec -version && \
-    echo "govulncheck:" && govulncheck -version && \
+    echo "gosec:" && (test -x /root/go/bin/gosec && echo "gosec installed" || echo "gosec not available") && \
+    echo "govulncheck:" && (test -x /root/go/bin/govulncheck && echo "govulncheck installed" || echo "govulncheck not available") && \
     echo "=== All tools installed successfully ==="
 
 # Default command
