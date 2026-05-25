@@ -14,6 +14,8 @@ echo ""
 # Fix git ownership issue in CI
 if [ -d "/__w" ]; then
     git config --global --add safe.directory "/__w/bot-maker/bot-maker" || true
+    git config --global --add safe.directory "/__w" || true
+    git config --global --add safe.directory "*" || true
 fi
 
 # Get the repository root
