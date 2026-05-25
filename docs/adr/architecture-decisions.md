@@ -180,15 +180,23 @@ references:
 
 **Status**: Accepted  
 **Date**: 2026-05-25  
-**Context**: Need consistent deployment and management workflow  
-**Decision**: Implement GitOps with Argo CD for continuous delivery  
+**Context**: GitOps is a **design goal** for the project's development lifecycle, not an explicit architectural requirement of the application itself. The application enables GitOps patterns by being implemented as a Kubernetes CRD, allowing any GitOps tool (Argo CD, Fleet, Flux, etc.) to manage its lifecycle.
+
+**Decision**: Use GitOps principles for the project's development workflow, with Argo CD and Fleet as example implementations. The ChatBot Operator CRD itself is GitOps-ready by design - it can be managed by any GitOps tool that supports Kubernetes resources.
+
 **Consequences**: 
-- ✅ Declarative Git-based workflow
-- ✅ Automated synchronization
+- ✅ Application is GitOps-ready by being a Kubernetes CRD
+- ✅ Can be managed by Argo CD, Fleet, Flux, or any GitOps tool
+- ✅ Declarative Git-based workflow for the project's development
+- ✅ Automated synchronization capabilities
 - ✅ Audit trail and rollback capability
 - ✅ Multi-environment support
-- ✅ CNCF project with strong ecosystem
-- ⚠️ Learning curve for GitOps patterns
+- ⚠️ Learning curve for GitOps patterns (mitigated by examples)
+
+**Examples**:
+- Argo CD Application manifests for ChatBot Operator
+- Fleet Bundle configurations
+- Flux HelmRelease or Kustomization resources
 
 **References**: 
 - BMML Goal G005: Platform-Agnostic CI/CD

@@ -79,7 +79,7 @@ business_motivation:
       
     - id: "DG003"
       name: "Clean GitOps Workflow"
-      description: "Implement clean GitOps workflow with frequent commits and rebase strategy"
+      description: "Implement clean GitOps workflow with frequent commits and rebase strategy as a development lifecycle design goal. The application enables GitOps by being a Kubernetes CRD, allowing tools like Argo CD and Fleet to manage deployments."
       priority: "medium"
       business_value: "Improves developer productivity and code quality through consistent workflows"
       success_metrics:
