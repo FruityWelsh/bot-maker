@@ -33,13 +33,12 @@ This document contains the comprehensive architecture diagrams for the ChatBot O
 
 ## System Context Diagram
 
-The system context diagram shows the ChatBot Operator in relation to its external dependencies and users. The operator listens for CRD changes and Kubernetes API extension calls - deployment and CI/CD configuration is out of scope.
+The system context diagram shows the ChatBot Operator in relation to its external dependencies. The operator listens for CRD changes and Kubernetes API extension calls - deployment, CI/CD configuration, and end user interfaces are out of scope.
 
 ```mermaid
 C4Context
     title ChatBot Operator System Context Diagram
     
-    Person(user, "End User", "Interacts with chat bots")
     Person(dev, "Developer", "Configures and manages bots")
     Person(admin, "Platform Admin", "Manages infrastructure")
     
@@ -53,7 +52,6 @@ C4Context
     System(monitoring, "Monitoring System", "Prometheus + Grafana")
     System(database, "Database", "PostgreSQL for metrics")
     
-    Rel(user, chatbotOperator, "Uses", "HTTP/WebSocket")
     Rel(dev, chatbotOperator, "Configures", "Kubernetes API")
     Rel(admin, chatbotOperator, "Administers", "Kubernetes API")
     
