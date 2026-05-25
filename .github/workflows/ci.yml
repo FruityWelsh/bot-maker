@@ -9,10 +9,10 @@ name: ChatBot Operator CI
 # - VSCode tasks
 #
 # Strategy First, Code Second: This CI/CD pipeline implements the strategy defined in:
-# - docs/omen/strategy.json Developer Goal DG002 - Formal Verification
-# - docs/adr/architecture-decisions.md ADR-001 - Strategy First, Code Second
-# - docs/STRATEGY.md Core Principles: Strategy First, Code Second
-# - docs/IMPLEMENTATION_PLAN.md Implementation guidance
+# - docs/strategy/omen/strategy.json Developer Goal DG002 - Formal Verification
+# - docs/contributors/adr/architecture-decisions.md ADR-001 - Strategy First, Code Second
+# - docs/strategy/STRATEGY.md Core Principles: Strategy First, Code Second
+# - docs/devx/IMPLEMENTATION_PLAN.md Implementation guidance
 #
 # Architecture: Platform-agnostic CI/CD as per ADR-007 and ADR-016
 
@@ -51,7 +51,7 @@ jobs:
 
   # ============================================================================
   # JOB 2: Setup Environment
-  # Architecture: Sets up the development environment as per docs/STRATEGY.md
+  # Architecture: Sets up the development environment as per docs/strategy/STRATEGY.md
   # ============================================================================
   setup:
     name: Setup Environment
@@ -79,7 +79,7 @@ jobs:
 
   # ============================================================================
   # JOB 3: Linting
-  # Strategy: Code quality validation per docs/STRATEGY.md
+  # Strategy: Code quality validation per docs/strategy/STRATEGY.md
   # ============================================================================
   lint:
     name: Linting

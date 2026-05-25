@@ -154,7 +154,7 @@ const validBotCredential = {
 
 /**
  * Test data for valid Omen strategy
- * References: docs/omen/strategy.json
+ * References: ../docs/strategy/omen/strategy.json
  */
 const validStrategy = {
   metadata: {
@@ -177,7 +177,7 @@ const validStrategy = {
 
 /**
  * Test data for valid ArchiMate model
- * References: docs/archimate/enterprise-architecture.xml
+ * References: ../docs/contributors/archimate/enterprise-architecture.xml
  */
 const validArchimate = {
   name: 'ChatBot Operator Enterprise Architecture',
@@ -200,7 +200,7 @@ const validArchimate = {
 
 /**
  * Test data for valid BMML value proposition
- * References: docs/bmml/value-proposition.yaml
+ * References: ../docs/strategy/bmml/value-proposition.yaml
  */
 const validBmml = {
   version: '1.0.0',
@@ -221,7 +221,7 @@ const validBmml = {
 
 /**
  * Test data for valid ADR
- * References: docs/adr/architecture-decisions.md
+ * References: ../docs/contributors/adr/architecture-decisions.md
  */
 const validAdr = {
   title: 'ChatBot Operator Architecture Decisions',
@@ -243,7 +243,7 @@ const validAdr = {
 
 /**
  * Test data for valid Cube.js metrics
- * References: docs/cubejs/metrics.yaml
+ * References: ../docs/strategy/cubejs/metrics.yaml
  */
 const validCubeJs = {
   version: '1.0.0',
@@ -251,8 +251,8 @@ const validCubeJs = {
   created: '2026-05-25',
   author: 'Strategy Coder',
   references: {
-    upstream: 'docs/adr/architecture-decisions.md',
-    downstream: 'docs/diagrams.md'
+    upstream: '../docs/contributors/adr/architecture-decisions.md',
+    downstream: '../docs/contributors/diagrams.md'
   },
   metrics: [
     {
@@ -284,7 +284,7 @@ const validCubeJs = {
 
 /**
  * Test data for valid Diagrams document
- * References: docs/diagrams.md
+ * References: ../docs/contributors/diagrams.md
  */
 const validDiagrams = {
   title: 'ChatBot Operator Architecture Diagrams',
@@ -292,7 +292,7 @@ const validDiagrams = {
   created: '2026-05-25',
   author: 'Strategy Coder',
   references: {
-    upstream: 'docs/cubejs/metrics.yaml',
+    upstream: '../docs/strategy/cubejs/metrics.yaml',
     downstream: 'features/chatbot.feature'
   },
   rendering: {
@@ -328,7 +328,7 @@ const validGherkin = {
   author: 'Strategy Coder',
   created: '2026-05-25',
   references: {
-    upstream: 'docs/diagrams.md',
+    upstream: '../docs/contributors/diagrams.md',
     downstream: ['tests/schemas/validation.js', 'tests/tools/']
   },
   feature: {
@@ -555,7 +555,7 @@ describe('ChatBot Operator CRD Validation', () => {
 describe('ChatBot Operator Toolchain Validation', () => {
   describe('Omen Strategy Validation', () => {
     test('should validate valid strategy document', () => {
-      // References: docs/omen/strategy.json
+      // References: ../docs/strategy/omen/strategy.json
       const result = validateStrategy(validStrategy);
       expect(result.valid).toBe(true);
       expect(result.errors).toBeNull();
@@ -584,7 +584,7 @@ describe('ChatBot Operator Toolchain Validation', () => {
 
   describe('ArchiMate Architecture Validation', () => {
     test('should validate valid ArchiMate model', () => {
-      // References: docs/archimate/enterprise-architecture.xml
+      // References: ../docs/contributors/archimate/enterprise-architecture.xml
       const result = validateArchimate(validArchimate);
       expect(result.valid).toBe(true);
       expect(result.errors).toBeNull();
@@ -609,7 +609,7 @@ describe('ChatBot Operator Toolchain Validation', () => {
 
   describe('BMML Value Proposition Validation', () => {
     test('should validate valid BMML document', () => {
-      // References: docs/bmml/value-proposition.yaml
+      // References: ../docs/strategy/bmml/value-proposition.yaml
       const result = validateBmml(validBmml);
       expect(result.valid).toBe(true);
       expect(result.errors).toBeNull();
@@ -634,7 +634,7 @@ describe('ChatBot Operator Toolchain Validation', () => {
 
   describe('ADR Validation', () => {
     test('should validate valid ADR document', () => {
-      // References: docs/adr/architecture-decisions.md
+      // References: ../docs/contributors/adr/architecture-decisions.md
       const result = validateAdr(validAdr);
       expect(result.valid).toBe(true);
       expect(result.errors).toBeNull();
@@ -659,7 +659,7 @@ describe('ChatBot Operator Toolchain Validation', () => {
 
   describe('Cube.js Metrics Validation', () => {
     test('should validate valid Cube.js metrics', () => {
-      // References: docs/cubejs/metrics.yaml
+      // References: ../docs/strategy/cubejs/metrics.yaml
       const result = validateCubeJs(validCubeJs);
       expect(result.valid).toBe(true);
       expect(result.errors).toBeNull();
@@ -684,7 +684,7 @@ describe('ChatBot Operator Toolchain Validation', () => {
 
   describe('Diagrams Validation', () => {
     test('should validate valid Diagrams document', () => {
-      // References: docs/diagrams.md
+      // References: ../docs/contributors/diagrams.md
       const result = validateDiagrams(validDiagrams);
       expect(result.valid).toBe(true);
       expect(result.errors).toBeNull();
@@ -764,31 +764,31 @@ describe('ChatBot Operator Cross-Reference Validation', () => {
     // as specified in the strategy
     
     const references = {
-      'docs/omen/strategy.json': {
-        downstream: ['docs/archimate/enterprise-architecture.xml']
+      '../docs/strategy/omen/strategy.json': {
+        downstream: ['../docs/contributors/archimate/enterprise-architecture.xml']
       },
-      'docs/archimate/enterprise-architecture.xml': {
-        upstream: 'docs/omen/strategy.json',
-        downstream: 'docs/bmml/value-proposition.yaml'
+      '../docs/contributors/archimate/enterprise-architecture.xml': {
+        upstream: '../docs/strategy/omen/strategy.json',
+        downstream: '../docs/strategy/bmml/value-proposition.yaml'
       },
-      'docs/bmml/value-proposition.yaml': {
-        upstream: 'docs/archimate/enterprise-architecture.xml',
-        downstream: 'docs/adr/architecture-decisions.md'
+      '../docs/strategy/bmml/value-proposition.yaml': {
+        upstream: '../docs/contributors/archimate/enterprise-architecture.xml',
+        downstream: '../docs/contributors/adr/architecture-decisions.md'
       },
-      'docs/adr/architecture-decisions.md': {
-        upstream: 'docs/bmml/value-proposition.yaml',
-        downstream: 'docs/cubejs/metrics.yaml'
+      '../docs/contributors/adr/architecture-decisions.md': {
+        upstream: '../docs/strategy/bmml/value-proposition.yaml',
+        downstream: '../docs/strategy/cubejs/metrics.yaml'
       },
-      'docs/cubejs/metrics.yaml': {
-        upstream: 'docs/adr/architecture-decisions.md',
-        downstream: 'docs/diagrams.md'
+      '../docs/strategy/cubejs/metrics.yaml': {
+        upstream: '../docs/contributors/adr/architecture-decisions.md',
+        downstream: '../docs/contributors/diagrams.md'
       },
-      'docs/diagrams.md': {
-        upstream: 'docs/cubejs/metrics.yaml',
+      '../docs/contributors/diagrams.md': {
+        upstream: '../docs/strategy/cubejs/metrics.yaml',
         downstream: 'features/chatbot.feature'
       },
       'features/chatbot.feature': {
-        upstream: 'docs/diagrams.md',
+        upstream: '../docs/contributors/diagrams.md',
         downstream: 'tests/schemas/validation.js'
       },
       'tests/schemas/validation.js': {
@@ -847,11 +847,11 @@ describe('ChatBot Operator Cross-Reference Validation', () => {
 
 /**
  * Jest test suite for business rule validation
- * References: docs/bmml/value-proposition.yaml
+ * References: ../docs/strategy/bmml/value-proposition.yaml
  */
 describe('ChatBot Operator Business Rule Validation', () => {
   test('should validate that all goals have success criteria', () => {
-    // References: docs/bmml/value-proposition.yaml - goals section
+    // References: ../docs/strategy/bmml/value-proposition.yaml - goals section
     const goals = validBmml.business_motivation.goals;
     
     goals.forEach(goal => {
@@ -862,7 +862,7 @@ describe('ChatBot Operator Business Rule Validation', () => {
   });
 
   test('should validate that all value propositions have target customers', () => {
-    // References: docs/bmml/value-proposition.yaml - value_propositions section
+    // References: ../docs/strategy/bmml/value-proposition.yaml - value_propositions section
     const valuePropositions = validBmml.business_motivation.value_propositions;
     
     valuePropositions.forEach(vp => {
@@ -873,7 +873,7 @@ describe('ChatBot Operator Business Rule Validation', () => {
   });
 
   test('should validate that all stakeholders have requirements', () => {
-    // References: docs/bmml/value-proposition.yaml - stakeholders section
+    // References: ../docs/strategy/bmml/value-proposition.yaml - stakeholders section
     const stakeholders = validBmml.business_motivation.stakeholders;
     
     stakeholders.forEach(stakeholder => {
@@ -886,11 +886,11 @@ describe('ChatBot Operator Business Rule Validation', () => {
 
 /**
  * Jest test suite for security validation
- * References: docs/adr/architecture-decisions.md - Security Architecture
+ * References: ../docs/contributors/adr/architecture-decisions.md - Security Architecture
  */
 describe('ChatBot Operator Security Validation', () => {
   test('should validate that all security requirements are addressed', () => {
-    // References: docs/omen/strategy.json - security section
+    // References: ../docs/strategy/omen/strategy.json - security section
     const securityRequirements = [
       'Mutual TLS via Linkerd',
       'Signed container images',
@@ -908,7 +908,7 @@ describe('ChatBot Operator Security Validation', () => {
   });
 
   test('should validate Zero Trust principles', () => {
-    // References: docs/adr/architecture-decisions.md - ADR-004
+    // References: ../docs/contributors/adr/architecture-decisions.md - ADR-004
     const zeroTrustPrinciples = [
       'Mutual TLS',
       'Service-to-service authentication',
@@ -924,7 +924,7 @@ describe('ChatBot Operator Security Validation', () => {
   });
 
   test('should validate SLSA compliance requirements', () => {
-    // References: docs/omen/strategy.json - compliance section
+    // References: ../docs/strategy/omen/strategy.json - compliance section
     const slsaRequirements = {
       level: '3+',
       provenance: true,
@@ -941,11 +941,11 @@ describe('ChatBot Operator Security Validation', () => {
 
 /**
  * Jest test suite for GitOps workflow validation
- * References: docs/omen/strategy.json - gitOps section
+ * References: ../docs/strategy/omen/strategy.json - gitOps section
  */
 describe('ChatBot Operator GitOps Validation', () => {
   test('should validate GitOps workflow configuration', () => {
-    // References: docs/omen/strategy.json - gitOps.workflow
+    // References: ../docs/strategy/omen/strategy.json - gitOps.workflow
     const gitOpsWorkflow = {
       branching: 'Feature branches from dev',
       commitStandard: 'Conventional Commits',
@@ -960,7 +960,7 @@ describe('ChatBot Operator GitOps Validation', () => {
   });
 
   test('should validate CI/CD platform requirements', () => {
-    // References: docs/omen/strategy.json - gitOps.ciCd
+    // References: ../docs/strategy/omen/strategy.json - gitOps.ciCd
     const ciCdRequirements = {
       platforms: ['GitLab', 'Forgejo', 'GitHub', 'Tekton'],
       requirements: ['Platform-agnostic', 'Open-source first'],

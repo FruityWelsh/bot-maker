@@ -173,7 +173,7 @@
         "purpose": "Behavior-driven feature tests",
         "schema": "Gherkin (.feature)/Go",
         "position": 7,
-        "references": ["docs/diagrams.md"]
+        "references": ["../../contributors/diagrams.md"]
       },
       {
         "name": "Jest & AJV",

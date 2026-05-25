@@ -1,14 +1,14 @@
 # Cube.js Business Metrics for ChatBot Operator
-# References: docs/adr/architecture-decisions.md (upstream)
-# Downstream: docs/diagrams.md
+# References: ../../contributors/adr/architecture-decisions.md (upstream)
+# Downstream: ../../contributors/diagrams.md
 
 version: "0.1.0-dev"
 name: "ChatBot Operator Business Metrics"
 created: "2026-05-25"
 author: "Strategy Coder"
 references:
-  upstream: "docs/adr/architecture-decisions.md"
-  downstream: "docs/diagrams.md"
+  upstream: "../../contributors/adr/architecture-decisions.md"
+  downstream: "../../contributors/diagrams.md"
 
 # Metrics Schema Definition
 metrics:

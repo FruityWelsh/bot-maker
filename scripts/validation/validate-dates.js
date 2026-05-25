@@ -38,12 +38,12 @@ try {
 const filesWithDates = [
   { path: 'README.md' },
   { path: 'CONTRIBUTING.md' },
-  { path: 'docs/STRATEGY.md' },
-  { path: 'docs/adr/architecture-decisions.md' },
-  { path: 'docs/bmml/value-proposition.yaml' },
-  { path: 'docs/cubejs/metrics.yaml' },
-  { path: 'docs/diagrams.md' },
-  { path: 'docs/omen/strategy.json' }
+  { path: 'docs/strategy/STRATEGY.md' },
+  { path: 'docs/contributors/adr/architecture-decisions.md' },
+  { path: 'docs/strategy/bmml/value-proposition.yaml' },
+  { path: 'docs/strategy/cubejs/metrics.yaml' },
+  { path: 'docs/contributors/diagrams.md' },
+  { path: 'docs/strategy/omen/strategy.json' }
 ];
 
 console.log('📁 Checking files for valid Git commit dates...\n');

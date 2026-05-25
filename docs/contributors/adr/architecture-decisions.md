@@ -344,7 +344,7 @@ This allows the same Make targets to adapt their behavior based on the platform.
 **References**: 
 - BMML Metrics: M001, M002, M003, M004
 - BMML Value Proposition VP001: Kubernetes Native Management
-- Downstream: docs/cubejs/metrics.yaml
+- Downstream: ../../strategy/cubejs/metrics.yaml
 
 ---
 
@@ -364,7 +364,7 @@ This allows the same Make targets to adapt their behavior based on the platform.
 
 **References**: 
 - BMML Value Proposition VP001: Kubernetes Native Management
-- Downstream: docs/diagrams.md
+- Downstream: ./diagrams.md
 
 ---
 
