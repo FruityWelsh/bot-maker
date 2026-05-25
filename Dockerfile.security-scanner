@@ -19,6 +19,7 @@ RUN zypper refresh && \
     zypper install -y \
     curl \
     git \
+    make \
     tar \
     gzip \
     xz \
