@@ -10,7 +10,8 @@ name: ChatBot Operator CI
 #
 # Strategy First, Code Second: This CI/CD pipeline implements the strategy defined in:
 # - docs/strategy/omen/strategy.json Developer Goal DG002 - Formal Verification
-# - docs/contributors/adr/architecture-decisions.md ADR-001 - Strategy First, Code Second
+# - docs/contributors/adr/architecture-decisions.md
+# - docs/contributors/adr/ADR-020-strategy-first-code-second.md ADR-020 - Strategy First, Code Second
 # - docs/strategy/STRATEGY.md Core Principles: Strategy First, Code Second
 # - docs/devx/IMPLEMENTATION_PLAN.md Implementation guidance
 #
