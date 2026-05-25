@@ -1,16 +1,3 @@
-# Scans the repository for secrets before commit
-# References: docs/omen/strategy.json (Security Goal AG004)
-# References: docs/adr/architecture-decisions.md (ADR-004 - Security with Linkerd)
-
-set -e
-
-echo "🔍 Scanning for secrets..."
-echo "========================"
-echo ""
-
-# Get the repository root
-REPO_ROOT=$(git rev-parse --show-toplevel)
-=======
 #!/bin/bash
 # Secret Scanning Script
 # =====================
@@ -26,20 +13,8 @@ echo ""
 
 # Fix git ownership issue in CI
 if [ -d "/__w" ]; then
-    git config --global --add safe.directory "/__w/bot-maker/bot-maker"
+    git config --global --add safe.directory "/__w/bot-maker/bot-maker" || true
 fi
-
-# Get the repository root
-REPO_ROOT=$(git rev-parse --show-toplevel)=====================
-# Scans the repository for secrets before commit
-# References: docs/omen/strategy.json (Security Goal AG004)
-# References: docs/adr/architecture-decisions.md (ADR-004 - Security with Linkerd)
-
-set -e
-
-echo "🔍 Scanning for secrets..."
-echo "========================"
-echo ""
 
 # Get the repository root
 REPO_ROOT=$(git rev-parse --show-toplevel)
