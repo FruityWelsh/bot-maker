@@ -21,6 +21,7 @@ RUN zypper refresh && \
     git \
     tar \
     gzip \
+    xz \
     ca-certificates \
     ca-certificates-mozilla \
     && zypper clean --all
@@ -28,10 +29,12 @@ RUN zypper refresh && \
 # Install Node.js 24 LTS
 # SUSE BCI is RPM-based, so we use the official Node.js binary
 ENV NODE_VERSION=24.0.0
-RUN curl -L https://nodejs.org/dist/v${NODE_VERSION}/node-v${NODE_VERSION}-linux-x64.tar.xz | tar -xJ -C /usr/local --strip-components=1 && \
+RUN curl -L -o /tmp/node.tar.xz https://nodejs.org/dist/v${NODE_VERSION}/node-v${NODE_VERSION}-linux-x64.tar.xz && \
+    tar -xJ -C /usr/local -f /tmp/node.tar.xz --strip-components=1 && \
     ln -s /usr/local/bin/node /usr/bin/node && \
     ln -s /usr/local/bin/npm /usr/bin/npm && \
-    ln -s /usr/local/bin/npx /usr/bin/npx
+    ln -s /usr/local/bin/npx /usr/bin/npx && \
+    rm /tmp/node.tar.xz
 
 # Install Deno 2.8.0 (preferred runtime)
 ENV DENO_VERSION=2.8.0
