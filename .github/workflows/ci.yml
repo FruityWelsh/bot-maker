@@ -28,17 +28,21 @@ name: ChatBot Operator CI
 
   # PHASE 0: BUILD SECURITY SCANNER CONTAINER
 =======
+  # PHASE 0: BUILD SECURITY SCANNER CONTAINER
+=======
 on:
   push:
     branches: [ main, ai-dev, vibe/* ]
   pull_request:
     branches: [ main, ai-dev ]
 
+permissions:
+  contents: read
+  packages: write
+
 jobs:
-  permissions:
-    contents: read
-    packages: write
   # ============================================================================
+  # PHASE 0: BUILD SECURITY SCANNER CONTAINER============================================================================
   # PHASE 0: BUILD SECURITY SCANNER CONTAINER============================================================================
   # PHASE 0: BUILD SECURITY SCANNER CONTAINER
   # Build and publish the container with all security tools pre-installed
