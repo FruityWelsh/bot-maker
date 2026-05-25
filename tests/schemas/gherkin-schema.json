@@ -1,0 +1,217 @@
+{
+  "$id": "https://github.com/FruityWelsh/bot-maker/tests/schemas/gherkin-schema.json",
+  "title": "Gherkin Feature File Schema",
+  "description": "JSON Schema for validating Godog/Gherkin feature files for Behavior-Driven Development (BDD)",
+  "type": "object",
+  "required": ["language", "feature", "scenarios"],
+  "additionalProperties": false,
+  "properties": {
+    "language": {
+      "type": "string",
+      "pattern": "^[a-z]{2}$",
+      "description": "Language code for the feature file (e.g., 'en')"
+    },
+    "author": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Author of the feature file"
+    },
+    "created": {
+      "type": "string",
+      "format": "date",
+      "description": "Creation date in YYYY-MM-DD format"
+    },
+    "references": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "upstream": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Upstream document reference"
+        },
+        "downstream": {
+          "type": "string",
+          "description": "Downstream document reference"
+        }
+      }
+    },
+    "feature": {
+      "$ref": "#/$defs/feature"
+    },
+    "background": {
+      "$ref": "#/$defs/background",
+      "description": "Background context for all scenarios"
+    },
+    "scenarios": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/scenario"
+      },
+      "minItems": 1,
+      "description": "List of test scenarios"
+    }
+  },
+  "$defs": {
+    "feature": {
+      "type": "object",
+      "required": ["title", "description", "as_a", "i_want", "so_that"],
+      "additionalProperties": false,
+      "properties": {
+        "title": {
+          "type": "string",
+          "minLength": 5,
+          "description": "Feature title (e.g., 'ChatBot Operator Lifecycle Management')"
+        },
+        "description": {
+          "type": "string",
+          "minLength": 10,
+          "description": "Feature description"
+        },
+        "as_a": {
+          "type": "string",
+          "minLength": 3,
+          "description": "User role (e.g., 'As a Platform Engineering team member')"
+        },
+        "i_want": {
+          "type": "string",
+          "minLength": 5,
+          "description": "What the user wants to do (e.g., 'I want to manage chat bot lifecycles as Kubernetes resources')"
+        },
+        "so_that": {
+          "type": "string",
+          "minLength": 5,
+          "description": "Benefit or goal (e.g., 'So that I can automate bot provisioning, configuration, and management')"
+        },
+        "tags": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^@[a-zA-Z0-9_]+$"
+          },
+          "description": "Feature tags (e.g., ['@crd', '@lifecycle'])"
+        }
+      }
+    },
+    "background": {
+      "type": "object",
+      "required": ["steps"],
+      "additionalProperties": false,
+      "properties": {
+        "title": {
+          "type": "string",
+          "description": "Background title"
+        },
+        "steps": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/step"
+          },
+          "minItems": 1,
+          "description": "Background steps that run before each scenario"
+        }
+      }
+    },
+    "scenario": {
+      "type": "object",
+      "required": ["title", "steps"],
+      "additionalProperties": false,
+      "properties": {
+        "title": {
+          "type": "string",
+          "minLength": 5,
+          "description": "Scenario title (e.g., 'Create a new ChatBot resource')"
+        },
+        "tags": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^@[a-zA-Z0-9_]+$"
+          },
+          "description": "Scenario tags"
+        },
+        "steps": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/step"
+          },
+          "minItems": 1,
+          "description": "List of scenario steps"
+        },
+        "examples": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/example"
+          },
+          "description": "Data-driven examples for scenario outlines"
+        }
+      }
+    },
+    "step": {
+      "type": "object",
+      "required": ["keyword", "text"],
+      "additionalProperties": false,
+      "properties": {
+        "keyword": {
+          "type": "string",
+          "enum": ["Given", "When", "Then", "And", "But"],
+          "description": "Gherkin keyword"
+        },
+        "text": {
+          "type": "string",
+          "minLength": 3,
+          "description": "Step text (e.g., 'I have a valid ChatBot manifest for platform \"slack\"')"
+        },
+        "doc_string": {
+          "type": "string",
+          "description": "Multi-line string argument for the step"
+        },
+        "table": {
+          "$ref": "#/$defs/dataTable",
+          "description": "Data table argument for the step"
+        }
+      }
+    },
+    "example": {
+      "type": "object",
+      "required": ["name", "table"],
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Example name"
+        },
+        "table": {
+          "$ref": "#/$defs/dataTable"
+        }
+      }
+    },
+    "dataTable": {
+      "type": "object",
+      "required": ["headers", "rows"],
+      "additionalProperties": false,
+      "properties": {
+        "headers": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "minItems": 1,
+          "description": "Table headers"
+        },
+        "rows": {
+          "type": "array",
+          "items": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "description": "Table data rows"
+        }
+      }
+    }
+  }
+}

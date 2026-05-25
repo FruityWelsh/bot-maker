@@ -5,8 +5,8 @@
  * Validates all 8 tools in the toolchain with hard references:
  * Omen → ArchiMate → BMML → Structurizr/ADR → Cube.js → react-markdown/gray-matter/Mermaid.js → Godog/Gherkin → Jest/AJV
  * 
- * References: docs/omen/strategy.json (upstream)
- * References: docs/adr/architecture-decisions.md (ADR-008, ADR-009, ADR-010, ADR-011)
+ * References: ../docs/strategy/omen/strategy.json (upstream)
+ * References: ../docs/contributors/adr/architecture-decisions.md (ADR-008, ADR-009, ADR-010, ADR-011)
  */
 
 const fs = require('fs');
@@ -25,53 +25,53 @@ const toolchain = [
     id: 'T001',
     name: 'Omen',
     description: 'Strategy definition tool',
-    files: ['docs/omen/strategy.json'],
+    files: ['docs/strategy/omen/strategy.json'],
     upstream: null,
-    downstream: ['docs/archimate/enterprise-architecture.xml'],
+    downstream: ['docs/contributors/archimate/enterprise-architecture.xml'],
     required: true
   },
   {
     id: 'T002',
     name: 'ArchiMate',
     description: 'Enterprise architecture modeling',
-    files: ['docs/archimate/enterprise-architecture.xml'],
-    upstream: ['docs/omen/strategy.json'],
-    downstream: ['docs/bmml/value-proposition.yaml'],
+    files: ['docs/contributors/archimate/enterprise-architecture.xml'],
+    upstream: ['docs/strategy/omen/strategy.json'],
+    downstream: ['docs/strategy/bmml/value-proposition.yaml'],
     required: true
   },
   {
     id: 'T003',
     name: 'BMML',
     description: 'Business Motivation Model',
-    files: ['docs/bmml/value-proposition.yaml'],
-    upstream: ['docs/archimate/enterprise-architecture.xml'],
-    downstream: ['docs/adr/architecture-decisions.md'],
+    files: ['docs/strategy/bmml/value-proposition.yaml'],
+    upstream: ['docs/contributors/archimate/enterprise-architecture.xml'],
+    downstream: ['docs/contributors/adr/architecture-decisions.md'],
     required: true
   },
   {
     id: 'T004',
     name: 'Structurizr/ADR',
     description: 'Architecture Decision Records',
-    files: ['docs/adr/architecture-decisions.md'],
-    upstream: ['docs/bmml/value-proposition.yaml'],
-    downstream: ['docs/cubejs/metrics.yaml'],
+    files: ['docs/contributors/adr/architecture-decisions.md'],
+    upstream: ['docs/strategy/bmml/value-proposition.yaml'],
+    downstream: ['docs/strategy/cubejs/metrics.yaml'],
     required: true
   },
   {
     id: 'T005',
     name: 'Cube.js',
     description: 'Business metrics and analytics',
-    files: ['docs/cubejs/metrics.yaml'],
-    upstream: ['docs/adr/architecture-decisions.md'],
-    downstream: ['docs/diagrams.md'],
+    files: ['docs/strategy/cubejs/metrics.yaml'],
+    upstream: ['docs/contributors/adr/architecture-decisions.md'],
+    downstream: ['docs/contributors/diagrams.md'],
     required: true
   },
   {
     id: 'T006',
     name: 'react-markdown/gray-matter/Mermaid.js',
     description: 'Documentation rendering and diagrams',
-    files: ['docs/diagrams.md', 'README.md'],
-    upstream: ['docs/cubejs/metrics.yaml'],
+    files: ['docs/contributors/diagrams.md'],
+    upstream: ['docs/strategy/cubejs/metrics.yaml'],
     downstream: ['features/chatbot.feature'],
     required: true
   },

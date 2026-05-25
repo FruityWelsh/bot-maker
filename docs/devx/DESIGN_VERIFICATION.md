@@ -2,7 +2,8 @@
 // =====================================
 // Formal verification that all design documents are complete and properly referenced
 // References: docs/omen/strategy.json (Developer Goal DG002 - Formal Verification)
-// References: docs/adr/architecture-decisions.md (ADR-001 - Strategy First, Code Second)
+// References: ../contributors/adr/architecture-decisions.md (ADR-001 - Strategy First, Code Second)
+// References: ../common/principles.md (Core Principles)
 // 
 // **Purpose**: Ensure all design documents are complete, verified, and properly cross-referenced
 // **Status**: WORK IN PROGRESS - This document tracks verification status
@@ -286,5 +287,37 @@ The design documents are **structurally complete** and have **proper hard refere
 - Resume implementation following the approved design
 
 ---
+
+### 9. Security and DLP Pipeline
+- [x] **File**: `docs/devx/SECURITY_DLP_PIPELINE.md`
+- [x] **Status**: Complete
+- [x] **References**:
+  - References Omen: `docs/strategy/omen/strategy.json` (Security Goal AG004)
+  - References ADR: `docs/contributors/adr/devx-adrs.md` (ADR-018)
+  - References ADR: `docs/contributors/adr/architecture-decisions.md` (ADR-004)
+- [x] **Content**:
+  - Pipeline flow documentation (4 phases)
+  - Job definitions for scan-secrets, scan-security, scan-vulnerability
+  - Test setup and linkages
+  - Pipeline dependencies and linkages
+  - Test cases for CI validation
+  - Integration with development workflow
+  - Configuration files documentation
+  - Success criteria
+  - Maintenance procedures
+
+### 10. DevX Tool Tests
+- [x] **File**: `tests/tools/security-dlp.test.js`
+- [x] **Status**: Complete
+- [x] **References**:
+  - References Omen: `docs/strategy/omen/strategy.json` (Security Goal AG004)
+  - References ADR: `docs/contributors/adr/devx-adrs.md` (ADR-018)
+  - References ADR: `docs/contributors/adr/architecture-decisions.md` (ADR-004)
+- [x] **Content**:
+  - Secret scanning tests (AWS, GitHub, Slack, API keys, private keys, DB URLs)
+  - Vulnerability scanning tests (known CVEs)
+  - Security scanning tests (SQL injection, hardcoded passwords, unsafe TLS)
+  - Pipeline dependency validation tests
+  - Test data generation for CI testing
 
 **Note**: This document itself is part of the design verification process. Its completion is a prerequisite for implementation to continue according to the "Strategy First, Code Second" principle.

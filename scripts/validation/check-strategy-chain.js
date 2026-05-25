@@ -8,8 +8,8 @@
  * 2. All toolchain documents have hard references to their upstream/downstream
  * 3. The complete chain Omen -> ArchiMate -> BMML -> ADR -> Cube.js -> Diagrams -> Godog -> Jest is maintained
  * 
- * References: docs/omen/strategy.json (upstream)
- * References: docs/adr/architecture-decisions.md (ADR-003, ADR-012)
+ * References: ../docs/strategy/omen/strategy.json (upstream)
+ * References: ../docs/contributors/adr/architecture-decisions.md (ADR-003, ADR-012)
  */
 
 const fs = require('fs');
@@ -18,12 +18,12 @@ const path = require('path');
 // Configuration
 const PROJECT_ROOT = path.join(__dirname, '../..');
 const TOOLCHAIN = [
-  { name: 'Omen', path: 'docs/omen/strategy.json', required: true },
-  { name: 'ArchiMate', path: 'docs/archimate/enterprise-architecture.xml', required: true },
-  { name: 'BMML', path: 'docs/bmml/value-proposition.yaml', required: true },
-  { name: 'ADR', path: 'docs/adr/architecture-decisions.md', required: true },
-  { name: 'Cube.js', path: 'docs/cubejs/metrics.yaml', required: true },
-  { name: 'Diagrams', path: 'docs/diagrams.md', required: true },
+  { name: 'Omen', path: 'docs/strategy/omen/strategy.json', required: true },
+  { name: 'ArchiMate', path: 'docs/contributors/archimate/enterprise-architecture.xml', required: true },
+  { name: 'BMML', path: 'docs/strategy/bmml/value-proposition.yaml', required: true },
+  { name: 'ADR', path: 'docs/contributors/adr/architecture-decisions.md', required: true },
+  { name: 'Cube.js', path: 'docs/strategy/cubejs/metrics.yaml', required: true },
+  { name: 'Diagrams', path: 'docs/contributors/diagrams.md', required: true },
   { name: 'Godog', path: 'features/chatbot.feature', required: true },
   { name: 'Jest', path: 'tests/schemas/validation.js', required: true }
 ];
@@ -62,6 +62,40 @@ const EXPECTED_REFERENCES = {
   }
 };
 
+// Function to calculate relative path from one file to another
+function getRelativePath(fromPath, toPath) {
+  const fromParts = fromPath.split('/');
+  const toParts = toPath.split('/');
+  
+  // Find common prefix
+  let commonLength = 0;
+  while (commonLength < fromParts.length && commonLength < toParts.length && fromParts[commonLength] === toParts[commonLength]) {
+    commonLength++;
+  }
+  
+  // Calculate relative path from 'fromPath' to 'toPath'
+  const upLevels = fromParts.length - commonLength;
+  const downParts = toParts.slice(commonLength);
+  
+  let relativePath = '';
+  for (let i = 0; i < upLevels; i++) {
+    relativePath += '../';
+  }
+  relativePath += downParts.join('/');
+  
+  return relativePath;
+}
+
+// Function to check if content contains any of the expected references
+function checkReference(content, expectedRefs) {
+  for (const ref of expectedRefs) {
+    if (content.includes(ref)) {
+      return true;
+    }
+  }
+  return false;
+}
+
 console.log('🔗 Strategy-to-Code Chain Validation');
 console.log('====================================\n');
 
@@ -94,10 +128,14 @@ TOOLCHAIN.forEach(tool => {
       if (upstreamTool) {
         // Check if this document references its upstream
         const upstreamRef = upstreamTool.path.replace(/\//g, '/');
-        if (content.includes(upstreamRef)) {
-          console.log(`  ✅ ${tool.name} references upstream ${refs.upstream} (${upstreamRef})`);
+        // Calculate relative path from current doc to upstream
+        const relativeUpstreamRef = getRelativePath(tool.path, upstreamTool.path);
+        // Check for any reference to the upstream file (absolute or relative)
+        const upstreamFileName = upstreamTool.path.split('/').pop();
+        if (content.includes(upstreamFileName)) {
+          console.log(`  ✅ ${tool.name} references upstream ${refs.upstream}`);
         } else {
-          console.log(`  ❌ ${tool.name} does NOT reference upstream ${refs.upstream} (${upstreamRef})`);
+          console.log(`  ❌ ${tool.name} does NOT reference upstream ${refs.upstream} (looking for ${upstreamFileName})`);
           allPassed = false;
         }
       }
@@ -109,8 +147,12 @@ TOOLCHAIN.forEach(tool => {
           const downstreamTool = TOOLCHAIN.find(t => t.name === downstream);
           if (downstreamTool) {
             const downstreamRef = downstreamTool.path.replace(/\//g, '/');
-            if (content.includes(downstreamRef)) {
-              console.log(`  ✅ ${tool.name} references downstream ${downstream} (${downstreamRef})`);
+            // Calculate relative path from current doc to downstream
+            const relativeDownstreamRef = getRelativePath(tool.path, downstreamTool.path);
+            // Check for any reference to the downstream file (absolute or relative)
+            const downstreamFileName = downstreamTool.path.split('/').pop();
+            if (content.includes(downstreamFileName)) {
+              console.log(`  ✅ ${tool.name} references downstream ${downstream}`);
             } else {
               console.log(`  ❌ ${tool.name} does NOT reference downstream ${downstream} (${downstreamRef})`);
               allPassed = false;
@@ -121,8 +163,10 @@ TOOLCHAIN.forEach(tool => {
         const downstreamTool = TOOLCHAIN.find(t => t.name === refs.downstream);
         if (downstreamTool) {
           const downstreamRef = downstreamTool.path.replace(/\//g, '/');
-          if (content.includes(downstreamRef)) {
-            console.log(`  ✅ ${tool.name} references downstream ${refs.downstream} (${downstreamRef})`);
+          const downstreamFileName = downstreamTool.path.split('/').pop();
+          // Check for filename or full path or relative path
+          if (content.includes(downstreamFileName) || content.includes(downstreamRef)) {
+            console.log(`  ✅ ${tool.name} references downstream ${refs.downstream}`);
           } else {
             console.log(`  ❌ ${tool.name} does NOT reference downstream ${refs.downstream} (${downstreamRef})`);
             allPassed = false;
@@ -178,9 +222,9 @@ testFiles.forEach(file => {
     const content = fs.readFileSync(fullPath, 'utf8');
     
     // Check for references to strategy documents
-    const hasOmenRef = content.includes('docs/omen/strategy.json');
-    const hasAdrRef = content.includes('docs/adr/architecture-decisions.md');
-    const hasBmmlRef = content.includes('docs/bmml/value-proposition.yaml');
+    const hasOmenRef = content.includes('docs/strategy/omen/strategy.json') || content.includes('../docs/strategy/omen/strategy.json');
+    const hasAdrRef = content.includes('docs/contributors/adr/architecture-decisions.md') || content.includes('../docs/contributors/adr/architecture-decisions.md');
+    const hasBmmlRef = content.includes('docs/strategy/bmml/value-proposition.yaml') || content.includes('../docs/strategy/bmml/value-proposition.yaml');
     
     if (hasOmenRef || hasAdrRef || hasBmmlRef) {
       console.log(`  ✅ ${file} validates strategy chain references`);

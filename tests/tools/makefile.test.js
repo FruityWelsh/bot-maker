@@ -1,7 +1,7 @@
 /**
  * Makefile Tests for ChatBot Operator
- * References: docs/omen/strategy.json (upstream)
- * References: docs/adr/architecture-decisions.md (ADR-012)
+ * References: docs/strategy/omen/strategy.json (upstream)
+ * References: docs/contributors/adr/architecture-decisions.md (ADR-012)
  * 
  * These tests validate that the Makefile works correctly across all platforms
  * and that it properly implements the platform-agnostic CI/CD strategy.
@@ -11,8 +11,8 @@ const fs = require('fs');
 const path = require('path');
 const { execSync } = require('child_process');
 
-// References: docs/omen/strategy.json - Developer Environment Goal DG001
-// References: docs/adr/architecture-decisions.md - ADR-012
+// References: docs/strategy/omen/strategy.json - Developer Environment Goal DG001
+// References: docs/contributors/adr/architecture-decisions.md - ADR-012
 
 describe('Makefile Platform-Agnostic CI/CD', () => {
   const makefilePath = path.join(__dirname, '../../Makefile');
@@ -297,8 +297,8 @@ describe('Makefile Platform-Agnostic CI/CD', () => {
   });
 });
 
-// References: docs/omen/strategy.json - Developer Environment Goal DG002
-// References: docs/adr/architecture-decisions.md - ADR-012
+// References: docs/strategy/omen/strategy.json - Developer Environment Goal DG002
+// References: docs/contributors/adr/architecture-decisions.md - ADR-012
 describe('Makefile Platform Detection', () => {
   test('should detect GitHub Actions platform', () => {
     // This would be tested by actually running make with CI_PLATFORM=github
@@ -324,8 +324,8 @@ describe('Makefile Platform Detection', () => {
   });
 });
 
-// References: docs/omen/strategy.json - Developer Environment Goal DG003
-// References: docs/adr/architecture-decisions.md - ADR-012
+// References: docs/strategy/omen/strategy.json - Developer Environment Goal DG003
+// References: docs/contributors/adr/architecture-decisions.md - ADR-012
 describe('Makefile Cross-Reference Validation', () => {
   test('should reference upstream strategy documents', () => {
     const makefileContent = fs.readFileSync(path.join(__dirname, '../../Makefile'), 'utf8');
@@ -335,7 +335,7 @@ describe('Makefile Cross-Reference Validation', () => {
 
   test('should be part of the toolchain with hard references', () => {
     // The Makefile is referenced by the ADR
-    const adrPath = path.join(__dirname, '../../docs/adr/architecture-decisions.md');
+    const adrPath = path.join(__dirname, '../../docs/contributors/adr/architecture-decisions.md');
     const adrContent = fs.readFileSync(adrPath, 'utf8');
     expect(adrContent).toContain('Makefile');
     expect(adrContent).toContain('ADR-012');

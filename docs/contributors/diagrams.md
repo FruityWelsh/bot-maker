@@ -1,15 +1,15 @@
 ---
 # ChatBot Operator Architecture Diagrams
-# References: docs/cubejs/metrics.yaml (upstream)
-# Downstream: features/chatbot.feature
+# References: ../strategy/cubejs/metrics.yaml (upstream)
+# Downstream: ../../features/chatbot.feature
 
 title: ChatBot Operator Architecture Diagrams
 version: 0.1.0-dev
 created: 2026-05-25
 author: Strategy Coder
 references:
-  upstream: docs/cubejs/metrics.yaml
-  downstream: features/chatbot.feature
+  upstream: ../strategy/cubejs/metrics.yaml
+  downstream: ../../features/chatbot.feature
 rendering:
   engine: react-markdown + gray-matter + Mermaid.js
   safe: true
@@ -26,22 +26,19 @@ This document contains the comprehensive architecture diagrams for the ChatBot O
 3. [Component Architecture](#component-architecture)
 4. [Data Flow Architecture](#data-flow-architecture)
 5. [Security Architecture](#security-architecture)
-6. [Deployment Architecture](#deployment-architecture)
-7. [CI/CD Pipeline Architecture](#cicd-pipeline-architecture)
-8. [Monitoring and Observability](#monitoring-and-observability)
-9. [Platform Integration](#platform-integration)
+6. [Monitoring and Observability](#monitoring-and-observability)
+7. [Platform Integration](#platform-integration)
 
 ---
 
 ## System Context Diagram
 
-The system context diagram shows the ChatBot Operator in relation to its external dependencies and users.
+The system context diagram shows the ChatBot Operator in relation to its external dependencies. The operator listens for CRD changes and Kubernetes API extension calls - deployment, CI/CD configuration, and end user interfaces are out of scope.
 
 ```mermaid
 C4Context
     title ChatBot Operator System Context Diagram
     
-    Person(user, "End User", "Interacts with chat bots")
     Person(dev, "Developer", "Configures and manages bots")
     Person(admin, "Platform Admin", "Manages infrastructure")
     
@@ -53,10 +50,8 @@ C4Context
     System(discord, "Discord", "Chat platform")
     System(twilio, "Twilio", "SMS and voice platform")
     System(monitoring, "Monitoring System", "Prometheus + Grafana")
-    System(ciCd, "CI/CD System", "GitHub Actions/GitLab CI/Tekton + Argo CD")
     System(database, "Database", "PostgreSQL for metrics")
     
-    Rel(user, chatbotOperator, "Uses", "HTTP/WebSocket")
     Rel(dev, chatbotOperator, "Configures", "Kubernetes API")
     Rel(admin, chatbotOperator, "Administers", "Kubernetes API")
     
@@ -67,7 +62,6 @@ C4Context
     Rel(chatbotOperator, twilio, "Manages bots", "Twilio API")
     Rel(chatbotOperator, monitoring, "Reports metrics", "Prometheus")
     Rel(chatbotOperator, database, "Stores data", "SQL")
-    Rel(ciCd, chatbotOperator, "Deploys", "GitOps (enabled by CRD)")
 ```
 
 ---
@@ -97,11 +91,7 @@ graph TD
         L -->|Scrapes| J
     end
     
-    M[Argo CD] -->|Deploys| B
-    N[CI/CD] -->|Builds| B
-    O[GitHub Actions] -->|Builds| B
-    P[GitLab CI] -->|Builds| B
-    Q[Tekton] -->|Builds| B
+
     
     style A fill:#f9f,stroke:#333
     style B fill:#bbf,stroke:#333
@@ -269,111 +259,6 @@ classDiagram
     KubernetesRBAC --> OPA : Complemented by
     OPA --> SecurityContext : Evaluates
     LinkerdServiceMesh --> SecurityContext : Uses
-```
-
----
-
-## Deployment Architecture
-
-The deployment architecture shows how the ChatBot Operator is deployed in the RKE2 cluster.
-
-```mermaid
-graph TD
-    subgraph RKE2 Cluster
-        A[Node: Master] -->|Control Plane| B[Node: Worker 1]
-        A -->|Control Plane| C[Node: Worker 2]
-        A -->|Control Plane| D[Node: Worker N]
-        
-        B -->|Runs| E[Linkerd Control Plane]
-        C -->|Runs| F[Linkerd Data Plane]
-        D -->|Runs| F
-        
-        E -->|Manages| F
-        F -->|Secures| G[ChatBot Operator Pods]
-        
-        G -->|Deploys| H[ChatBot Instances]
-        H -->|Connects to| I[Chat Platforms]
-        
-        J[Prometheus] -->|Monitors| G
-        J -->|Monitors| F
-        J -->|Monitors| E
-        
-        K[Argo CD] -->|Manages| G
-        L[CI/CD Platforms] -->|Builds| M[Container Registry]
-        M -->|Deploys to| G
-        N[GitHub Actions] -->|Builds| M
-        O[GitLab CI] -->|Builds| M
-        P[Tekton] -->|Builds| M
-    end
-    
-    subgraph External
-        I[Slack]
-        N[Matrix]
-        O[Discord]
-        P[Twilio]
-    end
-    
-    style A fill:#f96,stroke:#333
-    style E fill:#6cf,stroke:#333
-    style F fill:#9cf,stroke:#333
-    style G fill:#bbf,stroke:#333
-    style J fill:#fc9,stroke:#333
-```
-
----
-
-## CI/CD Pipeline Architecture
-
-The CI/CD pipeline architecture shows the platform-agnostic build and deployment process.
-
-```mermaid
-flowchart TD
-    subgraph Source Control
-        A[GitHub] -->|Webhook| B[GitHub Actions]
-        C[GitLab] -->|Webhook| D[GitLab CI]
-        E[Forgejo] -->|Webhook| F[Forgejo CI]
-    end
-    
-    subgraph CI/CD Platforms
-        B -->|Builds| G[Container Image]
-        D -->|Builds| G
-        F -->|Builds| G
-        H[Tekton] -->|Builds| G
-    end
-    
-    G -->|Pushes to| I[Container Registry]
-        
-        E -->|Runs| H[Test Pipeline]
-        H -->|Validates| I[Code Quality]
-        H -->|Validates| J[Unit Tests]
-        H -->|Validates| K[Integration Tests]
-        H -->|Validates| L[Security Scans]
-        
-        E -->|Runs| M[Sign Pipeline]
-        M -->|Signs| F
-        M -->|Generates| N[SBOM]
-        M -->|Generates| O[Provenance]
-    end
-    
-    subgraph GitOps (Deployment Pattern)
-        G -->|New Image| P[Argo CD]
-        P -->|Syncs| Q[Git Repository]
-        Q -->|Contains| R[Kubernetes Manifests]
-        P -->|Deploys to| S[RKE2 Cluster]
-    end
-    
-    subgraph Monitoring
-        T[Pipeline Metrics] -->|Reports to| U[Cube.js]
-        U -->|Visualizes| V[Dashboards]
-        U -->|Alerts| W[Notification System]
-    end
-    
-    style A fill:#333,stroke:#fff,color:#fff
-    style C fill:#fc6,stroke:#333
-    style D fill:#36c,stroke:#333,color:#fff
-    style E fill:#6cf,stroke:#333
-    style P fill:#9cf,stroke:#333
-    style S fill:#f96,stroke:#333
 ```
 
 ---
@@ -785,8 +670,6 @@ This document provides a comprehensive set of architecture diagrams for the Chat
 - **Component Architecture**: Shows the internal structure of the operator
 - **Data Flow**: Shows how data moves through the system
 - **Security Architecture**: Shows the Zero Trust implementation
-- **Deployment Architecture**: Shows the RKE2 cluster deployment
-- **CI/CD Pipeline**: Shows the platform-agnostic build and deployment process
 - **Monitoring**: Shows the observability stack
 - **Platform Integration**: Shows how different chat platforms are supported
 - **CRD Definitions**: Shows the Kubernetes resource definitions

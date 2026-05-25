@@ -43,6 +43,11 @@ GODOG_VERSION ?= v0.12.6
 KUBEBUILDER_VERSION ?= 3.12.0
 KUSTOMIZE_VERSION ?= v5.0.4
 
+# Security Scanner Container
+SECURITY_SCANNER_IMAGE ?= ghcr.io/$(CI_REPO)/security-scanner
+SECURITY_SCANNER_TAG ?= latest
+SECURITY_SCANNER_DOCKERFILE ?= Dockerfile.security-scanner
+
 .PHONY: help
 help: ## Show this help message
 	@echo "ChatBot Operator - Platform-Agnostic Makefile"

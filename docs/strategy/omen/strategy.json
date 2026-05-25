@@ -8,7 +8,7 @@
     "author": "Strategy Coder",
     "references": {
       "upstream": null,
-      "downstream": ["docs/archimate/enterprise-architecture.xml"]
+      "downstream": ["../../../contributors/archimate/enterprise-architecture.xml"]
     }
   },
   "vision": {
@@ -173,7 +173,7 @@
         "purpose": "Behavior-driven feature tests",
         "schema": "Gherkin (.feature)/Go",
         "position": 7,
-        "references": ["docs/diagrams.md"]
+        "references": ["../../contributors/diagrams.md"]
       },
       {
         "name": "Jest & AJV",
