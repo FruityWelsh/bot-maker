@@ -31,6 +31,9 @@ on:
     branches: [ main, ai-dev, vibe/* ]
   pull_request:
     branches: [ main, ai-dev ]
+  workflow_dispatch:
+  schedule:
+    - cron: '0 0 * * *'  # Nightly run at midnight UTC
 
 jobs:
   # ============================================================================
