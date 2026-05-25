@@ -4,8 +4,8 @@
 # Downstream: features/chatbot.feature
 
 title: ChatBot Operator Architecture Diagrams
-version: 0.1.0-dev
-created: Generated from Git commit date
+version: 1.0.0
+created: 2026-05-24
 author: Strategy Coder
 references:
   upstream: docs/cubejs/metrics.yaml
@@ -53,7 +53,7 @@ C4Context
     System(discord, "Discord", "Chat platform")
     System(twilio, "Twilio", "SMS and voice platform")
     System(monitoring, "Monitoring System", "Prometheus + Grafana")
-    System(ciCd, "CI/CD System", "GitHub Actions/GitLab CI/Tekton + Argo CD")
+    System(ciCd, "CI/CD System", "Tekton + Argo CD")
     System(database, "Database", "PostgreSQL for metrics")
     
     Rel(user, chatbotOperator, "Uses", "HTTP/WebSocket")
@@ -98,10 +98,7 @@ graph TD
     end
     
     M[Argo CD] -->|Deploys| B
-    N[CI/CD] -->|Builds| B
-    O[GitHub Actions] -->|Builds| B
-    P[GitLab CI] -->|Builds| B
-    Q[Tekton] -->|Builds| B
+    N[Tekton] -->|Builds| B
     
     style A fill:#f9f,stroke:#333
     style B fill:#bbf,stroke:#333
@@ -299,11 +296,8 @@ graph TD
         J -->|Monitors| E
         
         K[Argo CD] -->|Manages| G
-        L[CI/CD Platforms] -->|Builds| M[Container Registry]
+        L[Tekton] -->|Builds| M[Container Registry]
         M -->|Deploys to| G
-        N[GitHub Actions] -->|Builds| M
-        O[GitLab CI] -->|Builds| M
-        P[Tekton] -->|Builds| M
     end
     
     subgraph External
@@ -329,19 +323,15 @@ The CI/CD pipeline architecture shows the platform-agnostic build and deployment
 ```mermaid
 flowchart TD
     subgraph Source Control
-        A[GitHub] -->|Webhook| B[GitHub Actions]
-        C[GitLab] -->|Webhook| D[GitLab CI]
-        E[Forgejo] -->|Webhook| F[Forgejo CI]
+        A[GitHub] -->|Webhook| B[Tekton Trigger]
+        C[GitLab] -->|Webhook| B
+        D[Forgejo] -->|Webhook| B
     end
     
-    subgraph CI/CD Platforms
-        B -->|Builds| G[Container Image]
-        D -->|Builds| G
-        F -->|Builds| G
-        H[Tekton] -->|Builds| G
-    end
-    
-    G -->|Pushes to| I[Container Registry]
+    subgraph Tekton Pipelines
+        B -->|Triggers| E[Build Pipeline]
+        E -->|Builds| F[Container Image]
+        F -->|Pushes to| G[Container Registry]
         
         E -->|Runs| H[Test Pipeline]
         H -->|Validates| I[Code Quality]
