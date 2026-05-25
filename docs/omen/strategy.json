@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "metadata": {
     "name": "chatbot-operator-strategy",
-    "version": "1.0.0",
+    "version": "0.1.0-dev",
     "description": "Strategy definition for Kubernetes-native chat bot management",
     "created": "Generated from Git commit date",
     "author": "Strategy Coder",

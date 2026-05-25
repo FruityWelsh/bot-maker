@@ -4,7 +4,7 @@
 # Downstream: docs/cubejs/metrics.yaml
 
 title: ChatBot Operator Architecture Decisions
-version: 1.0.0
+version: 0.1.0-dev
 created: Generated from Git commit date
 author: Strategy Coder
 references:

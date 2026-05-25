@@ -448,6 +448,35 @@ version: ## Show version information
 	@echo "Branch: $(CI_BRANCH)"
 	@echo "Platform: $(CI_PLATFORM)"
 
+.PHONY: verify-versions
+verify-versions: ## Verify all version numbers match VERSION file
+	@echo "🔍 Verifying version consistency..."
+	@VERSION=$(VERSION); \
+	files="package.json docs/omen/strategy.json docs/bmml/value-proposition.yaml docs/adr/architecture-decisions.md docs/cubejs/metrics.yaml docs/diagrams.md"; \
+	failed=0; \
+	for file in $$files; do \
+	  if [ ! -f "$$file" ]; then \
+	    echo "⚠️  File not found: $$file"; \
+	    continue; \
+	  fi; \
+	  if ! grep -q "$$VERSION" "$$file"; then \
+	    echo "❌ Version mismatch in $$file"; \
+	    failed=1; \
+	  else \
+	    echo "✅ $$file: $$VERSION"; \
+	  fi; \
+	done; \
+	if [ $$failed -eq 1 ]; then \
+	  echo "❌ Version consistency check FAILED"; \
+	  exit 1; \
+	fi; \
+	echo "✅ All versions match: $(VERSION)"
+
+.PHONY: bump-version
+bump-version: ## Bump version across all files
+	@echo "🔄 Bumping version..."
+	@./scripts/bump-version.sh "$(NEW_VERSION)"
+
 .PHONY: env
 env: ## Show environment variables
 	@echo "Makefile Environment:"
