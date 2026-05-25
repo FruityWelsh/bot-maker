@@ -27,6 +27,7 @@ RUN zypper refresh && \
     ca-certificates \
     ca-certificates-mozilla \
     nodejs24 \
+    wget \
     && zypper clean --all
 
 # Install Deno 2.8.0 (preferred runtime) using official binary
@@ -46,13 +47,11 @@ ENV PATH="/usr/local/go/bin:/root/go/bin:${PATH}"
 ENV GOPATH=/root/go
 
 # Install betterleaks
-RUN zypper install -y curl tar && \
-    curl -L https://github.com/betterleaks/betterleaks/releases/download/v1.3.1/betterleaks_1.3.1_linux_x86_64.tar.gz -o /tmp/betterleaks.tar.gz && \
+RUN wget -q --show-progress https://github.com/betterleaks/betterleaks/releases/download/v1.3.1/betterleaks_1.3.1_linux_x86_64.tar.gz -O /tmp/betterleaks.tar.gz && \
     tar -xz -C /tmp -f /tmp/betterleaks.tar.gz && \
     mv /tmp/betterleaks_1.3.1_linux_x86_64 /usr/local/bin/betterleaks && \
     chmod +x /usr/local/bin/betterleaks && \
-    rm /tmp/betterleaks.tar.gz && \
-    zypper clean --all
+    rm /tmp/betterleaks.tar.gz
 
 # Install gosec
 RUN go install github.com/securego/gosec/v2/cmd/gosec@latest
