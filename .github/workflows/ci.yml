@@ -70,7 +70,7 @@ jobs:
           context: .
           file: Dockerfile.security-scanner
           push: true
-          tags: ghcr.io/${{ github.repository }}/security-scanner:latest
+          tags: ghcr.io/fruitywelsh/security-scanner:latest
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
