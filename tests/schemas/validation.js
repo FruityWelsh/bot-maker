@@ -10,15 +10,17 @@
  */
 
 // References: features/chatbot.feature (upstream)
-const { validate: validateChatBot } = require('./schemas/chatbot-crd');
-const { validate: validateBotPlatform } = require('./schemas/botplatform-crd');
-const { validate: validateBotConfiguration } = require('./schemas/botconfiguration-crd');
-const { validate: validateBotCredential } = require('./schemas/botcredential-crd');
-const { validate: validateStrategy } = require('./schemas/strategy-schema');
-const { validate: validateArchimate } = require('./schemas/archimate-schema');
-const { validate: validateBmml } = require('./schemas/bmml-schema');
-const { validate: validateAdr } = require('./schemas/adr-schema');
-const { validate: validateCubeJs } = require('./schemas/cubejs-schema');
+const { validate: validateChatBot } = require('./chatbot-crd');
+const { validate: validateBotPlatform } = require('./botplatform-crd');
+const { validate: validateBotConfiguration } = require('./botconfiguration-crd');
+const { validate: validateBotCredential } = require('./botcredential-crd');
+const { validate: validateStrategy } = require('./strategy-schema');
+const { validate: validateArchimate } = require('./archimate-schema');
+const { validate: validateBmml } = require('./bmml-schema');
+const { validate: validateAdr } = require('./adr-schema');
+const { validate: validateCubeJs } = require('./cubejs-schema');
+const { validate: validateDiagrams } = require('./diagrams-schema');
+const { validate: validateGherkin } = require('./gherkin-schema');
 
 /**
  * Test data for valid ChatBot CRD
@@ -246,12 +248,27 @@ const validAdr = {
 const validCubeJs = {
   version: '1.0.0',
   name: 'ChatBot Operator Business Metrics',
+  created: '2026-05-25',
+  author: 'Strategy Coder',
+  references: {
+    upstream: 'docs/adr/architecture-decisions.md',
+    downstream: 'docs/diagrams.md'
+  },
   metrics: [
     {
       name: 'bot_provisioning_time',
       description: 'Time taken to provision a new chat bot',
       type: 'time',
-      unit: 'seconds'
+      unit: 'seconds',
+      dimensions: ['platform', 'region', 'team'],
+      targets: [
+        {
+          name: 'average_provisioning_time',
+          description: 'Average provisioning time across all platforms',
+          target_value: '< 300',
+          comparison: 'less_than'
+        }
+      ]
     }
   ],
   data_sources: [
@@ -261,6 +278,97 @@ const validCubeJs = {
       config: {
         api_version: 'v1'
       }
+    }
+  ]
+};
+
+/**
+ * Test data for valid Diagrams document
+ * References: docs/diagrams.md
+ */
+const validDiagrams = {
+  title: 'ChatBot Operator Architecture Diagrams',
+  version: '1.0.0',
+  created: '2026-05-25',
+  author: 'Strategy Coder',
+  references: {
+    upstream: 'docs/cubejs/metrics.yaml',
+    downstream: 'features/chatbot.feature'
+  },
+  rendering: {
+    engine: 'react-markdown + gray-matter + Mermaid.js',
+    safe: true
+  },
+  diagrams: [
+    {
+      id: 'system_context_diagram',
+      title: 'ChatBot Operator System Context Diagram',
+      type: 'system_context',
+      description: 'Shows the ChatBot Operator in relation to its external dependencies and users',
+      mermaid_code: 'C4Context\n    title ChatBot Operator System Context Diagram\n    Person(user, "End User", "Interacts with chat bots")',
+      elements: ['user', 'dev', 'admin', 'chatbotOperator', 'kubernetes'],
+      relationships: [
+        {
+          source: 'user',
+          target: 'chatbotOperator',
+          type: 'uses',
+          description: 'Users interact with the ChatBot Operator'
+        }
+      ]
+    }
+  ]
+};
+
+/**
+ * Test data for valid Gherkin feature file
+ * References: features/chatbot.feature
+ */
+const validGherkin = {
+  language: 'en',
+  author: 'Strategy Coder',
+  created: '2026-05-25',
+  references: {
+    upstream: 'docs/diagrams.md',
+    downstream: ['tests/schemas/validation.js', 'tests/tools/']
+  },
+  feature: {
+    title: 'ChatBot Operator Lifecycle Management',
+    description: 'Manage chat bot lifecycles as Kubernetes resources',
+    as_a: 'Platform Engineering or Application Development team member',
+    i_want: 'manage chat bot lifecycles as Kubernetes resources',
+    so_that: 'I can automate bot provisioning, configuration, and management',
+    tags: ['@crd', '@lifecycle']
+  },
+  background: {
+    steps: [
+      {
+        keyword: 'Given',
+        text: 'the ChatBot Operator is deployed in RKE2 cluster with Linkerd'
+      },
+      {
+        keyword: 'And',
+        text: 'the operator has proper RBAC/ABAC permissions'
+      }
+    ]
+  },
+  scenarios: [
+    {
+      title: 'Create a new ChatBot resource',
+      tags: ['@crd', '@create'],
+      steps: [
+        {
+          keyword: 'Given',
+          text: 'I have a valid ChatBot manifest for platform "slack"'
+        },
+        {
+          keyword: 'When',
+          text: 'I apply the ChatBot manifest to Kubernetes'
+        },
+        {
+          keyword: 'Then',
+          text: 'the ChatBot resource should be created successfully'
+        }
+      ]
     }
   ]
 };
@@ -573,6 +681,76 @@ describe('ChatBot Operator Toolchain Validation', () => {
       expect(result.valid).toBe(false);
     });
   });
+
+  describe('Diagrams Validation', () => {
+    test('should validate valid Diagrams document', () => {
+      // References: docs/diagrams.md
+      const result = validateDiagrams(validDiagrams);
+      expect(result.valid).toBe(true);
+      expect(result.errors).toBeNull();
+    });
+
+    test('should reject Diagrams with missing required fields', () => {
+      const invalidDiagrams = { ...validDiagrams };
+      delete invalidDiagrams.title;
+      
+      const result = validateDiagrams(invalidDiagrams);
+      expect(result.valid).toBe(false);
+      expect(result.errors).not.toBeNull();
+      expect(result.errors.length).toBeGreaterThan(0);
+    });
+
+    test('should validate Diagrams rendering engine', () => {
+      const diagramsWithInvalidEngine = { ...validDiagrams };
+      diagramsWithInvalidEngine.rendering.engine = '';
+      
+      const result = validateDiagrams(diagramsWithInvalidEngine);
+      expect(result.valid).toBe(false);
+    });
+
+    test('should validate Diagrams diagram types', () => {
+      const diagramsWithInvalidType = { ...validDiagrams };
+      diagramsWithInvalidType.diagrams[0].type = 'invalid-type';
+      
+      const result = validateDiagrams(diagramsWithInvalidType);
+      expect(result.valid).toBe(false);
+    });
+  });
+
+  describe('Gherkin Validation', () => {
+    test('should validate valid Gherkin feature file', () => {
+      // References: features/chatbot.feature
+      const result = validateGherkin(validGherkin);
+      expect(result.valid).toBe(true);
+      expect(result.errors).toBeNull();
+    });
+
+    test('should reject Gherkin with missing required fields', () => {
+      const invalidGherkin = { ...validGherkin };
+      delete invalidGherkin.feature;
+      
+      const result = validateGherkin(invalidGherkin);
+      expect(result.valid).toBe(false);
+      expect(result.errors).not.toBeNull();
+      expect(result.errors.length).toBeGreaterThan(0);
+    });
+
+    test('should validate Gherkin language code', () => {
+      const gherkinWithInvalidLanguage = { ...validGherkin };
+      gherkinWithInvalidLanguage.language = 'invalid';
+      
+      const result = validateGherkin(gherkinWithInvalidLanguage);
+      expect(result.valid).toBe(false);
+    });
+
+    test('should validate Gherkin step keywords', () => {
+      const gherkinWithInvalidKeyword = { ...validGherkin };
+      gherkinWithInvalidKeyword.scenarios[0].steps[0].keyword = 'Invalid';
+      
+      const result = validateGherkin(gherkinWithInvalidKeyword);
+      expect(result.valid).toBe(false);
+    });
+  });
 });
 
 /**
@@ -817,6 +995,8 @@ module.exports = {
   validateBmml,
   validateAdr,
   validateCubeJs,
+  validateDiagrams,
+  validateGherkin,
   // Test data exports
   validChatBot,
   invalidChatBot,
@@ -827,5 +1007,7 @@ module.exports = {
   validArchimate,
   validBmml,
   validAdr,
-  validCubeJs
+  validCubeJs,
+  validDiagrams,
+  validGherkin
 };

@@ -1,0 +1,106 @@
+{
+  "$id": "https://github.com/FruityWelsh/bot-maker/tests/schemas/adr-schema.json",
+  "title": "ADR Document Schema",
+  "description": "JSON Schema for validating Architecture Decision Records (ADR) in Markdown with YAML frontmatter",
+  "type": "object",
+  "required": ["title", "version", "created", "author", "references", "decisions"],
+  "additionalProperties": false,
+  "properties": {
+    "title": {
+      "type": "string",
+      "minLength": 5,
+      "description": "Title of the ADR document"
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+(-[a-zA-Z0-9]+)?$",
+      "description": "Semantic version of the ADR document"
+    },
+    "created": {
+      "type": "string",
+      "format": "date",
+      "description": "Creation date in YYYY-MM-DD format"
+    },
+    "author": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Author of the ADR document"
+    },
+    "references": {
+      "type": "object",
+      "required": ["upstream", "downstream"],
+      "additionalProperties": false,
+      "properties": {
+        "upstream": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Upstream document reference (e.g., docs/bmml/value-proposition.yaml)"
+        },
+        "downstream": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Downstream document reference (e.g., docs/cubejs/metrics.yaml)"
+        }
+      }
+    },
+    "decisions": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/decision"
+      },
+      "minItems": 1,
+      "description": "List of architecture decisions"
+    }
+  },
+  "$defs": {
+    "decision": {
+      "type": "object",
+      "required": ["id", "status", "date", "context", "decision", "consequences"],
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^ADR-[0-9]{3}$",
+          "description": "Decision identifier (e.g., ADR-001, ADR-002)"
+        },
+        "status": {
+          "type": "string",
+          "enum": ["Accepted", "Rejected", "Deprecated", "Proposed", "Superseded"],
+          "description": "Status of the decision"
+        },
+        "date": {
+          "type": "string",
+          "format": "date",
+          "description": "Date of the decision in YYYY-MM-DD format"
+        },
+        "context": {
+          "type": "string",
+          "minLength": 10,
+          "description": "Context and problem statement"
+        },
+        "decision": {
+          "type": "string",
+          "minLength": 10,
+          "description": "The decision made"
+        },
+        "consequences": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "minItems": 1,
+          "description": "Consequences of the decision (positive and negative)"
+        },
+        "references": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "description": "References to related goals, capabilities, or documents"
+        }
+      }
+    }
+  }
+}

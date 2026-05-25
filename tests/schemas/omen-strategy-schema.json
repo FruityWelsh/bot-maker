@@ -1,0 +1,548 @@
+{
+  "$id": "https://github.com/FruityWelsh/bot-maker/tests/schemas/omen-strategy-schema.json",
+  "title": "Omen Strategy Document Schema",
+  "description": "JSON Schema for validating Omen strategy definition documents",
+  "type": "object",
+  "required": ["metadata", "vision", "goals", "constraints", "architecture", "security", "compliance"],
+  "additionalProperties": false,
+  "properties": {
+
+    "metadata": {
+      "type": "object",
+      "required": ["name", "version", "description", "created", "author", "references"],
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Name of the strategy document"
+        },
+        "version": {
+          "type": "string",
+          "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+(-[a-zA-Z0-9]+)?$",
+          "description": "Semantic version of the strategy"
+        },
+        "description": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Description of the strategy document"
+        },
+        "created": {
+          "type": "string",
+          "format": "date",
+          "description": "Creation date in YYYY-MM-DD format"
+        },
+        "author": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Author of the strategy document"
+        },
+        "references": {
+          "type": "object",
+          "required": ["upstream", "downstream"],
+          "additionalProperties": false,
+          "properties": {
+            "upstream": {
+              "type": ["string", "null"],
+              "description": "Upstream document reference or null if this is the root"
+            },
+            "downstream": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "List of downstream document references"
+            }
+          }
+        }
+      }
+    },
+    "vision": {
+      "type": "object",
+      "required": ["statement", "targetAudience", "valueProposition"],
+      "additionalProperties": false,
+      "properties": {
+        "statement": {
+          "type": "string",
+          "minLength": 10,
+          "description": "Vision statement"
+        },
+        "targetAudience": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "minItems": 1,
+          "description": "Target audience for the vision"
+        },
+        "valueProposition": {
+          "type": "string",
+          "minLength": 10,
+          "description": "Value proposition statement"
+        }
+      }
+    },
+    "goals": {
+      "type": "object",
+      "required": ["application_goals", "developer_environment_goals"],
+      "additionalProperties": false,
+      "properties": {
+        "application_goals": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/goal"
+          },
+          "minItems": 1,
+          "description": "Application-level goals"
+        },
+        "developer_environment_goals": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/goal"
+          },
+          "minItems": 1,
+          "description": "Developer environment goals"
+        }
+      }
+    },
+    "constraints": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/constraint"
+      },
+      "minItems": 1,
+      "description": "Project constraints"
+    },
+    "architecture": {
+      "type": "object",
+      "required": ["toolchain", "application"],
+      "additionalProperties": false,
+      "properties": {
+        "toolchain": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/toolchainTool"
+          },
+          "minItems": 8,
+          "description": "Toolchain definition with 8 tools"
+        },
+        "application": {
+          "$ref": "#/$defs/applicationArchitecture"
+        }
+      }
+    },
+    "security": {
+      "$ref": "#/$defs/security"
+    },
+    "compliance": {
+      "$ref": "#/$defs/compliance"
+    },
+    "dependencies": {
+      "$ref": "#/$defs/dependencies"
+    },
+    "gitOps": {
+      "$ref": "#/$defs/gitOps"
+    },
+    "roles": {
+      "$ref": "#/$defs/roles"
+    },
+    "validation": {
+      "$ref": "#/$defs/validationRules"
+    }
+  },
+  "$defs": {
+    "goal": {
+      "type": "object",
+      "required": ["id", "description", "priority", "successCriteria", "category"],
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[A-Z]{2}[0-9]{3}$",
+          "description": "Goal identifier (e.g., AG001, DG001)"
+        },
+        "description": {
+          "type": "string",
+          "minLength": 5,
+          "description": "Goal description"
+        },
+        "priority": {
+          "type": "string",
+          "enum": ["high", "medium", "low"],
+          "description": "Goal priority level"
+        },
+        "successCriteria": {
+          "type": "string",
+          "minLength": 5,
+          "description": "Success criteria for the goal"
+        },
+        "category": {
+          "type": "string",
+          "enum": ["application", "developer_experience"],
+          "description": "Goal category"
+        }
+      }
+    },
+    "constraint": {
+      "type": "object",
+      "required": ["id", "description", "type", "enforcement"],
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[C][0-9]{3}$",
+          "description": "Constraint identifier (e.g., C001)"
+        },
+        "description": {
+          "type": "string",
+          "minLength": 5,
+          "description": "Constraint description"
+        },
+        "type": {
+          "type": "string",
+          "enum": ["hard", "soft"],
+          "description": "Constraint type"
+        },
+        "enforcement": {
+          "type": "string",
+          "description": "How the constraint is enforced"
+        }
+      }
+    },
+    "toolchainTool": {
+      "type": "object",
+      "required": ["name", "purpose", "schema", "position", "references"],
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Tool name"
+        },
+        "purpose": {
+          "type": "string",
+          "minLength": 5,
+          "description": "Purpose of the tool"
+        },
+        "schema": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Schema/format used by the tool"
+        },
+        "position": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 8,
+          "description": "Position in the toolchain (1-8)"
+        },
+        "references": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "References to other documents"
+        },
+        "note": {
+          "type": "string",
+          "description": "Optional note about the tool"
+        }
+      }
+    },
+    "applicationArchitecture": {
+      "type": "object",
+      "required": ["type", "language", "framework", "targetEnvironment", "components", "testing"],
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "type": "string",
+          "description": "Application type"
+        },
+        "language": {
+          "type": "string",
+          "description": "Primary programming language"
+        },
+        "framework": {
+          "type": "string",
+          "description": "Framework used"
+        },
+        "targetEnvironment": {
+          "type": "string",
+          "description": "Target deployment environment"
+        },
+        "components": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "description": "Application components"
+        },
+        "testing": {
+          "$ref": "#/$defs/testingStrategy"
+        }
+      }
+    },
+    "testingStrategy": {
+      "type": "object",
+      "required": ["primary", "secondary", "note"],
+      "additionalProperties": false,
+      "properties": {
+        "primary": {
+          "type": "string",
+          "description": "Primary testing approach"
+        },
+        "secondary": {
+          "type": "string",
+          "description": "Secondary testing approach"
+        },
+        "note": {
+          "type": "string",
+          "description": "Note about testing strategy"
+        }
+      }
+    },
+    "security": {
+      "type": "object",
+      "required": ["principles", "standards", "requirements"],
+      "additionalProperties": false,
+      "properties": {
+        "principles": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "description": "Security principles"
+        },
+        "standards": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "description": "Security standards"
+        },
+        "requirements": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "description": "Security requirements"
+        }
+      }
+    },
+    "compliance": {
+      "type": "object",
+      "required": ["slsaLevel", "cncfCompliance", "openStandards", "choiceMatters"],
+      "additionalProperties": false,
+      "properties": {
+        "slsaLevel": {
+          "type": "string",
+          "description": "SLSA compliance level"
+        },
+        "cncfCompliance": {
+          "type": "boolean",
+          "description": "CNCF compliance status"
+        },
+        "openStandards": {
+          "type": "boolean",
+          "description": "Open standards compliance"
+        },
+        "choiceMatters": {
+          "type": "boolean",
+          "description": "Choice Matters compliance"
+        }
+      }
+    },
+    "dependencies": {
+      "type": "object",
+      "required": ["preferences", "requirements", "examples"],
+      "additionalProperties": false,
+      "properties": {
+        "preferences": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "description": "Dependency preferences"
+        },
+        "requirements": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "description": "Dependency requirements"
+        },
+        "examples": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["name", "foundation"],
+            "additionalProperties": false,
+            "properties": {
+              "name": {
+                "type": "string"
+              },
+              "foundation": {
+                "type": "string"
+              }
+            }
+          },
+          "minItems": 1,
+          "description": "Dependency examples"
+        }
+      }
+    },
+    "gitOps": {
+      "type": "object",
+      "required": ["workflow", "ciCd"],
+      "additionalProperties": false,
+      "properties": {
+        "workflow": {
+          "type": "object",
+          "required": ["branching", "commitStandard", "mergeStrategy", "frequency"],
+          "additionalProperties": false,
+          "properties": {
+            "branching": {
+              "type": "string",
+              "description": "Branching strategy"
+            },
+            "commitStandard": {
+              "type": "string",
+              "description": "Commit message standard"
+            },
+            "mergeStrategy": {
+              "type": "string",
+              "description": "Merge strategy"
+            },
+            "frequency": {
+              "type": "string",
+              "description": "Commit frequency"
+            }
+          }
+        },
+        "ciCd": {
+          "type": "object",
+          "required": ["platforms", "requirements", "stages"],
+          "additionalProperties": false,
+          "properties": {
+            "platforms": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "minItems": 1,
+              "description": "CI/CD platforms"
+            },
+            "requirements": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "minItems": 1,
+              "description": "CI/CD requirements"
+            },
+            "stages": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "minItems": 1,
+              "description": "CI/CD stages"
+            }
+          }
+        }
+      }
+    },
+    "roles": {
+      "type": "object",
+      "required": ["application_roles", "developer_environment_roles"],
+      "additionalProperties": false,
+      "properties": {
+        "application_roles": {
+          "$ref": "#/$defs/roleCategory"
+        },
+        "developer_environment_roles": {
+          "$ref": "#/$defs/roleCategory"
+        }
+      }
+    },
+    "roleCategory": {
+      "type": "object",
+      "additionalProperties": false,
+      "patternProperties": {
+        "^[a-z][a-zA-Z0-9]+$": {
+          "$ref": "#/$defs/roleDefinition"
+        }
+      }
+    },
+    "roleDefinition": {
+      "type": "object",
+      "required": ["aoR", "category", "responsibilities"],
+      "additionalProperties": false,
+      "properties": {
+        "aoR": {
+          "type": "string",
+          "description": "Area of Responsibility"
+        },
+        "category": {
+          "type": "string",
+          "description": "Role category"
+        },
+        "responsibilities": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "description": "Role responsibilities"
+        }
+      }
+    },
+    "validationRules": {
+      "type": "object",
+      "required": ["rules"],
+      "additionalProperties": false,
+      "properties": {
+        "rules": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/validationRule"
+          },
+          "minItems": 1,
+          "description": "Validation rules"
+        }
+      }
+    },
+    "validationRule": {
+      "type": "object",
+      "required": ["id", "description", "check", "enforcement"],
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[V][0-9]{3}$",
+          "description": "Validation rule identifier (e.g., V001)"
+        },
+        "description": {
+          "type": "string",
+          "minLength": 5,
+          "description": "Rule description"
+        },
+        "check": {
+          "type": "string",
+          "minLength": 5,
+          "description": "What the rule checks"
+        },
+        "enforcement": {
+          "type": "string",
+          "description": "How the rule is enforced"
+        }
+      }
+    }
+  }
+}

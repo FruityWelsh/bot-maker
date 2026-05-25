@@ -1,0 +1,203 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ArchiMate Enterprise Architecture XML Schema
+  References: docs/omen/strategy.json (upstream)
+  Downstream: docs/bmml/value-proposition.yaml
+  
+  This XSD validates ArchiMate enterprise architecture models.
+  It ensures proper structure, required elements, and metadata.
+-->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:archimate="http://www.archimatetool.com/archimate"
+           targetNamespace="http://www.archimatetool.com/archimate"
+           elementFormDefault="qualified"
+           attributeFormDefault="unqualified">
+
+  <!-- Root element: model -->
+  <xs:element name="model">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="archimate:metadata" minOccurs="1" maxOccurs="1"/>
+        <xs:element ref="archimate:elements" minOccurs="0" maxOccurs="1"/>
+        <xs:element ref="archimate:relationships" minOccurs="0" maxOccurs="1"/>
+        <xs:element ref="archimate:views" minOccurs="0" maxOccurs="1"/>
+      </xs:sequence>
+      <xs:attribute name="name" type="xs:string" use="required"/>
+      <xs:attribute name="version" type="xs:string" use="required"/>
+      <xs:attribute name="xmlns" type="xs:string" fixed="http://www.archimatetool.com/archimate"/>
+    </xs:complexType>
+  </xs:element>
+
+  <!-- Metadata element -->
+  <xs:element name="metadata">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="property" maxOccurs="unbounded">
+          <xs:complexType>
+            <xs:attribute name="key" type="xs:string" use="required"/>
+            <xs:attribute name="value" type="xs:string" use="required"/>
+          </xs:complexType>
+        </xs:element>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <!-- Elements container -->
+  <xs:element name="elements">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="element" maxOccurs="unbounded">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="documentation" type="xs:string" minOccurs="0" maxOccurs="1"/>
+            </xs:sequence>
+            <xs:attribute name="id" type="xs:ID" use="required"/>
+            <xs:attribute name="name" type="xs:string" use="required"/>
+            <xs:attribute name="xsi:type" type="xs:string" use="required"/>
+          </xs:complexType>
+        </xs:element>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <!-- Relationships container -->
+  <xs:element name="relationships">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="relationship" maxOccurs="unbounded">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="documentation" type="xs:string" minOccurs="0" maxOccurs="1"/>
+            </xs:sequence>
+            <xs:attribute name="id" type="xs:ID" use="required"/>
+            <xs:attribute name="source" type="xs:IDREF" use="required"/>
+            <xs:attribute name="target" type="xs:IDREF" use="required"/>
+            <xs:attribute name="xsi:type" type="xs:string" use="required"/>
+          </xs:complexType>
+        </xs:element>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <!-- Views container -->
+  <xs:element name="views">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="view" maxOccurs="unbounded">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="documentation" type="xs:string" minOccurs="0" maxOccurs="1"/>
+              <xs:element name="viewpoint" type="xs:string" minOccurs="0" maxOccurs="1"/>
+              <xs:element name="elements" minOccurs="0" maxOccurs="1">
+                <xs:complexType>
+                  <xs:sequence>
+                    <xs:element name="element" maxOccurs="unbounded">
+                      <xs:complexType>
+                        <xs:attribute name="ref" type="xs:IDREF" use="required"/>
+                      </xs:complexType>
+                    </xs:element>
+                  </xs:sequence>
+                </xs:complexType>
+              </xs:element>
+            </xs:sequence>
+            <xs:attribute name="id" type="xs:ID" use="required"/>
+            <xs:attribute name="name" type="xs:string" use="required"/>
+          </xs:complexType>
+        </xs:element>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <!-- ArchiMate element types -->
+  <xs:complexType name="BusinessActorType">
+    <xs:complexContent>
+      <xs:extension base="archimate:ElementType">
+        <xs:attribute name="xsi:type" type="xs:string" fixed="archimate:BusinessActor"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="BusinessRoleType">
+    <xs:complexContent>
+      <xs:extension base="archimate:ElementType">
+        <xs:attribute name="xsi:type" type="xs:string" fixed="archimate:BusinessRole"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="BusinessProcessType">
+    <xs:complexContent>
+      <xs:extension base="archimate:ElementType">
+        <xs:attribute name="xsi:type" type="xs:string" fixed="archimate:BusinessProcess"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="ApplicationServiceType">
+    <xs:complexContent>
+      <xs:extension base="archimate:ElementType">
+        <xs:attribute name="xsi:type" type="xs:string" fixed="archimate:ApplicationService"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="ApplicationComponentType">
+    <xs:complexContent>
+      <xs:extension base="archimate:ElementType">
+        <xs:attribute name="xsi:type" type="xs:string" fixed="archimate:ApplicationComponent"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="NodeType">
+    <xs:complexContent>
+      <xs:extension base="archimate:ElementType">
+        <xs:attribute name="xsi:type" type="xs:string" fixed="archimate:Node"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <!-- Base element type -->
+  <xs:complexType name="ElementType">
+    <xs:sequence>
+      <xs:element name="documentation" type="xs:string" minOccurs="0" maxOccurs="1"/>
+    </xs:sequence>
+    <xs:attribute name="id" type="xs:ID" use="required"/>
+    <xs:attribute name="name" type="xs:string" use="required"/>
+  </xs:complexType>
+
+  <!-- Relationship types -->
+  <xs:complexType name="AssignmentRelationshipType">
+    <xs:complexContent>
+      <xs:extension base="archimate:RelationshipType">
+        <xs:attribute name="xsi:type" type="xs:string" fixed="archimate:AssignmentRelationship"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="FlowRelationshipType">
+    <xs:complexContent>
+      <xs:extension base="archimate:RelationshipType">
+        <xs:attribute name="xsi:type" type="xs:string" fixed="archimate:FlowRelationship"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="UsedByRelationshipType">
+    <xs:complexContent>
+      <xs:extension base="archimate:RelationshipType">
+        <xs:attribute name="xsi:type" type="xs:string" fixed="archimate:UsedByRelationship"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <!-- Base relationship type -->
+  <xs:complexType name="RelationshipType">
+    <xs:sequence>
+      <xs:element name="documentation" type="xs:string" minOccurs="0" maxOccurs="1"/>
+    </xs:sequence>
+    <xs:attribute name="id" type="xs:ID" use="required"/>
+    <xs:attribute name="source" type="xs:IDREF" use="required"/>
+    <xs:attribute name="target" type="xs:IDREF" use="required"/>
+  </xs:complexType>
+</xs:schema>

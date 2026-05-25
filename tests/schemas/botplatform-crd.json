@@ -1,0 +1,125 @@
+{
+  "$id": "https://github.com/FruityWelsh/bot-maker/tests/schemas/botplatform-crd.json",
+  "title": "BotPlatform CRD Schema",
+  "description": "JSON Schema for validating BotPlatform Custom Resource Definitions (CRDs)",
+  "type": "object",
+  "required": ["apiVersion", "kind", "metadata", "spec"],
+  "additionalProperties": false,
+  "properties": {
+    "apiVersion": {
+      "type": "string",
+      "pattern": "^chatbot\\.operator\\/v1alpha1$",
+      "description": "API version for BotPlatform CRD"
+    },
+    "kind": {
+      "type": "string",
+      "pattern": "^BotPlatform$",
+      "description": "Kind of resource"
+    },
+    "metadata": {
+      "$ref": "#/$defs/metadata"
+    },
+    "spec": {
+      "$ref": "#/$defs/botplatformSpec"
+    }
+  },
+  "$defs": {
+    "metadata": {
+      "type": "object",
+      "required": ["name", "namespace"],
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^[a-z0-9]([-a-z0-9]*[a-z0-9])?$",
+          "description": "Name of the BotPlatform resource"
+        },
+        "namespace": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^[a-z0-9]([-a-z0-9]*[a-z0-9])?$",
+          "description": "Namespace for the BotPlatform resource"
+        },
+        "labels": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "Labels for the BotPlatform resource"
+        }
+      }
+    },
+    "botplatformSpec": {
+      "type": "object",
+      "required": ["type", "apiEndpoint", "apiVersion", "authenticationMethod"],
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["slack", "matrix", "discord", "twilio"],
+          "description": "Platform type"
+        },
+        "apiEndpoint": {
+          "type": "string",
+          "format": "uri",
+          "description": "API endpoint for the platform"
+        },
+        "apiVersion": {
+          "type": "string",
+          "minLength": 1,
+          "description": "API version to use"
+        },
+        "authenticationMethod": {
+          "type": "string",
+          "enum": ["oauth2", "apiToken", "basicAuth", "bearerToken"],
+          "description": "Authentication method for the platform"
+        },
+        "rateLimits": {
+          "$ref": "#/$defs/rateLimits"
+        },
+        "features": {
+          "$ref": "#/$defs/features"
+        }
+      }
+    },
+    "rateLimits": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "requestsPerMinute": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Maximum requests per minute"
+        },
+        "burstLimit": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Burst limit for requests"
+        }
+      }
+    },
+    "features": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "webhooks": {
+          "type": "boolean",
+          "description": "Whether webhooks are supported"
+        },
+        "bots": {
+          "type": "boolean",
+          "description": "Whether bot accounts are supported"
+        },
+        "users": {
+          "type": "boolean",
+          "description": "Whether user management is supported"
+        },
+        "channels": {
+          "type": "boolean",
+          "description": "Whether channel management is supported"
+        }
+      }
+    }
+  }
+}

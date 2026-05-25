@@ -1,0 +1,85 @@
+{
+  "$id": "https://github.com/FruityWelsh/bot-maker/tests/schemas/botconfiguration-crd.json",
+  "title": "BotConfiguration CRD Schema",
+  "description": "JSON Schema for validating BotConfiguration Custom Resource Definitions (CRDs)",
+  "type": "object",
+  "required": ["apiVersion", "kind", "metadata", "spec"],
+  "additionalProperties": false,
+  "properties": {
+    "apiVersion": {
+      "type": "string",
+      "pattern": "^chatbot\\.operator\\/v1alpha1$",
+      "description": "API version for BotConfiguration CRD"
+    },
+    "kind": {
+      "type": "string",
+      "pattern": "^BotConfiguration$",
+      "description": "Kind of resource"
+    },
+    "metadata": {
+      "$ref": "#/$defs/metadata"
+    },
+    "spec": {
+      "$ref": "#/$defs/botconfigurationSpec"
+    }
+  },
+  "$defs": {
+    "metadata": {
+      "type": "object",
+      "required": ["name", "namespace"],
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^[a-z0-9]([-a-z0-9]*[a-z0-9])?$",
+          "description": "Name of the BotConfiguration resource"
+        },
+        "namespace": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^[a-z0-9]([-a-z0-9]*[a-z0-9])?$",
+          "description": "Namespace for the BotConfiguration resource"
+        },
+        "labels": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "Labels for the BotConfiguration resource"
+        }
+      }
+    },
+    "botconfigurationSpec": {
+      "type": "object",
+      "required": ["chatBotRef", "key", "value", "sensitive"],
+      "additionalProperties": false,
+      "properties": {
+        "chatBotRef": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Reference to the ChatBot resource this configuration applies to"
+        },
+        "key": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^[a-zA-Z0-9_.-]+$",
+          "description": "Configuration key"
+        },
+        "value": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Configuration value"
+        },
+        "sensitive": {
+          "type": "boolean",
+          "description": "Whether this configuration contains sensitive data"
+        },
+        "description": {
+          "type": "string",
+          "description": "Description of this configuration"
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,170 @@
+{
+  "$id": "https://github.com/FruityWelsh/bot-maker/tests/schemas/chatbot-crd.json",
+  "title": "ChatBot CRD Schema",
+  "description": "JSON Schema for validating ChatBot Custom Resource Definitions (CRDs)",
+  "type": "object",
+  "required": ["apiVersion", "kind", "metadata", "spec"],
+  "additionalProperties": false,
+  "properties": {
+    "apiVersion": {
+      "type": "string",
+      "pattern": "^chatbot\\.operator\\/v1alpha1$",
+      "description": "API version for ChatBot CRD"
+    },
+    "kind": {
+      "type": "string",
+      "pattern": "^ChatBot$",
+      "description": "Kind of resource"
+    },
+    "metadata": {
+      "$ref": "#/$defs/metadata"
+    },
+    "spec": {
+      "$ref": "#/$defs/chatbotSpec"
+    }
+  },
+  "$defs": {
+    "metadata": {
+      "type": "object",
+      "required": ["name", "namespace"],
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^[a-z0-9]([-a-z0-9]*[a-z0-9])?$",
+          "description": "Name of the ChatBot resource"
+        },
+        "namespace": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^[a-z0-9]([-a-z0-9]*[a-z0-9])?$",
+          "description": "Namespace for the ChatBot resource"
+        },
+        "labels": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "Labels for the ChatBot resource"
+        },
+        "annotations": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "Annotations for the ChatBot resource"
+        }
+      }
+    },
+    "chatbotSpec": {
+      "type": "object",
+      "required": ["platform", "displayName", "team"],
+      "additionalProperties": false,
+      "properties": {
+        "platform": {
+          "type": "string",
+          "enum": ["slack", "matrix", "discord", "twilio"],
+          "description": "Chat platform for the bot"
+        },
+        "displayName": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Display name for the bot"
+        },
+        "description": {
+          "type": "string",
+          "description": "Description of the bot"
+        },
+        "team": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Team that owns the bot"
+        },
+        "callbackURL": {
+          "type": "string",
+          "format": "uri",
+          "description": "Callback URL for the bot"
+        },
+        "webhookURL": {
+          "type": "string",
+          "format": "uri",
+          "description": "Webhook URL for the bot"
+        },
+        "configuration": {
+          "$ref": "#/$defs/configuration"
+        },
+        "resources": {
+          "$ref": "#/$defs/resources"
+        }
+      }
+    },
+    "configuration": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "welcomeMessage": {
+          "type": "string",
+          "description": "Welcome message for the bot"
+        },
+        "commands": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/command"
+          },
+          "description": "List of bot commands"
+        }
+      }
+    },
+    "command": {
+      "type": "object",
+      "required": ["name", "description", "handler"],
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Command name"
+        },
+        "description": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Command description"
+        },
+        "handler": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Command handler function"
+        }
+      }
+    },
+    "resources": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "requests": {
+          "$ref": "#/$defs/resourceRequirements"
+        },
+        "limits": {
+          "$ref": "#/$defs/resourceRequirements"
+        }
+      }
+    },
+    "resourceRequirements": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "cpu": {
+          "type": "string",
+          "pattern": "^[0-9]+m?$",
+          "description": "CPU request/limit"
+        },
+        "memory": {
+          "type": "string",
+          "pattern": "^[0-9]+(Mi|Gi)$",
+          "description": "Memory request/limit"
+        }
+      }
+    }
+  }
+}

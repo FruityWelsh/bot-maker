@@ -1,0 +1,163 @@
+{
+  "$id": "https://github.com/FruityWelsh/bot-maker/tests/schemas/diagrams-schema.json",
+  "title": "Diagrams Document Schema",
+  "description": "JSON Schema for validating Mermaid.js architecture diagrams in Markdown with YAML frontmatter",
+  "type": "object",
+  "required": ["title", "version", "created", "author", "references", "rendering", "diagrams"],
+  "additionalProperties": false,
+  "properties": {
+    "title": {
+      "type": "string",
+      "minLength": 5,
+      "description": "Title of the diagrams document"
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+(-[a-zA-Z0-9]+)?$",
+      "description": "Semantic version of the diagrams document"
+    },
+    "created": {
+      "type": "string",
+      "format": "date",
+      "description": "Creation date in YYYY-MM-DD format"
+    },
+    "author": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Author of the diagrams document"
+    },
+    "references": {
+      "type": "object",
+      "required": ["upstream", "downstream"],
+      "additionalProperties": false,
+      "properties": {
+        "upstream": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Upstream document reference (e.g., docs/cubejs/metrics.yaml)"
+        },
+        "downstream": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Downstream document reference (e.g., features/chatbot.feature)"
+        }
+      }
+    },
+    "rendering": {
+      "type": "object",
+      "required": ["engine", "safe"],
+      "additionalProperties": false,
+      "properties": {
+        "engine": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Rendering engine (e.g., react-markdown + gray-matter + Mermaid.js)"
+        },
+        "safe": {
+          "type": "boolean",
+          "description": "Whether safe rendering mode is enabled"
+        }
+      }
+    },
+    "diagrams": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/diagram"
+      },
+      "minItems": 1,
+      "description": "List of architecture diagrams"
+    }
+  },
+  "$defs": {
+    "diagram": {
+      "type": "object",
+      "required": ["id", "title", "type", "description", "mermaid_code"],
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9_]*$",
+          "description": "Diagram identifier in snake_case (e.g., system_context_diagram)"
+        },
+        "title": {
+          "type": "string",
+          "minLength": 5,
+          "description": "Diagram title"
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "system_context",
+            "high_level_architecture",
+            "component_architecture",
+            "data_flow",
+            "security_architecture",
+            "deployment_architecture",
+            "cicd_pipeline",
+            "monitoring_observability",
+            "platform_integration",
+            "sequence",
+            "class",
+            "state",
+            "er",
+            "c4_context",
+            "c4_container",
+            "c4_component"
+          ],
+          "description": "Type of architecture diagram"
+        },
+        "description": {
+          "type": "string",
+          "minLength": 10,
+          "description": "Description of what the diagram shows"
+        },
+        "mermaid_code": {
+          "type": "string",
+          "minLength": 10,
+          "description": "Mermaid.js code for the diagram"
+        },
+        "elements": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "List of elements shown in the diagram"
+        },
+        "relationships": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/relationship"
+          },
+          "description": "Relationships shown in the diagram"
+        }
+      }
+    },
+    "relationship": {
+      "type": "object",
+      "required": ["source", "target", "type", "description"],
+      "additionalProperties": false,
+      "properties": {
+        "source": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Source element in the relationship"
+        },
+        "target": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Target element in the relationship"
+        },
+        "type": {
+          "type": "string",
+          "enum": ["uses", "depends_on", "contains", "implements", "extends", "associates", "flows_to"],
+          "description": "Type of relationship"
+        },
+        "description": {
+          "type": "string",
+          "minLength": 5,
+          "description": "Description of the relationship"
+        }
+      }
+    }
+  }
+}

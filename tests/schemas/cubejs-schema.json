@@ -1,0 +1,170 @@
+{
+  "$id": "https://github.com/FruityWelsh/bot-maker/tests/schemas/cubejs-schema.json",
+  "title": "Cube.js Metrics Schema",
+  "description": "JSON Schema for validating Cube.js business metrics YAML documents",
+  "type": "object",
+  "required": ["version", "name", "created", "author", "references", "metrics"],
+  "additionalProperties": false,
+  "properties": {
+    "version": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+(-[a-zA-Z0-9]+)?$",
+      "description": "Cube.js document version"
+    },
+    "name": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Name of the Cube.js metrics document"
+    },
+    "created": {
+      "type": "string",
+      "format": "date",
+      "description": "Creation date in YYYY-MM-DD format"
+    },
+    "author": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Author of the Cube.js document"
+    },
+    "references": {
+      "type": "object",
+      "required": ["upstream", "downstream"],
+      "additionalProperties": false,
+      "properties": {
+        "upstream": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Upstream document reference (e.g., docs/adr/architecture-decisions.md)"
+        },
+        "downstream": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Downstream document reference (e.g., docs/diagrams.md)"
+        }
+      }
+    },
+    "metrics": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/metric"
+      },
+      "minItems": 1,
+      "description": "List of business metrics"
+    },
+    "data_sources": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/dataSource"
+      },
+      "description": "List of data sources"
+    }
+  },
+  "$defs": {
+    "metric": {
+      "type": "object",
+      "required": ["name", "description", "type", "unit"],
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9_]*$",
+          "description": "Metric name in snake_case (e.g., bot_provisioning_time)"
+        },
+        "description": {
+          "type": "string",
+          "minLength": 5,
+          "description": "Description of what the metric measures"
+        },
+        "type": {
+          "type": "string",
+          "enum": ["time", "percentage", "number", "count", "sum", "average"],
+          "description": "Metric type"
+        },
+        "unit": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Unit of measurement (e.g., seconds, %, count)"
+        },
+        "dimensions": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "description": "Dimensions for metric segmentation"
+        },
+        "targets": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/target"
+          },
+          "description": "Target values for this metric"
+        }
+      }
+    },
+    "target": {
+      "type": "object",
+      "required": ["name", "description", "target_value", "comparison"],
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9_]*$",
+          "description": "Target name in snake_case"
+        },
+        "description": {
+          "type": "string",
+          "minLength": 5,
+          "description": "Description of the target"
+        },
+        "target_value": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Target value with comparison operator (e.g., '< 300', '> 99.0')"
+        },
+        "comparison": {
+          "type": "string",
+          "enum": ["less_than", "greater_than", "equal_to", "less_than_or_equal", "greater_than_or_equal"],
+          "description": "Comparison operator for the target"
+        }
+      }
+    },
+    "dataSource": {
+      "type": "object",
+      "required": ["name", "type", "config"],
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9_]*$",
+          "description": "Data source name in snake_case"
+        },
+        "type": {
+          "type": "string",
+          "enum": ["kubernetes", "prometheus", "postgresql", "mysql", "mongodb", "rest_api", "graphql"],
+          "description": "Type of data source"
+        },
+        "config": {
+          "type": "object",
+          "additionalProperties": true,
+          "description": "Configuration for the data source",
+          "properties": {
+            "api_version": {
+              "type": "string",
+              "description": "API version for Kubernetes data sources"
+            },
+            "url": {
+              "type": "string",
+              "format": "uri",
+              "description": "URL for REST API or database connection"
+            },
+            "connection_string": {
+              "type": "string",
+              "description": "Database connection string"
+            }
+          }
+        }
+      }
+    }
+  }
+}

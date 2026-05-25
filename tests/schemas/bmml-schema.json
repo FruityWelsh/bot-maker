@@ -1,0 +1,247 @@
+{
+  "$id": "https://github.com/FruityWelsh/bot-maker/tests/schemas/bmml-schema.json",
+  "title": "BMML Value Proposition Schema",
+  "description": "JSON Schema for validating BMML (Business Motivation Model) YAML documents",
+  "type": "object",
+  "required": ["version", "name", "created", "author", "references", "business_motivation"],
+  "additionalProperties": false,
+  "properties": {
+    "version": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+(-[a-zA-Z0-9]+)?$",
+      "description": "BMML document version"
+    },
+    "name": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Name of the BMML document"
+    },
+    "created": {
+      "type": "string",
+      "format": "date",
+      "description": "Creation date in YYYY-MM-DD format"
+    },
+    "author": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Author of the BMML document"
+    },
+    "references": {
+      "type": "object",
+      "required": ["upstream", "downstream"],
+      "additionalProperties": false,
+      "properties": {
+        "upstream": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Upstream document reference"
+        },
+        "downstream": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Downstream document reference"
+        }
+      }
+    },
+    "business_motivation": {
+      "type": "object",
+      "required": ["vision", "mission", "application_goals", "developer_environment_goals"],
+      "additionalProperties": false,
+      "properties": {
+        "vision": {
+          "type": "string",
+          "minLength": 10,
+          "description": "Overall vision statement"
+        },
+        "mission": {
+          "type": "string",
+          "minLength": 10,
+          "description": "Mission statement"
+        },
+        "application_goals": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/bmmlGoal"
+          },
+          "minItems": 1,
+          "description": "Application-level goals"
+        },
+        "developer_environment_goals": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/bmmlGoal"
+          },
+          "minItems": 1,
+          "description": "Developer environment goals"
+        }
+      }
+    },
+    "stakeholders": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/stakeholder"
+      },
+      "minItems": 1,
+      "description": "List of stakeholders"
+    },
+    "value_propositions": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/valueProposition"
+      },
+      "minItems": 1,
+      "description": "List of value propositions"
+    },
+    "influencers": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/influencer"
+      },
+      "description": "List of influencers"
+    }
+  },
+  "$defs": {
+    "bmmlGoal": {
+      "type": "object",
+      "required": ["id", "name", "description", "priority", "business_value", "success_metrics"],
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[A-Z][0-9]{3}$",
+          "description": "Goal identifier (e.g., G001)"
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Goal name"
+        },
+        "description": {
+          "type": "string",
+          "minLength": 5,
+          "description": "Goal description"
+        },
+        "priority": {
+          "type": "string",
+          "enum": ["high", "medium", "low"],
+          "description": "Goal priority"
+        },
+        "business_value": {
+          "type": "string",
+          "minLength": 5,
+          "description": "Business value provided by this goal"
+        },
+        "success_metrics": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "description": "Metrics to measure success"
+        }
+      }
+    },
+    "stakeholder": {
+      "type": "object",
+      "required": ["id", "name", "description", "category", "responsibilities"],
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[S][0-9]{3}$",
+          "description": "Stakeholder identifier (e.g., S001)"
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Stakeholder name"
+        },
+        "description": {
+          "type": "string",
+          "minLength": 5,
+          "description": "Stakeholder description"
+        },
+        "category": {
+          "type": "string",
+          "enum": ["internal", "external", "customer", "partner"],
+          "description": "Stakeholder category"
+        },
+        "responsibilities": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "description": "Stakeholder responsibilities"
+        }
+      }
+    },
+    "valueProposition": {
+      "type": "object",
+      "required": ["id", "name", "description", "value_statement", "target_stakeholders"],
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[VP][0-9]{3}$",
+          "description": "Value proposition identifier (e.g., VP001)"
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Value proposition name"
+        },
+        "description": {
+          "type": "string",
+          "minLength": 5,
+          "description": "Value proposition description"
+        },
+        "value_statement": {
+          "type": "string",
+          "minLength": 10,
+          "description": "Statement of value provided"
+        },
+        "target_stakeholders": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "description": "Stakeholders who benefit from this value proposition"
+        }
+      }
+    },
+    "influencer": {
+      "type": "object",
+      "required": ["id", "name", "description", "category", "impact"],
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[I][0-9]{3}$",
+          "description": "Influencer identifier (e.g., I001)"
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Influencer name"
+        },
+        "description": {
+          "type": "string",
+          "minLength": 5,
+          "description": "Influencer description"
+        },
+        "category": {
+          "type": "string",
+          "enum": ["technology", "regulation", "market", "internal"],
+          "description": "Influencer category"
+        },
+        "impact": {
+          "type": "string",
+          "enum": ["positive", "negative", "neutral"],
+          "description": "Impact of the influencer"
+        }
+      }
+    }
+  }
+}
