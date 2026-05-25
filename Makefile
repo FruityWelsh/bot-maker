@@ -275,7 +275,7 @@ scan-security: ## Run security scanning
 	# Static analysis
 	gosec -include=G101,G201,G301 ./...
 	# Secret scanning
-	gitleaks detect --source . --report-path $(REPORTS_DIR)/gitleaks-report.json
+	betterleaks git . --report-path $(REPORTS_DIR)/betterleaks-report.json
 
 .PHONY: scan-vulnerability
 scan-vulnerability: ## Run vulnerability scanning

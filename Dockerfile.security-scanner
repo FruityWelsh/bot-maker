@@ -4,11 +4,11 @@
 # Used in CI pipeline to avoid installing tools in each job
 #
 # Base: SUSE BCI (Base Container Image) - SUSE Linux Enterprise
-# Security Scanner: BetterLeaks (improved Gitleaks fork)
+# Security Scanner: BetterLeaks
 # BetterLeaks: https://github.com/betterleaks/betterleaks
 #
 # References: docs/strategy/omen/strategy.json (Security Goal AG004)
-# References: docs/contributors/adr/devx-adrs.md (ADR-018 - Secret Scanning with Gitleaks)
+# References: docs/contributors/adr/devx-adrs.md (ADR-018 - Secret Scanning)
 # References: docs/contributors/adr/architecture-decisions.md (ADR-004 - Security Architecture)
 
 # Use SUSE BCI base - SUSE Linux Enterprise based image
@@ -19,6 +19,7 @@ RUN zypper refresh && \
     zypper install -y \
     curl \
     git \
+    make \
     tar \
     gzip \
     xz \
@@ -26,6 +27,7 @@ RUN zypper refresh && \
     ca-certificates \
     ca-certificates-mozilla \
     nodejs24 \
+    wget \
     && zypper clean --all
 
 # Install Deno 2.8.0 (preferred runtime) using official binary
@@ -45,12 +47,11 @@ ENV PATH="/usr/local/go/bin:/root/go/bin:${PATH}"
 ENV GOPATH=/root/go
 
 # Install betterleaks
-RUN zypper install -y curl && \
-    curl -L https://github.com/betterleaks/betterleaks/releases/latest/download/betterleaks_linux_x86_64 -o /usr/local/bin/betterleaks && \
-    chmod +x /usr/local/bin/betterleaks && zypper clean --all
-
-# Create symlink for gitleaks compatibility
-RUN ln -s /usr/local/bin/betterleaks /usr/local/bin/gitleaks 2>/dev/null || true
+RUN wget -q --show-progress https://github.com/betterleaks/betterleaks/releases/download/v1.3.1/betterleaks_1.3.1_linux_x64.tar.gz -O /tmp/betterleaks.tar.gz && \
+    tar -xz -C /tmp -f /tmp/betterleaks.tar.gz && \
+    mv /tmp/betterleaks /usr/local/bin/betterleaks && \
+    chmod +x /usr/local/bin/betterleaks && \
+    rm /tmp/betterleaks.tar.gz
 
 # Install gosec
 RUN go install github.com/securego/gosec/v2/cmd/gosec@latest
@@ -64,7 +65,6 @@ WORKDIR /workspace
 # Verify installations
 RUN echo "=== Tool Verification ===" && \
     echo "BetterLeaks:" && (test -x /usr/local/bin/betterleaks && echo "betterleaks installed" || echo "betterleaks not available") && \
-    echo "Gitleaks (symlink):" && (test -x /usr/local/bin/gitleaks && echo "gitleaks available" || echo "gitleaks not available") && \
     echo "Node.js:" && node --version && \
     echo "npm:" && (test -x /usr/bin/npm && echo "npm installed" || echo "npm not available") && \
     echo "Deno:" && deno --version && \

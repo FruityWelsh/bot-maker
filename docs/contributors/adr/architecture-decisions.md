@@ -1,8 +1,4 @@
 ---
-# Architecture Decision Records for ChatBot Operator
-# References: ../../../strategy/bmml/value-proposition.yaml (upstream)
-# Downstream: ../../../strategy/cubejs/metrics.yaml
-
 title: ChatBot Operator Architecture Decisions
 version: 0.1.0-dev
 created: 2026-05-25
@@ -37,6 +33,7 @@ Focus on the development workflow, toolchain, and automation:
 | ADR-004 | Security Architecture with Linkerd | ✅ Accepted | Security |
 | ADR-005 | RBAC/ABAC Integration Strategy | ✅ Accepted | Security |
 | ADR-008 | Business Metrics with Cube.js | ✅ Accepted | Observability |
+| ADR-020 | Strategy First, Code Second | ✅ Accepted | Development Workflow |
 
 ### Developer Experience Architecture Decisions
 | ID | Title | Status | Focus |
@@ -104,8 +101,8 @@ All ADRs follow this standard template:
 
 | Metric | Application ADRs | DevX ADRs | Total |
 |--------|------------------|------------|-------|
-| Total ADRs | 6 | 10 | 16 |
-| Accepted | 6 | 10 | 16 |
+| Total ADRs | 7 | 10 | 17 |
+| Accepted | 7 | 10 | 17 |
 | Rejected | 0 | 0 | 0 |
 | Deprecated | 0 | 0 | 0 |
 
@@ -118,6 +115,7 @@ All ADRs follow this standard template:
 - ADR-004 (Linkerd) validated by ADR-018 (Gitleaks)
 - ADR-005 (RBAC/ABAC) enforced in ADR-017 (Conventional Commits)
 - ADR-008 (Cube.js) documented in ADR-009 (React-Markdown)
+- ADR-020 (Strategy First) guides all ADRs
 
 ### DevX ADRs → Application ADRs
 - ADR-006 (GitOps) deploys ADR-001 (Operator Pattern)
@@ -157,4 +155,4 @@ Start with [DevX ADRs](./devx-adrs.md) to understand the development workflow an
 
 ---
 
-**Note**: This document serves as the index for all Architecture Decision Records. The actual ADR content is organized into [Application ADRs](./application-adrs.md) and [DevX ADRs](./devx-adrs.md) for better maintainability and clearer separation of concerns.
+**Note**: This document serves as the index for all Architecture Decision Records. The actual ADR content is organized into [Application ADRs](./application-adrs.md) and [DevX ADRs](./devx-adrs.md) for better maintainability and clearer separation of concerns. ADR-020 (Strategy First, Code Second) is the foundational principle that guides all other ADRs.
