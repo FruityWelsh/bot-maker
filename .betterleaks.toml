@@ -23,6 +23,7 @@ betterleaksMinVersion = "v1.3.0"
 prefilter = '''
 matchesAny(attributes[?"path"].orValue(""), [
   r"""gitleaks\.toml""",
+  r"""betterleaks\.toml""",
   r"""(?i)\.(?:bmp|gif|jpe?g|png|svg|tiff?)$""",
   r"""(?i)\.(?:eot|[ot]tf|woff2?)$""",
   r"""(?i)\.(?:docx?|xlsx?|pdf|bin|socket|vsidx|v2|suo|wsuo|dll|pdb|exe|gltf)$""",
@@ -46,7 +47,9 @@ matchesAny(attributes[?"path"].orValue(""), [
   r"""\.gem$""",
   r"""verification-metadata\.xml""",
   r"""Database.refactorlog""",
-  r"""(?:^|/)\.git$"""
+  r"""(?:^|/)\.git$""",
+  r"""(?:^|/)docs/devx/SECURITY_DLP_PIPELINE\.md$""",
+  r"""(?:^|/)docs/security/README\.md$"""
 ])
 
 '''
