@@ -14,7 +14,7 @@
 # Use SUSE BCI base - SUSE Linux Enterprise based image
 FROM registry.suse.com/bci/bci-base:latest
 
-# Install system dependencies including Node.js 24
+# Install system dependencies including Node.js 24 and npm
 RUN zypper refresh && \
     zypper install -y \
     curl \
@@ -27,6 +27,8 @@ RUN zypper refresh && \
     ca-certificates \
     ca-certificates-mozilla \
     nodejs24 \
+    nodejs24-devel \
+    npm \
     wget \
     && zypper clean --all
 
