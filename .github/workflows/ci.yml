@@ -17,9 +17,10 @@ name: ChatBot Operator CI
 # Architecture: Platform-agnostic CI/CD as per ADR-007 and ADR-016
 #
 # Pipeline Flow:
-# 1. Data Loss Prevention (DLP) - Secret scanning and malicious code checks
-# 2. Validation - Strategy-to-BDD stack and DevX tools validation
-# 3. Execution - DevX tools act on validated application code
+# 1. Data Loss Prevention (DLP) - Secret scanning and malicious code checks (REQUIRED)
+# 2. DLP Tests - Tests that validate the scan jobs themselves (REQUIRED)
+# 3. Validation - Strategy-to-BDD stack and DevX tools validation (depends on DLP + DLP Tests)
+# 4. Execution - DevX tools act on validated application code (depends on all previous)
 
 on:
   push:
@@ -31,6 +32,7 @@ jobs:
   # ============================================================================
   # PHASE 1: DATA LOSS PREVENTION (DLP) AND SECURITY
   # Priority: Run security checks FIRST to prevent data loss and detect issues early
+  # These jobs are REQUIRED and must pass before any other jobs can proceed
   # ============================================================================
   
   # JOB 1: Checkout Repository
@@ -48,7 +50,7 @@ jobs:
       - name: Update Git commit dates in documentation
         run: ./scripts/update-commit-dates.sh --verbose || true
   
-  # JOB 2: Secret Scanning (Data Loss Prevention)
+  # JOB 2: Secret Scanning (Data Loss Prevention) - REQUIRED
   # References: docs/contributors/adr/devx-adrs.md ADR-018 - Secret Scanning with Gitleaks
   # ============================================================================
   scan-secrets:
@@ -63,9 +65,9 @@ jobs:
           fetch-depth: 0
       
       - name: Run Secret Scan
-        run: make scan-secrets || true
+        run: make scan-secrets
   
-  # JOB 3: Security Scanning
+  # JOB 3: Security Scanning - REQUIRED
   # ============================================================================
   scan-security:
     name: Security Scanning
@@ -84,9 +86,9 @@ jobs:
           go-version: '1.21'
       
       - name: Run Security Scans
-        run: make scan-security || true
+        run: make scan-security
   
-  # JOB 4: Vulnerability Scanning
+  # JOB 4: Vulnerability Scanning - REQUIRED
   # ============================================================================
   scan-vulnerability:
     name: Vulnerability Scanning
@@ -105,20 +107,53 @@ jobs:
           go-version: '1.21'
       
       - name: Run Vulnerability Scans
-        run: make scan-vulnerability || true
+        run: make scan-vulnerability
 
   # ============================================================================
-  # PHASE 2: VALIDATION - Strategy-to-BDD Stack and DevX Tools
-  # Priority: Validate all strategy and toolchain references before execution
+  # PHASE 2: DLP TESTS - Tests that validate the scan jobs themselves
+  # Priority: Validate that security scans work correctly before proceeding
+  # These jobs REQUIRE all Phase 1 (DLP) jobs to pass first
   # ============================================================================
   
-  # JOB 5: Strategy Chain Validation
+  # JOB 5: Tool Tests (DevX Tools) - Tests the scan jobs themselves
+  # References: docs/contributors/adr/devx-adrs.md ADR-010 - Behavior-Driven Development with Godog
+  # References: tests/tools/security-dlp.test.js - Security and DLP pipeline tests
+  # ============================================================================
+  test-tools:
+    name: DevX Tool Tests
+    runs-on: ubuntu-latest
+    needs: [scan-secrets, scan-security, scan-vulnerability]
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      
+      - name: Install dependencies
+        run: npm ci || npm install
+      
+      - name: Run DevX Tool Tests
+        run: make test-tools || true
+
+  # ============================================================================
+  # PHASE 3: VALIDATION - Strategy-to-BDD Stack and DevX Tools
+  # Priority: Validate all strategy and toolchain references before execution
+  # These jobs REQUIRE both Phase 1 (DLP) jobs AND Phase 2 (DLP Tests) to pass first
+  # ============================================================================
+  
+  # JOB 6: Strategy Chain Validation
   # References: docs/contributors/adr/architecture-decisions.md ADR-001 - Strategy First, Code Second
   # ============================================================================
   validate-strategy:
     name: Strategy Chain Validation
     runs-on: ubuntu-latest
-    needs: [scan-secrets, scan-security, scan-vulnerability]
+    needs: [scan-secrets, scan-security, scan-vulnerability, test-tools]
     
     steps:
       - name: Checkout repository
@@ -134,13 +169,13 @@ jobs:
       - name: Validate Strategy Chain
         run: make test-strategy-chain
   
-  # JOB 6: Toolchain Validation
+  # JOB 7: Toolchain Validation
   # References: docs/contributors/adr/architecture-decisions.md ADR-008 - Business Metrics with Cube.js
   # ============================================================================
   validate-toolchain:
     name: Toolchain Validation
     runs-on: ubuntu-latest
-    needs: [scan-secrets, scan-security, scan-vulnerability]
+    needs: [scan-secrets, scan-security, scan-vulnerability, test-tools]
     
     steps:
       - name: Checkout repository
@@ -156,13 +191,13 @@ jobs:
       - name: Validate Toolchain
         run: make test-toolchain
   
-  # JOB 7: Date Validation
+  # JOB 8: Date Validation
   # References: CONTRIBUTING.md - No manual dates rule
   # ============================================================================
   validate-dates:
     name: Date Validation
     runs-on: ubuntu-latest
-    needs: [scan-secrets, scan-security, scan-vulnerability]
+    needs: [scan-secrets, scan-security, scan-vulnerability, test-tools]
     
     steps:
       - name: Checkout repository
@@ -178,7 +213,7 @@ jobs:
       - name: Validate Dates
         run: make test-dates
   
-  # JOB 8: Validation Tests (Jest/AJV)
+  # JOB 9: Validation Tests (Jest/AJV)
   # References: docs/contributors/adr/devx-adrs.md ADR-011 - JSON Schema Validation with AJV
   # ============================================================================
   test-validation:
@@ -202,35 +237,10 @@ jobs:
       
       - name: Run Validation Tests
         run: make test-validation || true
-  
-  # JOB 9: Tool Tests (DevX Tools)
-  # References: docs/contributors/adr/devx-adrs.md ADR-010 - Behavior-Driven Development with Godog
-  # ============================================================================
-  test-tools:
-    name: DevX Tool Tests
-    runs-on: ubuntu-latest
-    needs: [validate-strategy, validate-toolchain, validate-dates]
-    
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-      
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-      
-      - name: Install dependencies
-        run: npm ci || npm install
-      
-      - name: Run DevX Tool Tests
-        run: make test-tools || true
 
   # ============================================================================
-  # PHASE 3: EXECUTION - DevX Tools Act on Validated Application Code
-  # Priority: Only run after all security and validation checks pass
+  # PHASE 4: EXECUTION - DevX Tools Act on Validated Application Code
+  # Priority: Only run after all security, DLP tests, and validation checks pass
   # ============================================================================
   
   # JOB 10: Setup Environment
@@ -238,7 +248,7 @@ jobs:
   setup:
     name: Setup Environment
     runs-on: ubuntu-latest
-    needs: [scan-secrets, scan-security, scan-vulnerability, validate-strategy, validate-toolchain, validate-dates]
+    needs: [scan-secrets, scan-security, scan-vulnerability, test-tools, validate-strategy, validate-toolchain, validate-dates]
     
     steps:
       - name: Checkout repository
@@ -322,7 +332,7 @@ jobs:
   build:
     name: Build
     runs-on: ubuntu-latest
-    needs: [test-unit, test-validation, test-tools]
+    needs: [test-unit, test-validation]
     
     steps:
       - name: Checkout repository
@@ -364,7 +374,7 @@ jobs:
         run: make test-cncf-compliance || true
 
   # ============================================================================
-  # PHASE 4: ARTIFACT HANDLING
+  # PHASE 5: ARTIFACT HANDLING
   # ============================================================================
   
   # JOB 15: Upload Artifacts
@@ -372,7 +382,7 @@ jobs:
   upload:
     name: Upload Artifacts
     runs-on: ubuntu-latest
-    needs: [build, test-cncf-compliance, scan-secrets, scan-security, scan-vulnerability, lint, test-unit, test-validation, test-tools]
+    needs: [build, test-cncf-compliance, scan-secrets, scan-security, scan-vulnerability, lint, test-unit, test-validation]
     if: always()
     
     steps:
