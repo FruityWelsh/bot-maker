@@ -5,7 +5,7 @@
 
 title: ChatBot Operator Architecture Diagrams
 version: 1.0.0
-created: Generated from Git commit date
+created: 2026-05-24
 author: Strategy Coder
 references:
   upstream: docs/cubejs/metrics.yaml
