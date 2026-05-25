@@ -49,7 +49,7 @@ fi
 echo ""
 
 # Run betterleaks scan
-if betterleaks git "$REPO_ROOT" --no-git $CONFIG_ARG; then
+if betterleaks git "$REPO_ROOT" $CONFIG_ARG; then
     echo ""
     echo "✅ No secrets detected!"
     exit 0
