@@ -22,19 +22,21 @@ RUN zypper refresh && \
     tar \
     gzip \
     xz \
+    unzip \
     ca-certificates \
     ca-certificates-mozilla \
     nodejs24 \
     && zypper clean --all
 
-# Install Deno 2.8.0 (preferred runtime)
+# Install Deno 2.8.0 (preferred runtime) using official binary
 ENV DENO_VERSION=2.8.0
 ENV DENO_INSTALL=/usr/local/deno
-RUN curl -fsSL https://deno.land/x/install/install.sh | sh -s v${DENO_VERSION} && \
-    mkdir -p ${DENO_INSTALL} && \
-    cp -r ~/.deno/* ${DENO_INSTALL}/ && \
-    ln -s ${DENO_INSTALL}/bin/deno /usr/local/bin/deno
-ENV PATH="${DENO_INSTALL}/bin:${PATH}"
+RUN curl -L -o /tmp/deno.zip https://github.com/denoland/deno/releases/download/v${DENO_VERSION}/deno-x86_64-unknown-linux-gnu.zip && \
+    unzip /tmp/deno.zip -d ${DENO_INSTALL} && \
+    chmod +x ${DENO_INSTALL}/deno && \
+    ln -s ${DENO_INSTALL}/deno /usr/local/bin/deno && \
+    rm /tmp/deno.zip
+ENV PATH="${DENO_INSTALL}:${PATH}"
 
 # Install Go 1.26.3
 ENV GO_VERSION=1.26.3
