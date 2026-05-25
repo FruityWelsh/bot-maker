@@ -1,8 +1,12 @@
 name: ChatBot Operator CI
 
 # Platform-agnostic CI workflow
-# Key values: Reproducibility, Repeatability, Strategy First, Code Second
-# This workflow wraps Make targets that work across all platforms
+# This workflow uses reusable Make targets that work across:
+# - Local development (make)
+# - GitHub Actions (this file)
+# - Tekton pipelines
+# - GitLab CI/CD
+# - VSCode tasks
 
 on:
   push:
@@ -12,7 +16,7 @@ on:
 
 jobs:
   # ============================================================================
-  # JOB 1: Checkout and Prepare
+  # JOB 1: Checkout & Prepare
   # ============================================================================
   checkout:
     name: 📥 Checkout & Prepare
@@ -31,122 +35,12 @@ jobs:
           git diff --name-only || true
 
   # ============================================================================
-  # JOB 2: Strategy Chain Validation (Node.js only)
+  # JOB 2: Setup Environment
   # ============================================================================
-  validate-strategy:
-    name: 🎯 Strategy Chain Validation
+  setup:
+    name: 🛠️ Setup Environment
     runs-on: ubuntu-latest
     needs: checkout
-    
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-      
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-      
-      - name: Install Node.js dependencies
-        run: npm install
-      
-      - name: Validate Strategy Chain
-        run: make test-strategy-chain
-
-  # ============================================================================
-  # JOB 3: Toolchain Validation (Node.js only)
-  # ============================================================================
-  validate-toolchain:
-    name: 🔧 Toolchain Validation
-    runs-on: ubuntu-latest
-    needs: checkout
-    
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-      
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-      
-      - name: Install Node.js dependencies
-        run: npm install
-      
-      - name: Validate Toolchain
-        run: make test-toolchain
-
-  # ============================================================================
-  # JOB 4: Date Validation (Node.js only)
-  # ============================================================================
-  validate-dates:
-    name: 📅 Date Validation
-    runs-on: ubuntu-latest
-    needs: checkout
-    
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-      
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-      
-      - name: Install Node.js dependencies
-        run: npm install
-      
-      - name: Validate No Manual Dates
-        run: make test-dates
-
-  # ============================================================================
-  # JOB 5: Validation Tests (Node.js only)
-  # ============================================================================
-  test-validation:
-    name: ✅ Validation Tests
-    runs-on: ubuntu-latest
-    needs: [validate-strategy, validate-toolchain, validate-dates]
-    
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-      
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-      
-      - name: Install Node.js dependencies
-        run: npm install
-      
-      - name: Run Validation Tests
-        run: make test-validation || true
-      
-      - name: Run Tekton CI (best effort)
-        run: make tekton-ci || true
-
-  # ============================================================================
-  # JOB 6: Full CI Pipeline (Go + Node.js)
-  # This job runs all the Go-based targets that need Go toolchain
-  # ============================================================================
-  ci-pipeline:
-    name: 🚀 Full CI Pipeline
-    runs-on: ubuntu-latest
-    needs: [validate-strategy, validate-toolchain, validate-dates, test-validation]
-    
-    env:
-      CI_PLATFORM: github
-      CI_COMMIT: ${{ github.sha }}
-      CI_BRANCH: ${{ github.ref_name }}
-      CI_REPO: ${{ github.repository }}
     
     steps:
       - name: Checkout repository
@@ -165,37 +59,364 @@ jobs:
           node-version: '20'
       
       - name: Install dependencies
-        run: make deps || true
+        run: make deps
+
+  # ============================================================================
+  # JOB 3: Linting
+  # ============================================================================
+  lint:
+    name: 🧹 Linting
+    runs-on: ubuntu-latest
+    needs: setup
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       
-      - name: Lint
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.21'
+      
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      
+      - name: Install dependencies
+        run: make deps
+      
+      - name: Run Linting
         run: make lint
+
+  # ============================================================================
+  # JOB 4: Unit Tests
+  # ============================================================================
+  test-unit:
+    name: 🧪 Unit Tests
+    runs-on: ubuntu-latest
+    needs: lint
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       
-      - name: Unit Tests
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.21'
+      
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      
+      - name: Install dependencies
+        run: make deps
+      
+      - name: Run Unit Tests
         run: make test-unit
+
+  # ============================================================================
+  # JOB 5: Integration Tests
+  # ============================================================================
+  test-integration:
+    name: 🔗 Integration Tests
+    runs-on: ubuntu-latest
+    needs: test-unit
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       
-      - name: Integration Tests
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.21'
+      
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      
+      - name: Install dependencies
+        run: make deps
+      
+      - name: Run Integration Tests
         run: make test-integration
+
+  # ============================================================================
+  # JOB 6: Validation Tests
+  # ============================================================================
+  test-validation:
+    name: ✅ Validation Tests
+    runs-on: ubuntu-latest
+    needs: test-unit
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       
-      - name: Behavior Tests
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.21'
+      
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      
+      - name: Install dependencies
+        run: make deps
+      
+      - name: Run Validation Tests
+        run: make test-validation
+
+  # ============================================================================
+  # JOB 7: Behavior Tests
+  # ============================================================================
+  test-behavior:
+    name: 🐕 Behavior Tests
+    runs-on: ubuntu-latest
+    needs: test-unit
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.21'
+      
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      
+      - name: Install dependencies
+        run: make deps
+      
+      - name: Run Behavior Tests
         run: make test-behavior
+
+  # ============================================================================
+  # JOB 8: Build
+  # ============================================================================
+  build:
+    name: 🔨 Build
+    runs-on: ubuntu-latest
+    needs: [test-unit, test-integration]
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       
-      - name: Build
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.21'
+      
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      
+      - name: Install dependencies
+        run: make deps
+      
+      - name: Build Project
         run: make build
+
+  # ============================================================================
+  # JOB 9: Security Scanning
+  # ============================================================================
+  scan-security:
+    name: 🔒 Security Scan
+    runs-on: ubuntu-latest
+    needs: build
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       
-      - name: Security Scan
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.21'
+      
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      
+      - name: Install dependencies
+        run: make deps
+      
+      - name: Run Security Scan
         run: make scan-security
+
+  # ============================================================================
+  # JOB 10: Vulnerability Scanning
+  # ============================================================================
+  scan-vulnerability:
+    name: 🛡️ Vulnerability Scan
+    runs-on: ubuntu-latest
+    needs: build
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       
-      - name: Vulnerability Scan
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.21'
+      
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      
+      - name: Install dependencies
+        run: make deps
+      
+      - name: Run Vulnerability Scan
         run: make scan-vulnerability
+
+  # ============================================================================
+  # JOB 11: Artifact Signing
+  # ============================================================================
+  sign:
+    name: ✍️ Sign Artifacts
+    runs-on: ubuntu-latest
+    needs: [build, scan-security, scan-vulnerability]
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.21'
+      
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      
+      - name: Install dependencies
+        run: make deps
       
       - name: Sign Artifacts
         run: make sign
+
+  # ============================================================================
+  # JOB 12: Container Packaging
+  # ============================================================================
+  package:
+    name: 🐳 Package Container
+    runs-on: ubuntu-latest
+    needs: sign
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       
-      - name: Package Container
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.21'
+      
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      
+      - name: Install dependencies
+        run: make deps
+      
+      - name: Package Container Image
         run: make package
+
+  # ============================================================================
+  # JOB 13: SBOM Generation
+  # ============================================================================
+  generate-sbom:
+    name: 📋 Generate SBOM
+    runs-on: ubuntu-latest
+    needs: package
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.21'
+      
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      
+      - name: Install dependencies
+        run: make deps
       
       - name: Generate SBOM
         run: make generate-sbom
+
+  # ============================================================================
+  # JOB 14: Provenance Generation
+  # ============================================================================
+  generate-provenance:
+    name: 📜 Generate Provenance
+    runs-on: ubuntu-latest
+    needs: package
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.21'
+      
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      
+      - name: Install dependencies
+        run: make deps
       
       - name: Generate Provenance
         run: make generate-provenance
