@@ -41,7 +41,7 @@ NODE_VERSION ?= 20
 GOLANGCI_LINT_VERSION ?= v1.55.2
 GODOG_VERSION ?= v0.12.6
 KUBEBUILDER_VERSION ?= 3.12.0
-KUSTOMIZE_VERSION ?= v5.0.4
+KUSTOMIZE_VERSION ?= 5.0.4
 
 # Security Scanner Container
 SECURITY_SCANNER_IMAGE ?= ghcr.io/$(CI_REPO)/security-scanner
@@ -137,7 +137,7 @@ kubebuilder: ## Install Kubebuilder
 kustomize: ## Install Kustomize
 	@echo "📦 Installing Kustomize..."
 	@mkdir -p $(BINARY_DIR)
-	curl -L https://github.com/kubernetes-sigs/kustomize/releases/download/$(KUSTOMIZE_VERSION)/kustomize_$(KUSTOMIZE_VERSION)_linux_amd64.tar.gz | tar xz -C $(BINARY_DIR)
+	curl -s "https://raw.githubusercontent.com/kubernetes-sigs/kustomize/master/hack/install_kustomize.sh" | bash -s $(KUSTOMIZE_VERSION) $(BINARY_DIR)
 
 # ============================================================================
 # LINTING TARGETS
