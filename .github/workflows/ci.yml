@@ -11,9 +11,136 @@ on:
     branches: [ main ]
 
 jobs:
-  ci:
-    name: CI Pipeline
+  # ============================================================================
+  # JOB 1: Checkout and Prepare
+  # ============================================================================
+  checkout:
+    name: 📥 Checkout & Prepare
     runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      
+      - name: Update Git commit dates in documentation
+        run: |
+          chmod +x ./scripts/update-commit-dates.sh
+          ./scripts/update-commit-dates.sh --verbose
+          git diff --name-only || true
+
+  # ============================================================================
+  # JOB 2: Strategy Chain Validation (Node.js only)
+  # ============================================================================
+  validate-strategy:
+    name: 🎯 Strategy Chain Validation
+    runs-on: ubuntu-latest
+    needs: checkout
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      
+      - name: Install Node.js dependencies
+        run: npm install
+      
+      - name: Validate Strategy Chain
+        run: make test-strategy-chain
+
+  # ============================================================================
+  # JOB 3: Toolchain Validation (Node.js only)
+  # ============================================================================
+  validate-toolchain:
+    name: 🔧 Toolchain Validation
+    runs-on: ubuntu-latest
+    needs: checkout
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      
+      - name: Install Node.js dependencies
+        run: npm install
+      
+      - name: Validate Toolchain
+        run: make test-toolchain
+
+  # ============================================================================
+  # JOB 4: Date Validation (Node.js only)
+  # ============================================================================
+  validate-dates:
+    name: 📅 Date Validation
+    runs-on: ubuntu-latest
+    needs: checkout
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      
+      - name: Install Node.js dependencies
+        run: npm install
+      
+      - name: Validate No Manual Dates
+        run: make test-dates
+
+  # ============================================================================
+  # JOB 5: Validation Tests (Node.js only)
+  # ============================================================================
+  test-validation:
+    name: ✅ Validation Tests
+    runs-on: ubuntu-latest
+    needs: [validate-strategy, validate-toolchain, validate-dates]
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      
+      - name: Install Node.js dependencies
+        run: npm install
+      
+      - name: Run Validation Tests
+        run: make test-validation || true
+      
+      - name: Run Tekton CI (best effort)
+        run: make tekton-ci || true
+
+  # ============================================================================
+  # JOB 6: Full CI Pipeline (Go + Node.js)
+  # This job runs all the Go-based targets that need Go toolchain
+  # ============================================================================
+  ci-pipeline:
+    name: 🚀 Full CI Pipeline
+    runs-on: ubuntu-latest
+    needs: [validate-strategy, validate-toolchain, validate-dates, test-validation]
     
     env:
       CI_PLATFORM: github
@@ -27,14 +154,10 @@ jobs:
         with:
           fetch-depth: 0
       
-      - name: Update Git commit dates in documentation
-        run: |
-          # Replace "2026-05-25" placeholders with actual commit dates
-          chmod +x ./scripts/update-commit-dates.sh
-          ./scripts/update-commit-dates.sh --verbose
-          
-          # Show what was changed
-          git diff --name-only || true
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.21'
       
       - name: Set up Node.js
         uses: actions/setup-node@v4
@@ -42,16 +165,50 @@ jobs:
           node-version: '20'
       
       - name: Install dependencies
-        run: npm ci || npm install
+        run: make deps || true
       
-      - name: Validate Strategy Chain (Make target)
-        run: make test-strategy-chain
+      - name: Lint
+        run: make lint
       
-      - name: Validate Toolchain (Make target)
-        run: make test-toolchain
+      - name: Unit Tests
+        run: make test-unit
       
-      - name: Validate No Manual Dates (Make target)
-        run: make test-dates
+      - name: Integration Tests
+        run: make test-integration
       
-      - name: Run Validation Tests (Make target)
-        run: make test-validation || true
+      - name: Behavior Tests
+        run: make test-behavior
+      
+      - name: Build
+        run: make build
+      
+      - name: Security Scan
+        run: make scan-security
+      
+      - name: Vulnerability Scan
+        run: make scan-vulnerability
+      
+      - name: Sign Artifacts
+        run: make sign
+      
+      - name: Package Container
+        run: make package
+      
+      - name: Generate SBOM
+        run: make generate-sbom
+      
+      - name: Generate Provenance
+        run: make generate-provenance
+      
+      - name: Upload artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ci-artifacts
+          path: |
+            dist/
+            coverage/
+            reports/
+            *.sbom
+            *.sig
+            *.attestation
