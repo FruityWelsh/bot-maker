@@ -625,7 +625,7 @@ All dates in documentation must be actual Git commit dates that match the reposi
 - **Accuracy**: Dates always reflect when the content was last committed
 - **Automation**: Dates are automatically updated by Git hooks and CI/CD
 
-**Important**: Placeholders like "2026-05-25" are NOT allowed. Files must contain actual dates in YYYY-MM-DD format that match their Git commit history.
+**Important**: Placeholders like "2026-05-24" are NOT allowed. Files must contain actual dates in YYYY-MM-DD format that match their Git commit history.
 
 Use these tools to maintain valid dates:
 - **Pre-commit hook**: Automatically updates dates before each commit (installed via `scripts/setup-git-hooks.sh`)
@@ -653,4 +653,4 @@ By contributing to this project, you agree to license your contributions under t
 
 **Thank you for contributing to ChatBot Operator!** 🎉
 
-*Last updated: 2026-05-25*
+*Last updated: 2026-05-24*

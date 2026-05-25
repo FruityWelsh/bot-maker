@@ -4,7 +4,7 @@
     "name": "chatbot-operator-strategy",
     "version": "0.1.0-dev",
     "description": "Strategy definition for Kubernetes-native chat bot management",
-    "created": "2026-05-25",
+    "created": "2026-05-24",
     "author": "Strategy Coder",
     "references": {
       "upstream": null,
