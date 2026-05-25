@@ -2,7 +2,8 @@
 // =====================================
 // Formal verification that all design documents are complete and properly referenced
 // References: docs/omen/strategy.json (Developer Goal DG002 - Formal Verification)
-// References: docs/adr/architecture-decisions.md (ADR-001 - Strategy First, Code Second)
+// References: ../contributors/adr/architecture-decisions.md (ADR-001 - Strategy First, Code Second)
+// References: ../common/principles.md (Core Principles)
 // 
 // **Purpose**: Ensure all design documents are complete, verified, and properly cross-referenced
 // **Status**: WORK IN PROGRESS - This document tracks verification status

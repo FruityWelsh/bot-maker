@@ -4,11 +4,16 @@
 Build a Kubernetes-native application that enables Platform Engineering teams to manage chat bot lifecycles as Kubernetes resources, with automated account creation and configuration for Slack, Matrix, Discord, Twilio, etc., while maintaining strict separation of concerns between Platform Engineering (infrastructure/RBAC) and AppDev (bot configuration/backends).
 
 ## Core Principles
+
+See [../common/principles.md](../common/principles.md) for the complete definition of project principles.
+
 - **Strategy First, Code Second**: All implementation must trace back to documented strategy
 - **Clean GitOps Workflow**: Feature branches, frequent commits, rebase on dev, conventional commits
 - **Secure by Design**: Zero Trust, Cloud Native (CNCF), SLSA compliance
 - **Open Standards**: Choice Matters ethos, platform-agnostic CI/CD
 - **Hard Links Required**: Each tool must reference upstream tools in the chain
+
+For detailed principle definitions, enforcement guidelines, and metrics, see [Core Principles](../common/principles.md).
 
 ## Toolchain Architecture
 

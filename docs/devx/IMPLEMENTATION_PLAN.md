@@ -4,7 +4,8 @@
 // 
 // References: docs/DESIGN_VERIFICATION.md (Formal Verification)
 // References: docs/omen/strategy.json (Developer Goal DG002)
-// References: docs/adr/architecture-decisions.md (ADR-001 - Strategy First, Code Second)
+// References: ../contributors/adr/architecture-decisions.md (ADR-001 - Strategy First, Code Second)
+// References: ../common/principles.md (Core Principles)
 //
 // **Status**: BLOCKED - Waiting for design verification completion
 // **Last Updated**: 2026-05-25

@@ -1,15 +1,15 @@
 ---
 # ChatBot Operator Architecture Diagrams
-# References: docs/cubejs/metrics.yaml (upstream)
-# Downstream: features/chatbot.feature
+# References: ../../strategy/cubejs/metrics.yaml (upstream)
+# Downstream: ../../features/chatbot.feature
 
 title: ChatBot Operator Architecture Diagrams
 version: 0.1.0-dev
 created: 2026-05-25
 author: Strategy Coder
 references:
-  upstream: docs/cubejs/metrics.yaml
-  downstream: features/chatbot.feature
+  upstream: ../../strategy/cubejs/metrics.yaml
+  downstream: ../../features/chatbot.feature
 rendering:
   engine: react-markdown + gray-matter + Mermaid.js
   safe: true

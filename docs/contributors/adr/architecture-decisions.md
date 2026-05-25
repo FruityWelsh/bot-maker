@@ -1,15 +1,15 @@
 ---
 # Architecture Decision Records for ChatBot Operator
-# References: docs/bmml/value-proposition.yaml (upstream)
-# Downstream: docs/cubejs/metrics.yaml
+# References: ../../strategy/bmml/value-proposition.yaml (upstream)
+# Downstream: ../../strategy/cubejs/metrics.yaml
 
 title: ChatBot Operator Architecture Decisions
 version: 0.1.0-dev
 created: 2026-05-25
 author: Strategy Coder
 references:
-  upstream: docs/bmml/value-proposition.yaml
-  downstream: docs/cubejs/metrics.yaml
+  upstream: ../../strategy/bmml/value-proposition.yaml
+  downstream: ../../strategy/cubejs/metrics.yaml
 ---
 
 # Architecture Decision Records
