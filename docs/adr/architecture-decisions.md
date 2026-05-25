@@ -5,7 +5,7 @@
 
 title: ChatBot Operator Architecture Decisions
 version: 0.1.0-dev
-created: Generated from Git commit date
+created: 2026-05-25
 author: Strategy Coder
 references:
   upstream: docs/bmml/value-proposition.yaml
@@ -17,7 +17,7 @@ references:
 ## ADR-001: Use Kubernetes Operator Pattern
 
 **Status**: Accepted  
-**Date**: Generated from Git commit date  
+**Date**: 2026-05-25  
 **Context**: Need to manage chat bot lifecycles as Kubernetes resources  
 **Decision**: Implement as Kubernetes Operator using Kubebuilder framework  
 **Consequences**: 
@@ -36,7 +36,7 @@ references:
 ## ADR-002: Use Kubebuilder Framework
 
 **Status**: Accepted  
-**Date**: Generated from Git commit date  
+**Date**: 2026-05-25  
 **Context**: Need framework for building Kubernetes operators  
 **Decision**: Use Kubebuilder (CNCF project) over Operator SDK  
 **Consequences**: 
@@ -55,7 +55,7 @@ references:
 ## ADR-003: Multi-Platform Bot Support Architecture
 
 **Status**: Accepted  
-**Date**: Generated from Git commit date  
+**Date**: 2026-05-25  
 **Context**: Need to support Slack, Matrix, Discord, Twilio platforms  
 **Decision**: Implement platform-specific provisioners with common interface  
 **Consequences**: 
@@ -96,7 +96,7 @@ references:
 ## ADR-004: Security Architecture with Linkerd
 
 **Status**: Accepted  
-**Date**: Generated from Git commit date  
+**Date**: 2026-05-25  
 **Context**: Need Zero Trust security for bot communications  
 **Decision**: Use Linkerd service mesh for mutual TLS and security  
 **Consequences**: 
@@ -138,7 +138,7 @@ references:
 ## ADR-005: RBAC/ABAC Integration Strategy
 
 **Status**: Accepted  
-**Date**: Generated from Git commit date  
+**Date**: 2026-05-25  
 **Context**: Need role-based and attribute-based access control  
 **Decision**: Integrate with existing Kubernetes RBAC and implement ABAC via OPA/Gatekeeper  
 **Consequences**: 
@@ -179,16 +179,24 @@ references:
 ## ADR-006: GitOps Workflow Implementation
 
 **Status**: Accepted  
-**Date**: Generated from Git commit date  
-**Context**: Need consistent deployment and management workflow  
-**Decision**: Implement GitOps with Argo CD for continuous delivery  
+**Date**: 2026-05-25  
+**Context**: GitOps is a **design goal** for the project's development lifecycle, not an explicit architectural requirement of the application itself. The application enables GitOps patterns by being implemented as a Kubernetes CRD, allowing any GitOps tool (Argo CD, Fleet, Flux, etc.) to manage its lifecycle.
+
+**Decision**: Use GitOps principles for the project's development workflow, with Argo CD and Fleet as example implementations. The ChatBot Operator CRD itself is GitOps-ready by design - it can be managed by any GitOps tool that supports Kubernetes resources.
+
 **Consequences**: 
-- ✅ Declarative Git-based workflow
-- ✅ Automated synchronization
+- ✅ Application is GitOps-ready by being a Kubernetes CRD
+- ✅ Can be managed by Argo CD, Fleet, Flux, or any GitOps tool
+- ✅ Declarative Git-based workflow for the project's development
+- ✅ Automated synchronization capabilities
 - ✅ Audit trail and rollback capability
 - ✅ Multi-environment support
-- ✅ CNCF project with strong ecosystem
-- ⚠️ Learning curve for GitOps patterns
+- ⚠️ Learning curve for GitOps patterns (mitigated by examples)
+
+**Examples**:
+- Argo CD Application manifests for ChatBot Operator
+- Fleet Bundle configurations
+- Flux HelmRelease or Kustomization resources
 
 **References**: 
 - BMML Goal G005: Platform-Agnostic CI/CD
@@ -200,7 +208,7 @@ references:
 ## ADR-007: Platform-Agnostic CI/CD Pipeline
 
 **Status**: Accepted  
-**Date**: Generated from Git commit date  
+**Date**: 2026-05-25  
 **Context**: Need CI/CD that works across GitLab, Forgejo, GitHub, Tekton, and local development  
 **Decision**: Use Makefile as the single source of truth with platform-specific wrappers  
 **Consequences**: 
@@ -289,7 +297,7 @@ This allows the same Make targets to adapt their behavior based on the platform.
 ## ADR-012: Makefile as Single Source of Truth for CI/CD
 
 **Status**: Accepted  
-**Date**: Generated from Git commit date  
+**Date**: 2026-05-25  
 **Context**: Need consistent CI/CD behavior across all platforms  
 **Decision**: Makefile contains all actual check definitions, platforms are just wrappers  
 **Consequences**: 
@@ -322,7 +330,7 @@ This allows the same Make targets to adapt their behavior based on the platform.
 ## ADR-008: Business Metrics with Cube.js
 
 **Status**: Accepted  
-**Date**: Generated from Git commit date  
+**Date**: 2026-05-25  
 **Context**: Need business metrics and observability for bot operations  
 **Decision**: Use Cube.js for business metrics as code  
 **Consequences**: 
@@ -343,7 +351,7 @@ This allows the same Make targets to adapt their behavior based on the platform.
 ## ADR-009: Documentation with React-Markdown and Mermaid
 
 **Status**: Accepted  
-**Date**: Generated from Git commit date  
+**Date**: 2026-05-25  
 **Context**: Need safe rendering of strategy metadata and diagrams  
 **Decision**: Use react-markdown for markdown, gray-matter for frontmatter, Mermaid.js for diagrams  
 **Consequences**: 
@@ -363,7 +371,7 @@ This allows the same Make targets to adapt their behavior based on the platform.
 ## ADR-010: Behavior-Driven Development with Godog
 
 **Status**: Accepted  
-**Date**: Generated from Git commit date  
+**Date**: 2026-05-25  
 **Context**: Need behavior-driven testing for bot provisioning workflows  
 **Decision**: Use Godog (Gherkin in Go) for BDD testing  
 **Consequences**: 
@@ -384,7 +392,7 @@ This allows the same Make targets to adapt their behavior based on the platform.
 ## ADR-011: JSON Schema Validation with AJV
 
 **Status**: Accepted  
-**Date**: Generated from Git commit date  
+**Date**: 2026-05-25  
 **Context**: Need fast JSON schema validation for CRDs and configurations  
 **Decision**: Use AJV (Another JSON Schema Validator) for validation  
 **Consequences**: 
@@ -494,7 +502,7 @@ flowchart TD
 ## ADR-013: DevPod for Containerized Development Environment
 
 **Status**: Accepted  
-**Date**: Generated from Git commit date  
+**Date**: 2026-05-25  
 **Context**: Need reproducible development environment across different systems for consistent builds and testing  
 **Decision**: Use DevPod (https://devpod.sh/) for containerized development environments  
 **Consequences**: 
@@ -553,7 +561,7 @@ flowchart TD
 ## ADR-014: Pre-push Hooks for Local Validation Gate
 
 **Status**: Accepted  
-**Date**: Generated from Git commit date  
+**Date**: 2026-05-25  
 **Context**: Need to ensure GitHub Actions will pass before pushing code, preventing broken builds  
 **Decision**: Implement pre-push git hooks that run the same validations as GitHub Actions  
 **Consequences**: 
@@ -586,7 +594,7 @@ flowchart TD
 ## ADR-015: Vale with OpenSUSE Rules for Documentation Linting
 
 **Status**: Accepted  
-**Date**: Generated from Git commit date  
+**Date**: 2026-05-25  
 **Context**: Need consistent documentation style and correctness checking across all markdown, YAML, and JSON files  
 **Decision**: Use Vale with OpenSUSE style guide as base, plus custom rules for project-specific requirements  
 **Consequences**: 
@@ -624,7 +632,7 @@ flowchart TD
 ## ADR-016: Stubbed GitLab and Tekton for Local Testing
 
 **Status**: Accepted  
-**Date**: Generated from Git commit date  
+**Date**: 2026-05-25  
 **Context**: Need to test CI/CD configurations locally without requiring GitLab or Tekton infrastructure  
 **Decision**: Create stubbed versions of GitLab CI and Tekton manifests that can be validated locally  
 **Consequences**: 
@@ -654,7 +662,7 @@ flowchart TD
 ## ADR-017: Conventional Commits Validation
 
 **Status**: Accepted  
-**Date**: Generated from Git commit date  
+**Date**: 2026-05-25  
 **Context**: Need to enforce consistent commit message format across the project for better changelog generation and project history  
 **Decision**: Implement Conventional Commits standard with commit-msg git hook and commitlint configuration  
 **Consequences**: 
@@ -709,7 +717,7 @@ footer
 ## ADR-018: Secret Scanning with Gitleaks
 
 **Status**: Accepted  
-**Date**: Generated from Git commit date  
+**Date**: 2026-05-25  
 **Context**: Need to prevent accidental commitment of secrets (API keys, tokens, passwords) to the repository  
 **Decision**: Use Gitleaks with custom configuration for ChatBot Operator-specific secret patterns  
 **Consequences**: 
@@ -764,7 +772,7 @@ footer
 ## ADR-019: CNCF Graduated Project Compliance Validation
 
 **Status**: Accepted  
-**Date**: Generated from Git commit date  
+**Date**: 2026-05-25  
 **Context**: Need to ensure the project follows CNCF graduated project guidelines for technical excellence  
 **Decision**: Create automated validation script that checks compliance with CNCF best practices, ignoring organizational tasks  
 **Consequences**: 

@@ -6,7 +6,7 @@
 // 
 // **Purpose**: Ensure all design documents are complete, verified, and properly cross-referenced
 // **Status**: WORK IN PROGRESS - This document tracks verification status
-// **Last Verified**: Generated from Git commit date
+// **Last Verified**: 2026-05-25
 
 ## Verification Checklist
 
@@ -66,7 +66,7 @@
   - ADR-003: Platform-specific provisioners
   - ADR-004: Linkerd for Zero Trust
   - ADR-005: OPA/Gatekeeper for ABAC
-  - ADR-006: Argo CD for GitOps
+  - ADR-006: GitOps workflow as development lifecycle design goal (enabled by CRD design)
   - ADR-007: Makefile as single source of truth
   - ADR-008: Cube.js for business metrics
   - ADR-009: React-Markdown + Mermaid.js

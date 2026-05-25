@@ -5,7 +5,7 @@
 
 title: ChatBot Operator Architecture Diagrams
 version: 0.1.0-dev
-created: Generated from Git commit date
+created: 2026-05-25
 author: Strategy Coder
 references:
   upstream: docs/cubejs/metrics.yaml
@@ -67,7 +67,7 @@ C4Context
     Rel(chatbotOperator, twilio, "Manages bots", "Twilio API")
     Rel(chatbotOperator, monitoring, "Reports metrics", "Prometheus")
     Rel(chatbotOperator, database, "Stores data", "SQL")
-    Rel(ciCd, chatbotOperator, "Deploys", "GitOps")
+    Rel(ciCd, chatbotOperator, "Deploys", "GitOps (enabled by CRD)")
 ```
 
 ---
@@ -355,7 +355,7 @@ flowchart TD
         M -->|Generates| O[Provenance]
     end
     
-    subgraph GitOps
+    subgraph GitOps (Deployment Pattern)
         G -->|New Image| P[Argo CD]
         P -->|Syncs| Q[Git Repository]
         Q -->|Contains| R[Kubernetes Manifests]

@@ -11,7 +11,7 @@ metadata:
   annotations:
     description: "Setup task - Installs dependencies. Wraps 'make deps'"
     author: "Strategy Coder"
-    version: "Generated from Git commit date"
+    version: "2026-05-25"
     references: "docs/omen/strategy.json, docs/adr/architecture-decisions.md"
 
 spec:

@@ -15,7 +15,7 @@ Enable Platform Engineering teams to manage chat bot lifecycles as Kubernetes re
 
 ✅ **Complete Toolchain Foundation** - All 8 tools implemented with hard references
 ✅ **Public Repository** - Available at [FruityWelsh/bot-maker](https://github.com/FruityWelsh/bot-maker)
-✅ **GitOps Workflow** - Feature branches, conventional commits, frequent pushes
+✅ **Development Workflow** - Feature branches, conventional commits, frequent pushes (GitOps principles)
 ✅ **Strategy First** - All implementation traces back to documented strategy
 
 ## 🏗️ Toolchain Architecture
@@ -125,7 +125,7 @@ bot-maker/
 ### Developer Environment Technologies (how we build the app)
 | Component | Technology | Purpose | Status |
 |-----------|------------|---------|--------|
-| **GitOps** | Argo CD | Continuous delivery | 📋 Planned |
+| **GitOps** | Any GitOps tool (Argo CD, Fleet, Flux) | Continuous delivery | ✅ Enabled (via CRD) |
 | **CI/CD** | GitHub Actions, GitLab CI, Tekton | Pipeline automation | 📋 Planned |
 | **Documentation** | React-Markdown, Mermaid.js | Safe rendering | ✅ Implemented |
 | **BDD Testing** | Godog | Behavior testing | ✅ Implemented |
@@ -174,7 +174,9 @@ bot-maker/
 - ✅ GitHub Actions, GitLab CI, Tekton (CI/CD)
 - ✅ OPA/Gatekeeper (Policy)
 
-## 🚀 GitOps Workflow
+## 🚀 Development Workflow (GitOps Principles)
+
+**Note**: GitOps is a **design goal** for the project's development lifecycle, not an explicit architectural requirement of the application itself. The ChatBot Operator enables GitOps patterns by being a Kubernetes CRD - it can be managed by any GitOps tool (Argo CD, Fleet, Flux, etc.) that supports Kubernetes resources.
 
 ### Branching Strategy
 ```
@@ -196,7 +198,11 @@ Pull Request → main
 3. **Build**: Container image builds
 4. **Scan**: Security and vulnerability scanning
 5. **Sign**: Artifact signing and SBOM generation
-6. **Deploy**: GitOps deployment with Argo CD
+6. **Deploy**: GitOps-ready - can be deployed with Argo CD, Fleet, Flux, or any GitOps tool
+
+### GitOps Examples
+- [Argo CD Application manifests](examples/argocd/) for ChatBot Operator
+- [Fleet Bundle configurations](examples/fleet/) for multi-cluster deployments
 
 ## 📊 Business Metrics
 
@@ -298,4 +304,4 @@ This project is licensed under the Apache License 2.0 - see the [LICENSE](LICENS
 
 **Built with ❤️ using Strategy First, Code Second approach**
 
-*Last updated: Generated from Git commit date*
+*Last updated: 2026-05-25*

@@ -18,7 +18,7 @@ metadata:
   annotations:
     description: "BotPlatform resource defines platform-specific configuration and provisioning settings"
     author: "Strategy Coder"
-    version: "Generated from Git commit date"
+    version: "2026-05-25"
     references: "docs/omen/strategy.json, docs/adr/architecture-decisions.md, features/chatbot.feature"
 
 spec:

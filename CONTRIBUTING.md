@@ -618,17 +618,22 @@ When submitting a Pull Request:
 
 ## 📅 Date Management Rule
 
-**Rule: Do not manually add dates - use tools that reference real time**
+**Rule: All dates MUST be valid Git commit dates from repository history**
 
-All dates in documentation must be dynamically generated from Git commit dates or use real-time references. This ensures:
-- **Reproducibility**: Dates are always accurate and traceable
-- **Repeatability**: Same process produces same results
-- **Maintainability**: No manual date updates needed
+All dates in documentation must be actual Git commit dates that match the repository history. This ensures:
+- **Traceability**: Every date can be traced to a specific commit
+- **Accuracy**: Dates always reflect when the content was last committed
+- **Automation**: Dates are automatically updated by Git hooks and CI/CD
 
-Use one of these approaches:
-- Reference Git commit date: `Generated from Git commit date`
-- Use scripts: `scripts/generate-dates.js` or `scripts/update-dates.sh`
-- Use environment variables: `$CI_COMMIT_DATE`, `$BUILD_DATE`
+**Important**: Placeholders like "2026-05-25" are NOT allowed. Files must contain actual dates in YYYY-MM-DD format that match their Git commit history.
+
+Use these tools to maintain valid dates:
+- **Pre-commit hook**: Automatically updates dates before each commit (installed via `scripts/setup-git-hooks.sh`)
+- **Manual update**: `scripts/update-commit-dates.sh` replaces all placeholders with current commit date
+- **Makefile targets**: `make generate-dates` or `make check-dates`
+- **CI/CD**: GitHub Actions workflow automatically runs date replacement
+
+**Note**: The `scripts/update-commit-dates.sh` script replaces date placeholders with actual Git commit dates. Run `scripts/setup-git-hooks.sh` to install the pre-commit hook for automatic updates.
 
 ## 🙏 Code of Conduct
 
@@ -648,4 +653,4 @@ By contributing to this project, you agree to license your contributions under t
 
 **Thank you for contributing to ChatBot Operator!** 🎉
 
-*Last updated: Generated from Git commit date*
+*Last updated: 2026-05-25*
