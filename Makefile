@@ -243,6 +243,7 @@ scan-secrets: ## Scan for secrets in the repository
 .PHONY: test-behavior
 test-behavior: ## Run Godog behavior-driven tests
 	@echo "🧪 Running Godog behavior-driven tests..."
+	@mkdir -p $(REPORTS_DIR)
 	$(GODOG_BIN) test -f "$(REPORTS_DIR)/godog-report.html" features/
 
 # ============================================================================
@@ -273,6 +274,7 @@ scan: scan-security scan-vulnerability ## Run all security scans
 .PHONY: scan-security
 scan-security: ## Run security scanning
 	@echo "🔒 Running security scans..."
+	@mkdir -p $(REPORTS_DIR)
 	# Static analysis (skip if go.mod not found or fails)
 	@if [ -f "go.mod" ]; then gosec -include=G101,G201,G301 ./... > $(REPORTS_DIR)/gosec-report.txt 2>&1 || echo "⚠️  Go security scan failed or no issues found"; else echo "⚠️  Skipping Go security scan (no go.mod)"; fi
 	# Secret scanning
@@ -281,6 +283,7 @@ scan-security: ## Run security scanning
 .PHONY: scan-vulnerability
 scan-vulnerability: ## Run vulnerability scanning
 	@echo "🔒 Running vulnerability scans..."
+	@mkdir -p $(REPORTS_DIR)
 	# Go vulnerability scanning (skip if go.mod not found or fails)
 	@if [ -f "go.mod" ]; then govulncheck ./... > $(REPORTS_DIR)/govulncheck-report.txt 2>&1 || echo "⚠️  Go vulnerability scan failed or no vulnerabilities found"; else echo "⚠️  Skipping Go vulnerability scan (no go.mod)"; fi
 	# Container vulnerability scanning (if container built)

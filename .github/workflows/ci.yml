@@ -502,8 +502,12 @@ jobs:
         with:
           fetch-depth: 0
       
+      - name: Create artifact directories
+        run: mkdir -p dist coverage reports
+      
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
           name: ci-artifacts
           path: "dist/ coverage/ reports/ *.sbom *.sig *.attestation"
+        continue-on-error: true

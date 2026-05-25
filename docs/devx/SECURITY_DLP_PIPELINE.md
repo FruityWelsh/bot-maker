@@ -301,30 +301,30 @@ The test suite validates that the pipeline correctly detects:
 
 1. **AWS Credentials**:
    ```
-   AWS_ACCESS_KEY_ID=AKIAIOSFODNN7EXAMPLE
-   AWS_SECRET_ACCESS_KEY=wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY
+   AWS_ACCESS_KEY_ID=AKIA_EXAMPLE_KEY_PLACEHOLDER
+   AWS_SECRET_ACCESS_KEY=EXAMPLE_SECRET_KEY_PLACEHOLDER
    ```
 
 2. **GitHub Tokens**:
    ```
-   GITHUB_TOKEN=ghp_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+   GITHUB_TOKEN=ghp_EXAMPLE_TOKEN_PLACEHOLDER_DO_NOT_USE
    ```
 
 3. **Slack Tokens**:
    ```
-   SLACK_BOT_TOKEN=xoxb-aaaaaaaaaaaaaaaaaaaaaaaa
+   SLACK_BOT_TOKEN=xoxb-EXAMPLE_BOT_TOKEN_PLACEHOLDER
    ```
 
 4. **Private Keys**:
    ```
    -----BEGIN RSA PRIVATE KEY-----
-   MIIEpAIBAAKCAQEA0Z3VS5JJcds3xfn/ygWyF8PbnGy0AHB7MxUK
+   EXAMPLE_PRIVATE_KEY_PLACEHOLDER_DO_NOT_USE
    -----END RSA PRIVATE KEY-----
    ```
 
 5. **Database URLs**:
    ```
-   DATABASE_URL=postgresql://user:password@localhost:5432/database
+   DATABASE_URL=postgresql://user:EXAMPLE_PASSWORD@localhost:5432/database
    ```
 
 ### Vulnerability Scanning Test Cases
