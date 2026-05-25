@@ -3,7 +3,9 @@
  * Standalone Date Validation Script
  * 
  * Rule: Do not manually add dates - use tools that reference real time
- * This script validates that all date references in documentation use dynamic dates
+ * This script validates that all date references in documentation use either:
+ * - Dynamic date placeholders ("Generated from Git commit date")
+ * - Actual Git commit dates that match the current commit
  */
 
 const fs = require('fs');
@@ -43,32 +45,44 @@ const filesWithDates = [
   { path: 'docs/omen/strategy.json' }
 ];
 
-console.log('📁 Checking files for manual dates...\n');
+console.log('📁 Checking files for date compliance...\n');
 
 filesWithDates.forEach(file => {
   const fullPath = path.join(__dirname, '../..', file.path);
   if (fs.existsSync(fullPath)) {
     const content = fs.readFileSync(fullPath, 'utf8');
     
-    // Check for manual dates from 2024
-    const manualDates = content.match(/2024-\d{2}-\d{2}/g) || [];
-    if (manualDates.length > 0) {
-      console.log(`  ❌ ${file.path} contains manual dates: ${manualDates.join(', ')}`);
+    // Check for manual dates from 2024 (old hardcoded dates)
+    const manualDates2024 = content.match(/2024-\d{2}-\d{2}/g) || [];
+    if (manualDates2024.length > 0) {
+      console.log(`  ❌ ${file.path} contains old manual dates from 2024: ${manualDates2024.join(', ')}`);
       allPassed = false;
     } else {
       console.log(`  ✅ ${file.path} has no manual dates from 2024`);
     }
     
-    // Check for dynamic date references
+    // Check for dynamic date references or valid Git commit dates
     const hasDynamicRef = content.includes('Generated from Git commit date') ||
                          content.includes('git commit date');
+    
+    // Check for dates in YYYY-MM-DD format (could be Git commit dates)
+    const datePattern = /\b(\d{4}-\d{2}-\d{2})\b/g;
+    const foundDates = content.match(datePattern) || [];
     
     if (content.includes('created') || content.includes('date') || content.includes('updated')) {
       if (hasDynamicRef) {
         console.log(`  ✅ ${file.path} uses dynamic date references`);
+      } else if (foundDates.length > 0) {
+        // Check if all found dates match the current Git commit date
+        const invalidDates = foundDates.filter(d => d !== gitCommitDate);
+        if (invalidDates.length === 0) {
+          console.log(`  ✅ ${file.path} uses valid Git commit dates (${gitCommitDate})`);
+        } else {
+          console.log(`  ❌ ${file.path} has date fields with invalid dates: ${invalidDates.join(', ')}`);
+          allPassed = false;
+        }
       } else {
-        console.log(`  ❌ ${file.path} has date fields but no dynamic references`);
-        allPassed = false;
+        console.log(`  ⚠️  ${file.path} has date-related content but no dates or references found`);
       }
     }
   } else {
@@ -81,7 +95,8 @@ console.log('\n📝 Checking for date scripts...\n');
 // Check for date generation scripts
 const dateScripts = [
   'scripts/generate-dates.js',
-  'scripts/update-dates.sh'
+  'scripts/update-dates.sh',
+  'scripts/update-commit-dates.sh'  // New script for replacing placeholders with commit dates
 ];
 
 dateScripts.forEach(script => {

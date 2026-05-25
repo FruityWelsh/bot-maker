@@ -626,9 +626,15 @@ All dates in documentation must be dynamically generated from Git commit dates o
 - **Maintainability**: No manual date updates needed
 
 Use one of these approaches:
-- Reference Git commit date: `Generated from Git commit date`
-- Use scripts: `scripts/generate-dates.js` or `scripts/update-dates.sh`
+- Reference Git commit date: `2026-05-25`
+- Use scripts: `scripts/generate-dates.js`, `scripts/update-dates.sh`, or `scripts/update-commit-dates.sh`
+- Use Makefile targets: `make generate-dates` or `make check-dates`
 - Use environment variables: `$CI_COMMIT_DATE`, `$BUILD_DATE`
+
+**Note**: The `scripts/update-commit-dates.sh` script automatically replaces `2026-05-25` placeholders with actual Git commit dates. This can be run:
+- Automatically via pre-commit hook
+- Manually via `make generate-dates`
+- In CI/CD via the GitHub Actions workflow
 
 ## 🙏 Code of Conduct
 
@@ -648,4 +654,4 @@ By contributing to this project, you agree to license your contributions under t
 
 **Thank you for contributing to ChatBot Operator!** 🎉
 
-*Last updated: Generated from Git commit date*
+*Last updated: 2026-05-25*
