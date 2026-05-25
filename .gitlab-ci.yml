@@ -95,7 +95,7 @@ scan:
   script:
     - echo "🔒 Running security scans..."
     - apk add --no-cache make git curl nodejs npm go
-    - apk add --no-cache gosec trivy govulncheck gitleaks
+    - apk add --no-cache gosec trivy govulncheck betterleaks
     - make ci-scan
   needs: [build]
 
@@ -137,7 +137,7 @@ full-pipeline:
   image: alpine:latest
   script:
     - echo "🚀 Running full pipeline..."
-    - apk add --no-cache make git curl nodejs npm go docker gosec trivy govulncheck gitleaks cosign kubectl helm
+    - apk add --no-cache make git curl nodejs npm go docker gosec trivy govulncheck betterleaks cosign kubectl helm
     - apk add --no-cache python3 py3-pip
     - pip install yamllint markdownlint shellcheck
     - make ci
@@ -154,7 +154,7 @@ nightly:
   image: alpine:latest
   script:
     - echo "🌙 Running nightly pipeline..."
-    - apk add --no-cache make git curl nodejs npm go docker gosec trivy govulncheck gitleaks cosign
+    - apk add --no-cache make git curl nodejs npm go docker gosec trivy govulncheck betterleaks cosign
     - apk add --no-cache python3 py3-pip
     - pip install yamllint markdownlint shellcheck
     - make ci

@@ -241,7 +241,7 @@ spec:
       script: |
         echo "🔒 Running security scans..."
         apk add --no-cache make git curl nodejs npm go
-        apk add --no-cache gosec trivy govulncheck gitleaks
+        apk add --no-cache gosec trivy govulncheck betterleaks
         
         # Set CI environment variables for Make targets
         export CI_PLATFORM=tekton
@@ -407,7 +407,7 @@ spec:
       workingDir: $(workspaces.source.path)
       script: |
         echo "🚀 Running full pipeline..."
-        apk add --no-cache make git curl nodejs npm go docker gosec trivy govulncheck gitleaks cosign
+        apk add --no-cache make git curl nodejs npm go docker gosec trivy govulncheck betterleaks cosign
         apk add --no-cache python3 py3-pip
         pip install yamllint markdownlint shellcheck
         
