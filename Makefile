@@ -51,7 +51,7 @@ SECURITY_SCANNER_DOCKERFILE ?= Dockerfile.security-scanner
 .PHONY: help
 help: ## Show this help message
 	@echo "ChatBot Operator - Platform-Agnostic Makefile"
-	@echo "============================================"
+	@echo "==========================================="
 	@echo ""
 	@echo "Core Targets (work across all platforms):"
 	@echo ""
@@ -59,13 +59,14 @@ help: ## Show this help message
 	@echo ""
 	@echo "CI/CD Pipeline Targets:"
 	@echo ""
-	@echo "  ci              - Run full CI pipeline (lint, test, build, scan, sign)"
+	@echo "  ci              - Run full CI pipeline (lint, test, build, scan, sign, deploy)"
 	@echo "  ci-lint        - Run linting stage"
 	@echo "  ci-test        - Run testing stage"
 	@echo "  ci-build       - Run build stage"
 	@echo "  ci-scan        - Run security scanning stage"
 	@echo "  ci-sign        - Run signing stage"
 	@echo "  ci-package     - Run packaging stage"
+	@echo "  ci-deploy      - Run deployment stage"
 	@echo ""
 	@echo "Platform-Specific Wrappers:"
 	@echo ""
@@ -324,6 +325,16 @@ package-container: build-container sign-container ## Build and sign container
 	docker push $(CONTAINER_REPO):latest
 
 # ============================================================================
+# DEPLOY TARGETS
+# ============================================================================
+
+.PHONY: deploy
+deploy: ## Deploy the application
+	@echo "🚀 Deploying application..."
+	# Deployment logic would go here
+	@echo "✅ Deploy target (implement based on your deployment method)"
+
+# ============================================================================
 # SBOM AND PROVENANCE TARGETS
 # ============================================================================
 
@@ -363,7 +374,7 @@ generate-provenance: ## Generate provenance
 # ============================================================================
 
 .PHONY: ci
-ci: ci-lint ci-test ci-build ci-scan ci-sign ci-package ## Run full CI pipeline
+ci: ci-lint ci-test ci-build ci-scan ci-sign ci-package ci-deploy ## Run full CI pipeline
 
 .PHONY: ci-lint
 ci-lint: deps lint ## Linting stage
@@ -382,6 +393,9 @@ ci-sign: deps sign ## Signing stage
 
 .PHONY: ci-package
 ci-package: deps package ## Packaging stage
+
+.PHONY: ci-deploy
+ci-deploy: deps deploy ## Deployment stage
 
 # ============================================================================
 # PLATFORM-SPECIFIC WRAPPERS
@@ -474,7 +488,7 @@ version: ## Show version information
 verify-versions: ## Verify all version numbers match VERSION file
 	@echo "🔍 Verifying version consistency..."
 	@VERSION=$(VERSION); \
-	files="package.json docs/omen/strategy.json docs/bmml/value-proposition.yaml docs/adr/architecture-decisions.md docs/cubejs/metrics.yaml docs/diagrams.md"; \
+	files="package.json docs/strategy/omen/strategy.json docs/strategy/bmml/value-proposition.yaml docs/contributors/adr/architecture-decisions.md docs/strategy/cubejs/metrics.yaml"; \
 	failed=0; \
 	for file in $$files; do \
 	  if [ ! -f "$$file" ]; then \
