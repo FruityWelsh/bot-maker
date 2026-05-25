@@ -8,7 +8,6 @@ title = "BetterLeaks Configuration"
     "mocks/"
   ]
   regexes = [
-    # Example patterns to allow
     "EXAMPLE",
     "CHANGEME",
     "YOUR_.*_HERE",
@@ -18,29 +17,29 @@ title = "BetterLeaks Configuration"
 [[rules]]
   id = "github-pat"
   description = "GitHub Personal Access Token"
-  regex = """github_pat_\w{22}_\w{59}"""
+  regex = "github_pat_\\w{22}_\\w{59}"
   keywords = ["github_pat_"]
 
 [[rules]]
   id = "github-oauth"
   description = "GitHub OAuth Token"
-  regex = """gho_\w{36}"""
+  regex = "gho_\\w{36}"
   keywords = ["gho_"]
 
 [[rules]]
   id = "aws-access-key"
   description = "AWS Access Key ID"
-  regex = """AKIA[0-9A-Z]{16}"""
+  regex = "AKIA[0-9A-Z]{16}"
   keywords = ["AKIA"]
 
 [[rules]]
   id = "aws-secret-key"
   description = "AWS Secret Access Key"
-  regex = """aws(.{0,20})?['\"][0-9a-zA-Z/+]{40}['\"]"""
+  regex = "aws(.{0,20})?['\"][0-9a-zA-Z/+]{40}['\"]"
   keywords = ["aws", "secret"]
 
 [[rules]]
   id = "generic-api-key"
   description = "Generic API Key"
-  regex = """[a-zA-Z0-9]{32,40}"""
+  regex = "[a-zA-Z0-9]{32,40}"
   keywords = ["api", "key", "secret"]
