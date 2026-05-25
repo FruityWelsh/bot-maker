@@ -299,7 +299,7 @@ jobs:
         run: make deps || true
       
       - name: Run Security Scan 
-        run: make scan-security || true || true
+        run: make scan-security || true
 
   # ============================================================================
   # JOB 11: Vulnerability Scanning
@@ -330,7 +330,7 @@ jobs:
         run: make deps || true
       
       - name: Run Vulnerability Scan 
-        run: make scan-vulnerability || true || true
+        run: make scan-vulnerability || true
 
   # ============================================================================
   # JOB 12: CNCF Compliance Validation
@@ -348,7 +348,7 @@ jobs:
           fetch-depth: 0
       
       - name: Validate CNCF Compliance 
-        run: make test-cncf-compliance || true || true
+        run: make test-cncf-compliance || true
 
   # ============================================================================
   # JOB 13: Artifact Signing
@@ -379,7 +379,7 @@ jobs:
         run: make deps || true
       
       - name: Sign Artifacts 
-        run: make sign || true || true
+        run: make sign || true
 
   # ============================================================================
   # JOB 14: Container Packaging
@@ -410,7 +410,7 @@ jobs:
         run: make deps || true
       
       - name: Package Container Image 
-        run: make package || true || true
+        run: make package || true
 
   # ============================================================================
   # JOB 15: SBOM Generation
@@ -441,7 +441,7 @@ jobs:
         run: make deps || true
       
       - name: Generate SBOM 
-        run: make generate-sbom || true || true
+        run: make generate-sbom || true
 
   # ============================================================================
   # JOB 16: Provenance Generation
@@ -472,7 +472,7 @@ jobs:
         run: make deps || true
       
       - name: Generate Provenance 
-        run: make generate-provenance || true || true
+        run: make generate-provenance || true
       
       - name: Upload artifacts
         if: always
