@@ -32,8 +32,9 @@ fi
 
 # Use default betterleaks configuration (no custom config for now)
 # Note: The existing .gitleaks.toml is not compatible with betterleaks format
-CONFIG_ARG=""
-echo "⚠️  Using default Betterleaks configuration"
+# Use /dev/null to prevent betterleaks from loading .gitleaks.toml
+CONFIG_ARG="--config /dev/null"
+echo "⚠️  Using default Betterleaks configuration (ignoring .gitleaks.toml)"
 
 echo ""
 
