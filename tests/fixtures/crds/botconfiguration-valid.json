@@ -1,0 +1,15 @@
+{
+  "apiVersion": "chatbot.operator/v1alpha1",
+  "kind": "BotConfiguration",
+  "metadata": {
+    "name": "test-config",
+    "namespace": "default"
+  },
+  "spec": {
+    "chatBotRef": "test-slack-bot",
+    "key": "greeting.message",
+    "value": "Welcome to our service!",
+    "sensitive": false,
+    "description": "Welcome message for new users"
+  }
+}
