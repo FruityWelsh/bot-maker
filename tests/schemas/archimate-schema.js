@@ -25,8 +25,11 @@ function validateArchimate(archimateDocument) {
   const errors = [];
   
   for (const field of requiredFields) {
-    const actualField = field in archimateDocument ? field : `@_${field}`;
-    if (!(actualField in archimateDocument)) {
+    // Check for field with or without @_ prefix
+    const hasField = field in archimateDocument;
+    const hasPrefixedField = `@_${field}` in archimateDocument;
+    
+    if (!hasField && !hasPrefixedField) {
       errors.push({
         instancePath: '',
         message: `Missing required field: ${field}`,
