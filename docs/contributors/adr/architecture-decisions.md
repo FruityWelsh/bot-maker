@@ -1,7 +1,7 @@
 ---
 title: ChatBot Operator Architecture Decisions
 version: 0.1.0-dev
-created: 2026-05-25
+created: 2026-05-26
 author: Strategy Coder
 references:
   upstream: ../../../strategy/bmml/value-proposition.yaml
