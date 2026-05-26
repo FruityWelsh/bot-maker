@@ -124,7 +124,7 @@ describe('ChatBot Operator CRD Validation', () => {
       expect(result.valid).toBe(false);
       expect(result.errors).toContainEqual(expect.objectContaining({
         instancePath: '/metadata/name',
-        message: expect.stringContaining('should not be empty')
+        message: expect.stringContaining('must NOT have fewer than 1 characters')
       }));
     });
 
@@ -136,7 +136,7 @@ describe('ChatBot Operator CRD Validation', () => {
       expect(result.valid).toBe(false);
       expect(result.errors).toContainEqual(expect.objectContaining({
         instancePath: '/spec/platform',
-        message: expect.stringContaining('should be one of')
+        message: expect.stringContaining('must be equal to one of the allowed values')
       }));
     });
 
@@ -169,7 +169,7 @@ describe('ChatBot Operator CRD Validation', () => {
       expect(result.valid).toBe(false);
       expect(result.errors).toContainEqual(expect.objectContaining({
         instancePath: '/spec/type',
-        message: expect.stringContaining('should be one of')
+        message: expect.stringContaining('must be equal to one of the allowed values')
       }));
     });
 
@@ -181,7 +181,7 @@ describe('ChatBot Operator CRD Validation', () => {
       expect(result.valid).toBe(false);
       expect(result.errors).toContainEqual(expect.objectContaining({
         instancePath: '/spec/apiEndpoint',
-        message: expect.stringContaining('should match format "uri"')
+        message: expect.stringContaining('must match format "uri"')
       }));
     });
   });
@@ -213,7 +213,7 @@ describe('ChatBot Operator CRD Validation', () => {
       expect(result.valid).toBe(false);
       expect(result.errors).toContainEqual(expect.objectContaining({
         instancePath: '/spec/sensitive',
-        message: expect.stringContaining('should be boolean')
+        message: expect.stringContaining('must be boolean')
       }));
     });
   });
@@ -233,7 +233,7 @@ describe('ChatBot Operator CRD Validation', () => {
       expect(result.valid).toBe(false);
       expect(result.errors).toContainEqual(expect.objectContaining({
         instancePath: '/spec/type',
-        message: expect.stringContaining('should be one of')
+        message: expect.stringContaining('must be equal to one of the allowed values')
       }));
     });
 
@@ -245,7 +245,7 @@ describe('ChatBot Operator CRD Validation', () => {
       expect(result.valid).toBe(false);
       expect(result.errors).toContainEqual(expect.objectContaining({
         instancePath: '/spec/expiresAt',
-        message: expect.stringContaining('should match format "date-time"')
+        message: expect.stringContaining('must match format "date-time"')
       }));
     });
 
@@ -257,7 +257,7 @@ describe('ChatBot Operator CRD Validation', () => {
       expect(result.valid).toBe(false);
       expect(result.errors).toContainEqual(expect.objectContaining({
         instancePath: '/spec/valueEncrypted',
-        message: expect.stringContaining('should not be empty')
+        message: expect.stringContaining('must NOT have fewer than 1 characters')
       }));
     });
   });
