@@ -1,0 +1,2 @@
+# Allow .git directory for git operations in CI
+!.git
