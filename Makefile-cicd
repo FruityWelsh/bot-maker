@@ -1,0 +1,101 @@
+# CI/CD Generator Makefile
+# ========================
+# This Makefile provides targets to generate CI/CD configurations from the IR
+# Usage: make -f Makefile-cicd <target>
+#
+# Targets:
+#   generate-all    - Generate all CI/CD configurations
+#   generate-github - Generate GitHub Actions workflow
+#   generate-gitlab - Generate GitLab CI/CD configuration
+#   generate-tekton - Generate Tekton pipeline and tasks
+#   validate-ir     - Validate the IR YAML structure
+#   clean           - Clean generated files
+
+IR_FILE := cicd-ir.yaml
+OUTPUT_DIR := .
+GITHUB_DIR := .github/workflows
+GITLAB_FILE := .gitlab-ci.yml
+TEKTON_DIR := .tekton
+
+.PHONY: generate-all generate-github generate-gitlab generate-tekton validate-ir clean help
+
+# Main target - generate everything
+generate-all: generate-github generate-gitlab generate-tekton
+
+# Generate GitHub Actions workflow
+generate-github:
+	@mkdir -p $(GITHUB_DIR)
+	@echo "Generating GitHub Actions workflow from $(IR_FILE)..."
+	@python3 generate-cicd.py --platform github --output-dir $(OUTPUT_DIR)
+	@echo "✅ Generated $(GITHUB_DIR)/ci.yml"
+
+# Generate GitLab CI/CD configuration
+generate-gitlab:
+	@echo "Generating GitLab CI/CD configuration from $(IR_FILE)..."
+	@python3 generate-cicd.py --platform gitlab --output-dir $(OUTPUT_DIR)
+	@echo "✅ Generated $(GITLAB_FILE)"
+
+# Generate Tekton pipeline and tasks
+generate-tekton:
+	@mkdir -p $(TEKTON_DIR)
+	@echo "Generating Tekton pipeline from $(IR_FILE)..."
+	@python3 generate-cicd.py --platform tekton --output-dir $(OUTPUT_DIR)
+	@echo "✅ Generated $(TEKTON_DIR)/pipeline.yaml and $(TEKTON_DIR)/tasks.yaml"
+
+# Validate IR structure
+validate-ir:
+	@echo "Validating IR structure..."
+	@python3 -c "
+import yaml
+import sys
+try:
+    with open('$(IR_FILE)', 'r') as f:
+        ir = yaml.safe_load(f)
+    required = ['pipeline', 'config', 'triggers', 'phases', 'jobs', 'platforms']
+    missing = [section for section in required if section not in ir]
+    if missing:
+        print(f'❌ Missing required sections: {missing}')
+        sys.exit(1)
+    for phase in ir['phases']:
+        if 'id' not in phase:
+            print(f'❌ Phase missing id field')
+            sys.exit(1)
+        if 'jobs' not in phase:
+            print(f'❌ Phase {phase.get(\"id\", \"unknown\")} missing jobs field')
+            sys.exit(1)
+    all_jobs = set(ir['jobs'].keys())
+    for phase in ir['phases']:
+        for job_name in phase['jobs']:
+            if job_name not in all_jobs:
+                print(f'❌ Job {job_name} referenced in phase {phase.get(\"id\")} but not defined')
+                sys.exit(1)
+    print('✅ IR structure is valid')
+except Exception as e:
+    print(f'❌ Validation failed: {e}')
+    sys.exit(1)
+"
+
+# Clean generated files
+clean:
+	@echo "Cleaning generated files..."
+	@rm -f $(GITHUB_DIR)/ci.yml
+	@rm -f $(GITLAB_FILE)
+	@rm -f $(TEKTON_DIR)/pipeline.yaml
+	@rm -f $(TEKTON_DIR)/tasks.yaml
+	@rm -f $(TEKTON_DIR)/pipeline-stub.yaml
+	@echo "✅ Cleaned generated files"
+
+# Help (default target)
+help:
+	@echo "CI/CD Generator Makefile"
+	@echo ""
+	@echo "Targets:"
+	@echo "  generate-all    - Generate all CI/CD configurations"
+	@echo "  generate-github - Generate GitHub Actions workflow"
+	@echo "  generate-gitlab - Generate GitLab CI/CD configuration"
+	@echo "  generate-tekton - Generate Tekton pipeline and tasks"
+	@echo "  validate-ir     - Validate the IR YAML structure"
+	@echo "  clean           - Clean generated files"
+	@echo "  help            - Show this help message"
+	@echo ""
+	@echo "Usage: make -f Makefile-cicd <target>"
