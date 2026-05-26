@@ -1,7 +1,3 @@
-    This Tekton pipeline wraps the platform-agnostic Make targets.
-    The actual checks are defined in the Makefile.
-    Tekton is just a wrapper around: make ci-lint, make ci-test, etc.
-=======
 apiVersion: tekton.dev/v1
 kind: Pipeline
 metadata:
@@ -12,19 +8,12 @@ metadata:
   annotations:
     description: "Platform-agnostic CI pipeline for ChatBot Operator. Wraps Make targets."
     author: "Strategy Coder"
-    version: "2026-05-25"
-    references: "docs/omen/strategy.json, docs/adr/architecture-decisions.md"
+    version: "1.0.0"
 
 spec:
   description: |
     ChatBot Operator CI Pipeline
     ============================
-    Platform-agnostic CI workflow
-    This workflow wraps Make targets that work across all platforms
-    References: docs/omen/strategy.json (Developer Environment Goal DG001)
-    References: docs/adr/architecture-decisions.md (ADR-012 - Platform-agnostic CI/CD)
-    The actual checks are defined in the Makefile.
-    Tekton is just a wrapper around: make ci-lint, make ci-test, etc.============================
     This Tekton pipeline wraps the platform-agnostic Make targets.
     The actual checks are defined in the Makefile.
     Tekton is just a wrapper around: make ci-lint, make ci-test, etc.
