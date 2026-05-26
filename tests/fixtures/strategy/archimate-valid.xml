@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<model name="ChatBot Operator Enterprise Architecture" version="1.0.0" xmlns="http://www.archimatetool.com/xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+<model name="ChatBot Operator Enterprise Architecture" version="1.0.0">
   <id>root</id>
   <elements>
-    <element xsi:type="archimate:BusinessActor" id="platform-team" name="Platform Engineering Team">
+    <element id="platform-team" name="Platform Engineering Team">
       <documentation>Responsible for infrastructure setup, RBAC/ABAC backend integration</documentation>
     </element>
-    <element xsi:type="archimate:BusinessRole" id="infrastructure-manager" name="Infrastructure Manager">
+    <element id="infrastructure-manager" name="Infrastructure Manager">
       <documentation>Manages infrastructure components</documentation>
     </element>
   </elements>
