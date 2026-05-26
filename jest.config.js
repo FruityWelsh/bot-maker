@@ -24,5 +24,5 @@ module.exports = {
   verbose: true,
   
   // Show colors in output
-  colors: true
+  color: true
 };
