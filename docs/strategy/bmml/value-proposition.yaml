@@ -37,7 +37,7 @@ business_motivation:
       
     - id: "G003"
       name: "Separation of Concerns"
-      description: "Maintain separation between Platform Engineering and AppDev"
+      description: "Maintain Separation between Platform Engineering and AppDev"
       priority: "high"
       business_value: "Clear responsibility boundaries and reduced conflicts"
       success_metrics:

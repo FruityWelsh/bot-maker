@@ -48,7 +48,7 @@ type ChatBotSpec struct {
 
 	// Configuration is the platform-specific configuration for the bot
 	// +kubebuilder:validation:Required
-	Configuration BotConfigurationSpec `json:"configuration"`
+	Configuration map[string]string `json:"configuration"`
 
 	// Credentials is the reference to credentials for the platform
 	Credentials CredentialReference `json:"credentials,omitempty"`
@@ -153,30 +153,6 @@ const (
 	// PlatformTwilio is the Twilio platform
 	PlatformTwilio PlatformType = "twilio"
 )
-
-// BotConfigurationSpec defines the configuration for a bot
-type BotConfigurationSpec struct {
-	// BackendURL is the URL of the backend service that handles bot logic
-	// +kubebuilder:validation:Required
-	// +kubebuilder:validation:Format=uri
-	BackendURL string `json:"backendURL"`
-
-	// WebhookPath is the path for incoming webhooks
-	// +kubebuilder:default="/webhook"
-	WebhookPath string `json:"webhookPath,omitempty"`
-
-	// RateLimit is the maximum messages per minute
-	// +kubebuilder:validation:Minimum=1
-	// +kubebuilder:validation:Maximum=1000
-	// +kubebuilder:default=100
-	RateLimit int `json:"rateLimit,omitempty"`
-
-	// TimeoutSeconds is the request timeout in seconds
-	// +kubebuilder:validation:Minimum=5
-	// +kubebuilder:validation:Maximum=300
-	// +kubebuilder:default=30
-	TimeoutSeconds int `json:"timeoutSeconds,omitempty"`
-}
 
 // CredentialReference defines a reference to credentials
 type CredentialReference struct {

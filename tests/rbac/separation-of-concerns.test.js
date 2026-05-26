@@ -80,7 +80,6 @@ const EXPECTED_RBAC_ROLES = {
       'clusterrolebindings',
       'networkpolicies',
       'secrets',
-      'configmaps',
       'serviceMeshes'
     ],
     forbiddenResources: [
@@ -104,8 +103,7 @@ const EXPECTED_RBAC_ROLES = {
       'botcredentials',
       'deployments',
       'services',
-      'configmaps',
-      'secrets'
+      'configmaps'
     ],
     forbiddenResources: [
       'clusters',
