@@ -21,8 +21,5 @@ module.exports = {
   testEnvironment: "node",
   
   // Verbose output
-  verbose: true,
-  
-  // Show colors in output
-  color: true
+  verbose: true
 };
