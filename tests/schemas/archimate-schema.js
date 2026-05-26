@@ -55,23 +55,44 @@ function validateArchimate(archimateDocument) {
   }
   
   // Check for elements if present
-  if (archimateDocument.elements && !Array.isArray(archimateDocument.elements)) {
-    errors.push({
-      instancePath: '/elements',
-      message: 'elements must be an array',
-      params: { type: 'array' },
-      schemaPath: '#/properties/elements/type'
-    });
+  if (archimateDocument.elements) {
+    if (!Array.isArray(archimateDocument.elements)) {
+      // If elements is not an array, check if it has element children
+      // XML parser might parse <elements><element>...</element></elements> differently
+      if (archimateDocument.elements.element && Array.isArray(archimateDocument.elements.element)) {
+        // elements is an object with element array - this is valid
+      } else if (archimateDocument.elements.element) {
+        // elements is an object with single element - convert to array
+        archimateDocument.elements = [archimateDocument.elements.element];
+      } else {
+        errors.push({
+          instancePath: '/elements',
+          message: 'elements must be an array',
+          params: { type: 'array' },
+          schemaPath: '#/properties/elements/type'
+        });
+      }
+    }
   }
   
   // Check for relationships if present
-  if (archimateDocument.relationships && !Array.isArray(archimateDocument.relationships)) {
-    errors.push({
-      instancePath: '/relationships',
-      message: 'relationships must be an array',
-      params: { type: 'array' },
-      schemaPath: '#/properties/relationships/type'
-    });
+  if (archimateDocument.relationships) {
+    if (!Array.isArray(archimateDocument.relationships)) {
+      // If relationships is not an array, check if it has relationship children
+      if (archimateDocument.relationships.relationship && Array.isArray(archimateDocument.relationships.relationship)) {
+        // relationships is an object with relationship array - this is valid
+      } else if (archimateDocument.relationships.relationship) {
+        // relationships is an object with single relationship - convert to array
+        archimateDocument.relationships = [archimateDocument.relationships.relationship];
+      } else {
+        errors.push({
+          instancePath: '/relationships',
+          message: 'relationships must be an array',
+          params: { type: 'array' },
+          schemaPath: '#/properties/relationships/type'
+        });
+      }
+    }
   }
   
   if (errors.length === 0) {
