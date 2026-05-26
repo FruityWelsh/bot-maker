@@ -42,10 +42,10 @@ function validateArchimate(archimateDocument) {
     const hasField = field in archimateDocument;
     const hasPrefixedField = prefixedField in archimateDocument;
     
-    // Also check if any key contains the field name (for debugging)
-    const hasFieldInKeys = Object.keys(archimateDocument).some(key => key.includes(field));
+    // Check if any key contains the field name
+    const matchingKey = Object.keys(archimateDocument).find(key => key.includes(field));
     
-    if (!hasField && !hasPrefixedField) {
+    if (!hasField && !hasPrefixedField && !matchingKey) {
       errors.push({
         instancePath: '',
         message: `Missing required field: ${field}. Available keys: ${Object.keys(archimateDocument).join(', ')}`,
