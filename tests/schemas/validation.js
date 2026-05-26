@@ -318,7 +318,6 @@ describe('ChatBot Operator Toolchain Validation', () => {
       // Remove required name field to trigger validation error
       // Note: XML parser converts attributes to @_name, @_version
       delete archimateWithInvalidElement['@_name'];
-      delete archimateWithInvalidElement.name;
       
       const result = validateArchimate(archimateWithInvalidElement);
       expect(result.valid).toBe(false);

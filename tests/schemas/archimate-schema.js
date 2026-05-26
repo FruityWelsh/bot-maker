@@ -25,9 +25,10 @@ function validateArchimate(archimateDocument) {
   const errors = [];
   
   for (const field of requiredFields) {
-    // Check for field with or without @_ prefix
+    // XML parser converts attributes to @_name, @_version
+    const prefixedField = `@_${field}`;
     const hasField = field in archimateDocument;
-    const hasPrefixedField = `@_${field}` in archimateDocument;
+    const hasPrefixedField = prefixedField in archimateDocument;
     
     if (!hasField && !hasPrefixedField) {
       errors.push({
