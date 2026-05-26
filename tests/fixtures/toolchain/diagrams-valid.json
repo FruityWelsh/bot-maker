@@ -1,0 +1,32 @@
+{
+  "title": "ChatBot Operator Architecture Diagrams",
+  "version": "1.0.0",
+  "created": "2026-05-25",
+  "author": "Strategy Coder",
+  "references": {
+    "upstream": "../../../strategy/cubejs/metrics.yaml",
+    "downstream": "features/chatbot.feature"
+  },
+  "rendering": {
+    "engine": "react-markdown + gray-matter + Mermaid.js",
+    "safe": true
+  },
+  "diagrams": [
+    {
+      "id": "system_context_diagram",
+      "title": "ChatBot Operator System Context Diagram",
+      "type": "system_context",
+      "description": "Shows the ChatBot Operator in relation to its external dependencies and users",
+      "mermaid_code": "C4Context\n    title ChatBot Operator System Context Diagram\n    Person(user, \"End User\", \"Interacts with chat bots\")",
+      "elements": ["user", "dev", "admin", "chatbotOperator", "kubernetes"],
+      "relationships": [
+        {
+          "source": "user",
+          "target": "chatbotOperator",
+          "type": "uses",
+          "description": "Users interact with the ChatBot Operator"
+        }
+      ]
+    }
+  ]
+}
