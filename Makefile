@@ -212,7 +212,7 @@ test-integration: ## Run integration tests
 .PHONY: test-validation
 test-validation: ## Run Jest/AJV validation tests
 	@echo "🧪 Running Jest/AJV validation tests..."
-	npm test -- tests/schemas/validation.js
+	npx jest tests/schemas/validation.js
 
 .PHONY: test-tools
 test-tools: ## Run tool tests
