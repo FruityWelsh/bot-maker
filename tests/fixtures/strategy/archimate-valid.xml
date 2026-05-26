@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<model xsi:schemaLocation="http://www.archimatetool.com/xsd http://www.archimatetool.com/xsd/archimate3.xsd" xmlns="http://www.archimatetool.com/xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <id>root</id>
+  <name>ChatBot Operator Enterprise Architecture</name>
+  <version>1.0.0</version>
+  <elements>
+    <element xsi:type="archimate:BusinessActor" id="platform-team" name="Platform Engineering Team">
+      <documentation>Responsible for infrastructure setup, RBAC/ABAC backend integration</documentation>
+    </element>
+  </elements>
+  <relationships>
+    <relationship id="platform-assignment" source="platform-team" target="infrastructure-manager">
+      <type>AssignmentRelationship</type>
+    </relationship>
+  </relationships>
+</model>
