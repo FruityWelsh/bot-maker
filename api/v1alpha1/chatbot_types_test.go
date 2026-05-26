@@ -54,17 +54,14 @@ func TestChatBotDefaultValues(t *testing.T) {
 		Spec: ChatBotSpec{
 			Platform: PlatformSlack,
 			Name:     "test-bot",
-			Configuration: BotConfigurationSpec{
-				BackendURL: "https://backend.example.com",
+			Configuration: map[string]string{
+				"backendURL": "https://backend.example.com",
 			},
 		},
 	}
 
 	// Test default values
 	assert.True(t, chatBot.Spec.Enabled) // Default should be true
-	assert.Equal(t, "/webhook", chatBot.Spec.Configuration.WebhookPath) // Default
-	assert.Equal(t, 100, chatBot.Spec.Configuration.RateLimit)         // Default
-	assert.Equal(t, 30, chatBot.Spec.Configuration.TimeoutSeconds)     // Default
 }
 
 // TestChatBotGetChatBotPhase tests GetChatBotPhase method
@@ -411,8 +408,8 @@ func TestChatBotSpecValidation(t *testing.T) {
 			spec: ChatBotSpec{
 				Platform: PlatformSlack,
 				Name:     "valid-bot",
-				Configuration: BotConfigurationSpec{
-					BackendURL: "https://example.com",
+				Configuration: map[string]string{
+					"backendURL": "https://example.com",
 				},
 			},
 			valid:       true,
@@ -423,8 +420,8 @@ func TestChatBotSpecValidation(t *testing.T) {
 			spec: ChatBotSpec{
 				Platform: PlatformType("invalid"),
 				Name:     "test-bot",
-				Configuration: BotConfigurationSpec{
-					BackendURL: "https://example.com",
+				Configuration: map[string]string{
+					"backendURL": "https://example.com",
 				},
 			},
 			valid:       false,
@@ -435,8 +432,8 @@ func TestChatBotSpecValidation(t *testing.T) {
 			spec: ChatBotSpec{
 				Platform: PlatformSlack,
 				Name:     "",
-				Configuration: BotConfigurationSpec{
-					BackendURL: "https://example.com",
+				Configuration: map[string]string{
+					"backendURL": "https://example.com",
 				},
 			},
 			valid:       false,
@@ -447,8 +444,8 @@ func TestChatBotSpecValidation(t *testing.T) {
 			spec: ChatBotSpec{
 				Platform: PlatformSlack,
 				Name:     "Invalid_Name",
-				Configuration: BotConfigurationSpec{
-					BackendURL: "https://example.com",
+				Configuration: map[string]string{
+					"backendURL": "https://example.com",
 				},
 			},
 			valid:       false,
@@ -459,8 +456,8 @@ func TestChatBotSpecValidation(t *testing.T) {
 			spec: ChatBotSpec{
 				Platform: PlatformSlack,
 				Name:     "test-bot",
-				Configuration: BotConfigurationSpec{
-					BackendURL: "",
+				Configuration: map[string]string{
+					"backendURL": "",
 				},
 			},
 			valid:       false,
@@ -471,8 +468,8 @@ func TestChatBotSpecValidation(t *testing.T) {
 			spec: ChatBotSpec{
 				Platform: PlatformSlack,
 				Name:     "test-bot",
-				Configuration: BotConfigurationSpec{
-					BackendURL: "not-a-url",
+				Configuration: map[string]string{
+					"backendURL": "not-a-url",
 				},
 			},
 			valid:       false,
@@ -533,11 +530,11 @@ func TestChatBotWithFullConfiguration(t *testing.T) {
 			Name:     "full-bot",
 			DisplayName: "Full Test Bot",
 			Description:  "A fully configured test bot",
-			Configuration: BotConfigurationSpec{
-				BackendURL:  "https://backend.production.com",
-				WebhookPath: "/api/webhook",
-				RateLimit:   500,
-				TimeoutSeconds: 60,
+			Configuration: map[string]string{
+				"backendURL": "https://backend.production.com",
+				"webhookPath": "/api/webhook",
+				"rateLimit": 500,
+				"timeoutSeconds": 60,
 			},
 			Credentials: CredentialReference{
 				SecretName:      "bot-credentials",
@@ -593,10 +590,10 @@ func TestChatBotWithFullConfiguration(t *testing.T) {
 	assert.Equal(t, PlatformDiscord, chatBot.Spec.Platform)
 	assert.Equal(t, "Full Test Bot", chatBot.Spec.DisplayName)
 	assert.Equal(t, "A fully configured test bot", chatBot.Spec.Description)
-	assert.Equal(t, "https://backend.production.com", chatBot.Spec.Configuration.BackendURL)
-	assert.Equal(t, "/api/webhook", chatBot.Spec.Configuration.WebhookPath)
-	assert.Equal(t, 500, chatBot.Spec.Configuration.RateLimit)
-	assert.Equal(t, 60, chatBot.Spec.Configuration.TimeoutSeconds)
+	assert.Equal(t, "https://backend.production.com", chatBot.Spec.Configuration["backendURL"])
+	assert.Equal(t, "/api/webhook", chatBot.Spec.Configuration["webhookPath"])
+	assert.Equal(t, 500, chatBot.Spec.Configuration["rateLimit"])
+	assert.Equal(t, 60, chatBot.Spec.Configuration["timeoutSeconds"])
 	assert.True(t, chatBot.Spec.Enabled)
 	assert.NotNil(t, chatBot.Spec.TLS)
 	assert.True(t, chatBot.Spec.TLS.Enabled)
@@ -625,8 +622,8 @@ func TestChatBotDeepCopy(t *testing.T) {
 		Spec: ChatBotSpec{
 			Platform: PlatformSlack,
 			Name:     "original",
-			Configuration: BotConfigurationSpec{
-				BackendURL: "https://example.com",
+			Configuration: map[string]string{
+				"backendURL": "https://example.com",
 			},
 		},
 		Status: ChatBotStatus{
