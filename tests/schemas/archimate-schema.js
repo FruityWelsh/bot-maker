@@ -20,11 +20,13 @@ const ajv = new Ajv({
  */
 function validateArchimate(archimateDocument) {
   // Basic validation - check required fields
+  // Note: XML parser with attributeNamePrefix: "@_" converts attributes to @_name, @_version
   const requiredFields = ['name', 'version'];
   const errors = [];
   
   for (const field of requiredFields) {
-    if (!(field in archimateDocument)) {
+    const actualField = field in archimateDocument ? field : `@_${field}`;
+    if (!(actualField in archimateDocument)) {
       errors.push({
         instancePath: '',
         message: `Missing required field: ${field}`,
