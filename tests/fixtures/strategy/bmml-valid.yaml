@@ -1,4 +1,4 @@
-version: "1.0.0-dev"
+version: "1.0.0"
 name: "ChatBot Operator Value Proposition"
 created: "2026-05-26"
 author: "Strategy Coder"
@@ -30,21 +30,21 @@ business_motivation:
       success_metrics:
         - "Number of supported CI/CD platforms"
 
-  value_propositions:
-    - id: "VP001"
-      name: "ChatBot Operator"
-      description: "Kubernetes-native chat bot management"
-      value_statement: "Automated bot lifecycle management with Kubernetes-native approach"
-      target_stakeholders:
-        - "Platform Engineering Teams"
-        - "AppDev Teams"
+value_propositions:
+  - id: "VP001"
+    name: "ChatBot Operator"
+    description: "Kubernetes-native chat bot management"
+    value_statement: "Automated bot lifecycle management with Kubernetes-native approach"
+    target_stakeholders:
+      - "Platform Engineering Teams"
+      - "AppDev Teams"
 
-  stakeholders:
-    - id: "S001"
-      name: "Platform Engineering Team"
-      description: "Responsible for infrastructure setup"
-      category: "internal"
-      responsibilities:
-        - "Kubernetes cluster management"
-        - "RBAC/ABAC configuration"
-        - "Service mesh setup"
+stakeholders:
+  - id: "S001"
+    name: "Platform Engineering Team"
+    description: "Responsible for infrastructure setup"
+    category: "internal"
+    responsibilities:
+      - "Kubernetes cluster management"
+      - "RBAC/ABAC configuration"
+      - "Service mesh setup"
