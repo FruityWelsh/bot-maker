@@ -1,11 +1,17 @@
 {
   "title": "ChatBot Operator Architecture Decisions",
   "version": "1.0.0",
+  "created": "2026-05-25",
+  "author": "Strategy Coder",
+  "references": {
+    "upstream": "../../../strategy/bmml/value-proposition.yaml",
+    "downstream": "../../../strategy/cubejs/metrics.yaml"
+  },
   "decisions": [
     {
       "id": "ADR-001",
       "status": "Accepted",
-      "date": "Generated from Git commit date",
+      "date": "2026-05-25",
       "context": "Need to manage chat bot lifecycles as Kubernetes resources",
       "decision": "Implement as Kubernetes Operator using Kubebuilder framework",
       "consequences": [
