@@ -588,9 +588,9 @@ describe('ChatBot Operator Business Rule Validation', () => {
     const valuePropositions = fixtures.strategy.validBmml.business_motivation.value_propositions;
     
     valuePropositions.forEach(vp => {
-      expect(vp.target_customers).toBeDefined();
-      expect(Array.isArray(vp.target_customers)).toBe(true);
-      expect(vp.target_customers.length).toBeGreaterThan(0);
+      expect(vp.target_stakeholders).toBeDefined();
+      expect(Array.isArray(vp.target_stakeholders)).toBe(true);
+      expect(vp.target_stakeholders.length).toBeGreaterThan(0);
     });
   });
 
@@ -599,9 +599,9 @@ describe('ChatBot Operator Business Rule Validation', () => {
     const stakeholders = fixtures.strategy.validBmml.business_motivation.stakeholders;
     
     stakeholders.forEach(stakeholder => {
-      expect(stakeholder.requirements).toBeDefined();
-      expect(Array.isArray(stakeholder.requirements)).toBe(true);
-      expect(stakeholder.requirements.length).toBeGreaterThan(0);
+      expect(stakeholder.responsibilities).toBeDefined();
+      expect(Array.isArray(stakeholder.responsibilities)).toBe(true);
+      expect(stakeholder.responsibilities.length).toBeGreaterThan(0);
     });
   });
 });
