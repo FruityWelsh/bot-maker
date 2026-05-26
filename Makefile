@@ -116,28 +116,36 @@ GOLANGCI_LINT_BIN ?= $(BINARY_DIR)/golangci-lint
 golangci-lint: ## Install golangci-lint
 	@echo "📦 Installing golangci-lint..."
 	@mkdir -p $(BINARY_DIR)
-	curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(BINARY_DIR) $(GOLANGCI_LINT_VERSION)
+	@if [ ! -f "$(BINARY_DIR)/golangci-lint" ]; then \
+		curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(BINARY_DIR) $(GOLANGCI_LINT_VERSION); \
+	fi
 
 .PHONY: godog
 GODOG_BIN ?= $(BINARY_DIR)/godog
 godog: ## Install Godog
 	@echo "📦 Installing Godog..."
 	@mkdir -p $(BINARY_DIR)
-	GO111MODULE=on go install github.com/cucumber/godog/cmd/godog@$(GODOG_VERSION)
-	@cp $(shell go env GOPATH)/bin/godog $(GODOG_BIN)
+	@if [ ! -f "$(GODOG_BIN)" ]; then \
+		GO111MODULE=on go install github.com/cucumber/godog/cmd/godog@$(GODOG_VERSION); \
+		cp $(shell go env GOPATH)/bin/godog $(GODOG_BIN); \
+	fi
 
 .PHONY: kubebuilder
 kubebuilder: ## Install Kubebuilder
 	@echo "📦 Installing Kubebuilder..."
-	curl -L -o kubebuilder https://go.kubebuilder.io/dl/$(KUBEBUILDER_VERSION)/linux/amd64
-	chmod +x kubebuilder
-	mv kubebuilder $(BINARY_DIR)/
+	@if [ ! -f "$(BINARY_DIR)/kubebuilder" ]; then \
+		curl -L -o kubebuilder https://go.kubebuilder.io/dl/$(KUBEBUILDER_VERSION)/linux/amd64; \
+		chmod +x kubebuilder; \
+		mv kubebuilder $(BINARY_DIR)/; \
+	fi
 
 .PHONY: kustomize
 kustomize: ## Install Kustomize
 	@echo "📦 Installing Kustomize..."
 	@mkdir -p $(BINARY_DIR)
-	curl -s "https://raw.githubusercontent.com/kubernetes-sigs/kustomize/master/hack/install_kustomize.sh" | bash -s $(BINARY_DIR)
+	@if [ ! -f "$(BINARY_DIR)/kustomize" ]; then \
+		curl -s "https://raw.githubusercontent.com/kubernetes-sigs/kustomize/master/hack/install_kustomize.sh" | bash -s $(BINARY_DIR); \
+	fi
 
 # ============================================================================
 # LINTING TARGETS
