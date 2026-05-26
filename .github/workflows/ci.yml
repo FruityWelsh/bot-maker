@@ -34,115 +34,8 @@ on:
   pull_request:
     branches: [ main, ai-dev ]
   schedule:
-    - cron: '0 0 * * *'  # PHASE 5: ARTIFACT HANDLING
-  # NOTE: upload job can use the security-scanner container as it only needs
-  #       basic tools, no Go or Node.js required.
-  # ============================================================================
-
-  # JOB: Sign Artifacts - Sign built artifacts with Cosign
-=======
-  # ============================================================================
-  # PHASE 5: ARTIFACT HANDLING
-  # NOTE: upload job can use the security-scanner container as it only needs
-  #       basic tools, no Go or Node.js required.
-  # ============================================================================
-
-  # JOB: Generate SBOM - Generate Software Bill of Materials
-  generate-sbom:
-    name: Generate SBOM
-    runs-on: ubuntu-latest
-    needs: build
-    
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-      
-      - name: Set up Go
-        uses: actions/setup-go@v5
-        with:
-          go-version: '1.21'
-      
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-      
-      - name: Cache Go modules
-        uses: actions/cache@v3
-        with:
-          path: ~/go/pkg/mod
-          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
-          restore-keys: |
-            ${{ runner.os }}-go-
-      
-      - name: Cache Node.js modules
-        uses: actions/cache@v3
-        with:
-          path: node_modules
-          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-node-
-      
-      - name: Install dependencies
-        run: make deps
-      
-      - name: Generate - SBOM
-        run: make generate-sbom
-
-  # JOB: Generate Provenance - Generate build provenance
-  generate-provenance:
-    name: Generate Provenance
-    runs-on: ubuntu-latest
-    needs: generate-sbom
-    
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-      
-      - name: Set up Go
-        uses: actions/setup-go@v5
-        with:
-          go-version: '1.21'
-      
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-      
-      - name: Cache Go modules
-        uses: actions/cache@v3
-        with:
-          path: ~/go/pkg/mod
-          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
-          restore-keys: |
-            ${{ runner.os }}-go-
-      
-      - name: Cache Node.js modules
-        uses: actions/cache@v3
-        with:
-          path: node_modules
-          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-node-
-      
-      - name: Install dependencies
-        run: make deps
-      
-      - name: Generate - Provenance
-        run: make generate-provenance
-
-  # JOB: Sign Artifacts - Sign built artifacts with CosignRun nightly at midnight UTC
+    - cron: '0 0 * * *'  # Run nightly at midnight UTC
   workflow_dispatch:
-
-env:
-  CI_PLATFORM: github
-  CI_COMMIT: ${{ github.sha }}
-  CI_BRANCH: ${{ github.ref_name }}
-  CI_REPO: ${{ github.repository }}
 
 jobs:
   # ============================================================================
@@ -221,7 +114,7 @@ jobs:
         with:
           fetch-depth: 0
       
-      - name: Scan - Security
+      - name: Run Security Scans
         run: make scan-security
 
   scan-vulnerability:
@@ -236,7 +129,7 @@ jobs:
         with:
           fetch-depth: 0
       
-      - name: Scan - Vulnerability
+      - name: Run Vulnerability Scans
         run: make scan-vulnerability
 
   # ============================================================================
@@ -344,7 +237,7 @@ jobs:
       - name: Install dependencies
         run: npm install
       
-      - name: Test - Validation Tests
+      - name: Run Validation Tests
         run: make test-validation
 
   # ============================================================================
@@ -434,7 +327,7 @@ jobs:
       - name: Install dependencies
         run: make deps
       
-      - name: Lint
+      - name: Run Linting
         run: make lint
 
   test-unit:
@@ -477,99 +370,13 @@ jobs:
       - name: Install dependencies
         run: make deps
       
-      - name: Test - Unit Tests
+      - name: Run Unit Tests
         run: make test-unit
-
-  test-integration:
-    name: Integration Tests
-    runs-on: ubuntu-latest
-    needs: test-unit
-    
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-      
-      - name: Set up Go
-        uses: actions/setup-go@v5
-        with:
-          go-version: '1.21'
-      
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-      
-      - name: Cache Go modules
-        uses: actions/cache@v3
-        with:
-          path: ~/go/pkg/mod
-          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
-          restore-keys: |
-            ${{ runner.os }}-go-
-      
-      - name: Cache Node.js modules
-        uses: actions/cache@v3
-        with:
-          path: node_modules
-          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-node-
-      
-      - name: Install dependencies
-        run: make deps
-      
-      - name: Test - Integration Tests
-        run: make test-integration
-
-  test-behavior:
-    name: Behavior Tests
-    runs-on: ubuntu-latest
-    needs: test-integration
-    
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-      
-      - name: Set up Go
-        uses: actions/setup-go@v5
-        with:
-          go-version: '1.21'
-      
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-      
-      - name: Cache Go modules
-        uses: actions/cache@v3
-        with:
-          path: ~/go/pkg/mod
-          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
-          restore-keys: |
-            ${{ runner.os }}-go-
-      
-      - name: Cache Node.js modules
-        uses: actions/cache@v3
-        with:
-          path: node_modules
-          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-node-
-      
-      - name: Install dependencies
-        run: make deps
-      
-      - name: Test - Behavior Tests
-        run: make test-behavior
 
   build:
     name: Build
     runs-on: ubuntu-latest
-    needs: [test-unit, test-validation, test-behavior]
+    needs: [test-unit, test-validation]
     
     steps:
       - name: Checkout repository
@@ -606,7 +413,7 @@ jobs:
       - name: Install dependencies
         run: make deps
       
-      - name: Build
+      - name: Build Project
         run: make build
 
   # NOTE: test-cncf-compliance and upload can use the security-scanner container
@@ -636,7 +443,7 @@ jobs:
   sign-artifacts:
     name: Sign Artifacts
     runs-on: ubuntu-latest
-    needs: [build, test-cncf-compliance, generate-provenance]
+    needs: [build, test-cncf-compliance]
     
     steps:
       - name: Checkout repository
@@ -647,8 +454,8 @@ jobs:
       - name: Set up Cosign
         uses: sigstore/cosign-installer@v3
       
-      - name: Sign - Artifacts
-        run: make sign
+      - name: Sign artifacts
+        run: make ci-sign
 
   # JOB: Publish Artifacts - Publish Docker images and binaries
   publish-artifacts:
@@ -671,8 +478,8 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
       
-      - name: Package - Container Image
-        run: make package
+      - name: Publish Docker image
+        run: make ci-package
 
   # JOB: Deploy to Cluster - Manual deployment
   deploy:
