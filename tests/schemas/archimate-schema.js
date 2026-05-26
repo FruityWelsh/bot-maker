@@ -21,8 +21,7 @@ const ajv = new Ajv({
 function validateArchimate(archimateDocument) {
   // Basic validation - check required fields
   // Note: XML parser with attributeNamePrefix: "@_" converts attributes to @_name, @_version
-  // Also check for id field which should be present
-  const requiredFields = ['name', 'version', 'id'];
+  const requiredFields = ['name', 'version'];
   const errors = [];
   
   // Check if document has any properties at all
