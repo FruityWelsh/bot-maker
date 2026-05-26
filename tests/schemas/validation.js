@@ -290,7 +290,7 @@ describe('ChatBot Operator Toolchain Validation', () => {
 
     test('should validate strategy goals', () => {
       const strategyWithInvalidGoal = { ...fixtures.strategy.validOmen };
-      strategyWithInvalidGoal.goals[0].priority = 'invalid-priority';
+      strategyWithInvalidGoal.goals.application_goals[0].priority = 'invalid-priority';
       
       const result = validateStrategy(strategyWithInvalidGoal);
       expect(result.valid).toBe(false);
@@ -315,10 +315,14 @@ describe('ChatBot Operator Toolchain Validation', () => {
 
     test('should validate ArchiMate element types', () => {
       const archimateWithInvalidElement = { ...fixtures.strategy.validArchimate };
-      archimateWithInvalidElement.elements[0].type = 'InvalidType';
+      // Remove required name field to trigger validation error
+      delete archimateWithInvalidElement.name;
       
       const result = validateArchimate(archimateWithInvalidElement);
       expect(result.valid).toBe(false);
+      expect(result.errors).toContainEqual(expect.objectContaining({
+        message: expect.stringContaining('name')
+      }));
     });
   });
 
@@ -340,7 +344,7 @@ describe('ChatBot Operator Toolchain Validation', () => {
 
     test('should validate BMML goal priorities', () => {
       const bmmlWithInvalidPriority = { ...fixtures.strategy.validBmml };
-      bmmlWithInvalidPriority.business_motivation.goals[0].priority = 'invalid';
+      bmmlWithInvalidPriority.business_motivation.application_goals[0].priority = 'invalid';
       
       const result = validateBmml(bmmlWithInvalidPriority);
       expect(result.valid).toBe(false);
@@ -567,9 +571,11 @@ describe('ChatBot Operator Cross-Reference Validation', () => {
 describe('ChatBot Operator Business Rule Validation', () => {
   test('should validate that all goals have success criteria', () => {
     // References: ../docs/strategy/bmml/value-proposition.yaml - goals section
-    const goals = fixtures.strategy.validBmml.business_motivation.goals;
+    const appGoals = fixtures.strategy.validBmml.business_motivation.application_goals;
+    const devGoals = fixtures.strategy.validBmml.business_motivation.developer_environment_goals;
+    const allGoals = [...appGoals, ...devGoals];
     
-    goals.forEach(goal => {
+    allGoals.forEach(goal => {
       expect(goal.success_metrics).toBeDefined();
       expect(Array.isArray(goal.success_metrics)).toBe(true);
       expect(goal.success_metrics.length).toBeGreaterThan(0);
