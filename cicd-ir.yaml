@@ -1,0 +1,457 @@
+# CI/CD Intermediate Representation (IR)
+# =====================================
+# This document defines the high-level CI/CD pipeline structure for bot-maker
+# It serves as a single source of truth to generate platform-specific CI/CD configs
+# that wrap Make targets defined in the project's Makefile.
+#
+# Golden Image: GitHub Actions workflow at .github/workflows/ci.yml
+# Strategy: Platform-agnostic CI/CD as per ADR-007 and ADR-016
+# References:
+#   - docs/strategy/omen/strategy.json (Developer Goal DG002 - Formal Verification)
+#   - docs/contributors/adr/architecture-decisions.md
+#   - docs/contributors/adr/ADR-020-strategy-first-code-second.md
+#   - docs/strategy/STRATEGY.md Core Principles: Strategy First, Code Second
+#   - docs/devx/IMPLEMENTATION_PLAN.md Implementation guidance
+#
+# IMPORTANT: This IR defines the CI/CD structure only. All actual build/test logic
+# is in the Makefile. The generated CI configs are thin wrappers that invoke Make targets.
+
+---
+# Pipeline Metadata
+pipeline:
+  name: "ChatBot Operator CI"
+  description: |
+    Platform-agnostic CI/CD pipeline for ChatBot Operator.
+    Implements Strategy First, Code Second approach.
+    
+    ALL LOGIC IS IN THE MAKEFILE.
+    This pipeline is a thin wrapper that invokes Make targets.
+    See Makefile for actual implementation.
+  version: "2026-05-26"
+  author: "FruityWelsh"
+  references:
+    - "docs/strategy/omen/strategy.json Developer Goal DG002 - Formal Verification"
+    - "docs/contributors/adr/architecture-decisions.md"
+    - "docs/contributors/adr/ADR-020-strategy-first-code-second.md"
+    - "docs/strategy/STRATEGY.md Core Principles"
+    - "docs/devx/IMPLEMENTATION_PLAN.md"
+
+---
+# Global Configuration
+config:
+  # Repository settings
+  repo_owner: "FruityWelsh"
+  repo_name: "bot-maker"
+  
+  # Container registry
+  registry: "ghcr.io"
+  image_repo: "chatbot-operator"
+  security_scanner_image: "ghcr.io/fruitywelsh/security-scanner:latest"
+  
+  # Language/runtime versions
+  go_version: "1.21"
+  node_version: "20"
+  alpine_version: "latest"
+
+---
+# Triggers/Events
+# These define when the pipeline runs on each platform
+triggers:
+  push:
+    branches: ["main", "ai-dev", "vibe/*"]
+  pull_request:
+    branches: ["main", "ai-dev"]
+  schedule:
+    - cron: "0 0 * * *"  # Run nightly at midnight UTC
+  manual:
+    enabled: true
+
+---
+# Pipeline Phases
+# Each phase contains jobs that run in parallel within that phase.
+# Phases execute sequentially with explicit dependencies.
+# ALL JOBS INVOKE MAKE TARGETS - no logic here, just orchestration.
+phases:
+  - id: phase-0
+    name: "Build Security Scanner Container"
+    description: |
+      Build and publish the security scanner container.
+      MUST complete first so all other jobs can use it.
+      Invokes: make build-security-container
+    priority: 0
+    hard_block: true
+    jobs:
+      - build-security-container
+    
+  - id: phase-1
+    name: "Data Loss Prevention (DLP) and Security"
+    description: |
+      Run security checks FIRST to prevent data loss and detect issues early.
+      These jobs are REQUIRED and HARD BLOCK - no bypass allowed.
+      All jobs use the pre-built security scanner container.
+      Invokes: make scan-secrets, make scan-security, make scan-vulnerability
+    priority: 1
+    hard_block: true
+    needs: ["phase-0"]
+    jobs:
+      - scan-secrets
+      - scan-security
+      - scan-vulnerability
+    
+  - id: phase-2
+    name: "DLP Tests"
+    description: |
+      Tests that validate the scan jobs themselves.
+      These jobs REQUIRE all Phase 1 (DLP) jobs to pass first - HARD BLOCK.
+      Invokes: make test-tools
+    priority: 2
+    hard_block: true
+    needs: ["phase-1"]
+    jobs:
+      - test-tools
+    
+  - id: phase-3
+    name: "Validation"
+    description: |
+      Strategy-to-BDD Stack and DevX Tools validation.
+      These jobs REQUIRE both Phase 1 (DLP) jobs AND Phase 2 (DLP Tests) to pass first - HARD BLOCK.
+      Invokes: make validate-strategy, make validate-toolchain, make validate-dates, make test-validation
+    priority: 3
+    hard_block: true
+    needs: ["phase-1", "phase-2"]
+    jobs:
+      - validate-strategy
+      - validate-toolchain
+      - validate-dates
+      - test-validation
+    
+  - id: phase-4
+    name: "Execution"
+    description: |
+      DevX Tools act on validated application code.
+      Only run after all security, DLP tests, and validation checks pass - HARD BLOCK.
+      Invokes: make setup, make lint, make test-unit, make build
+    priority: 4
+    hard_block: true
+    needs: ["phase-1", "phase-2", "phase-3"]
+    jobs:
+      - setup
+      - lint
+      - test-unit
+      - build
+    
+  - id: phase-5
+    name: "Artifact Handling"
+    description: |
+      Sign, package, and deploy artifacts.
+      Invokes: make test-cncf-compliance, make ci-sign, make ci-package, make ci-deploy
+    priority: 5
+    needs: ["phase-4"]
+    jobs:
+      - test-cncf-compliance
+      - sign-artifacts
+      - publish-artifacts
+      - deploy
+      - upload
+
+---
+# Job Definitions
+# Each job is a thin wrapper that invokes a Make target.
+# ALL LOGIC IS IN THE MAKEFILE - these are just orchestration wrappers.
+jobs:
+  # Phase 0: Build Security Scanner Container
+  build-security-container:
+    name: "Build Security Scanner Container"
+    description: "Build and push security scanner container (ALL LOGIC IN MAKEFILE: make build-security-container)"
+    phase: phase-0
+    make_target: "build-security-container"
+    container: null  # Runs on host, builds container
+    
+  # Phase 1: DLP and Security
+  scan-secrets:
+    name: "Secret Scanning (DLP)"
+    description: "Run secret scanning (ALL LOGIC IN MAKEFILE: make scan-secrets)"
+    phase: phase-1
+    make_target: "scan-secrets"
+    container: "${{ config.security_scanner_image }}"
+    
+  scan-security:
+    name: "Security Scanning"
+    description: "Run comprehensive security scans (ALL LOGIC IN MAKEFILE: make scan-security)"
+    phase: phase-1
+    make_target: "scan-security"
+    container: "${{ config.security_scanner_image }}"
+    
+  scan-vulnerability:
+    name: "Vulnerability Scanning"
+    description: "Scan for vulnerabilities (ALL LOGIC IN MAKEFILE: make scan-vulnerability)"
+    phase: phase-1
+    make_target: "scan-vulnerability"
+    container: "${{ config.security_scanner_image }}"
+    
+  # Phase 2: DLP Tests
+  test-tools:
+    name: "DevX Tool Tests"
+    description: "Validate scan jobs (ALL LOGIC IN MAKEFILE: make test-tools)"
+    phase: phase-2
+    make_target: "test-tools"
+    container: "${{ config.security_scanner_image }}"
+    
+  # Phase 3: Validation
+  validate-strategy:
+    name: "Strategy Chain Validation"
+    description: "Validate strategy chain (ALL LOGIC IN MAKEFILE: make test-strategy-chain)"
+    phase: phase-3
+    make_target: "test-strategy-chain"
+    container: "${{ config.security_scanner_image }}"
+    
+  validate-toolchain:
+    name: "Toolchain Validation"
+    description: "Validate toolchain (ALL LOGIC IN MAKEFILE: make test-toolchain)"
+    phase: phase-3
+    make_target: "test-toolchain"
+    container: "${{ config.security_scanner_image }}"
+    
+  validate-dates:
+    name: "Date Validation"
+    description: "Validate date references (ALL LOGIC IN MAKEFILE: make test-dates)"
+    phase: phase-3
+    make_target: "test-dates"
+    container: "${{ config.security_scanner_image }}"
+    
+  test-validation:
+    name: "Validation Tests"
+    description: "Run validation tests (ALL LOGIC IN MAKEFILE: make test-validation)"
+    phase: phase-3
+    make_target: "test-validation"
+    container: null  # Requires Node.js, not in security container
+    
+  # Phase 4: Execution
+  setup:
+    name: "Setup Environment"
+    description: "Install dependencies (ALL LOGIC IN MAKEFILE: make deps)"
+    phase: phase-4
+    make_target: "deps"
+    container: null  # Requires Go and Node.js
+    
+  lint:
+    name: "Linting"
+    description: "Run all linting checks (ALL LOGIC IN MAKEFILE: make ci-lint)"
+    phase: phase-4
+    needs: ["setup"]
+    make_target: "ci-lint"
+    container: null
+    
+  test-unit:
+    name: "Unit Tests"
+    description: "Run unit tests (ALL LOGIC IN MAKEFILE: make test-unit)"
+    phase: phase-4
+    needs: ["lint"]
+    make_target: "test-unit"
+    container: null
+    
+  build:
+    name: "Build"
+    description: "Build the application (ALL LOGIC IN MAKEFILE: make build)"
+    phase: phase-4
+    needs: ["test-unit", "test-validation"]
+    make_target: "build"
+    container: null
+    
+  # Phase 5: Artifact Handling
+  test-cncf-compliance:
+    name: "CNCF Compliance"
+    description: "Validate CNCF compliance (ALL LOGIC IN MAKEFILE: make test-cncf-compliance)"
+    phase: phase-5
+    needs: ["build"]
+    make_target: "test-cncf-compliance"
+    container: "${{ config.security_scanner_image }}"
+    
+  sign-artifacts:
+    name: "Sign Artifacts"
+    description: "Sign built artifacts (ALL LOGIC IN MAKEFILE: make ci-sign)"
+    phase: phase-5
+    needs: ["build", "test-cncf-compliance"]
+    make_target: "ci-sign"
+    container: null
+    
+  publish-artifacts:
+    name: "Publish Artifacts"
+    description: "Publish Docker images (ALL LOGIC IN MAKEFILE: make ci-package)"
+    phase: phase-5
+    needs: ["sign-artifacts"]
+    make_target: "ci-package"
+    container: null
+    
+  deploy:
+    name: "Deploy to Cluster"
+    description: "Deploy to production (ALL LOGIC IN MAKEFILE: make ci-deploy)"
+    phase: phase-5
+    needs: ["publish-artifacts"]
+    make_target: "ci-deploy"
+    manual: true
+    if: "github.ref == 'refs/heads/main'"
+    environment:
+      name: "production"
+      url: "https://your-cluster.example.com"
+    container: null
+    
+  upload:
+    name: "Upload Artifacts"
+    description: "Upload artifacts for inspection (ALWAYS RUNS)"
+    phase: phase-5
+    needs: ["sign-artifacts", "test-cncf-compliance"]
+    if: "always()"
+    make_target: null  # No make target - just uploads files
+    container: "${{ config.security_scanner_image }}"
+
+---
+# Platform-Specific Configuration
+# These define how to map the IR to each platform's syntax
+platforms:
+  github:
+    # GitHub-specific settings
+    runs_on: "ubuntu-latest"
+    permissions:
+      build-security-container:
+        contents: "read"
+        packages: "write"
+    
+    # Special actions for GitHub
+    actions:
+      checkout: "actions/checkout@v4"
+      setup-go: "actions/setup-go@v5"
+      setup-node: "actions/setup-node@v4"
+      setup-buildx: "docker/setup-buildx-action@v3"
+      login: "docker/login-action@v3"
+      build-push: "docker/build-push-action@v5"
+      setup-cosign: "sigstore/cosign-installer@v3"
+      setup-kubectl: "azure/setup-kubectl@v3"
+      cache: "actions/cache@v3"
+      upload-artifact: "actions/upload-artifact@v4"
+    
+    # Environment variables
+    environment:
+      CI_PLATFORM: "github"
+      CI_COMMIT: "${{ github.sha }}"
+      CI_BRANCH: "${{ github.ref_name }}"
+      CI_REPO: "${{ github.repository }}"
+      CI_PIPELINE_ID: "${{ github.run_id }}"
+      CI_JOB_ID: "${{ github.run_number }}"
+    
+    # Cache keys
+    cache:
+      go: "${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}"
+      node: "${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}"
+    
+    # Artifacts
+    artifacts:
+      name: "ci-artifacts"
+      path: "dist/ coverage/ reports/ *.sbom *.sig *.attestation"
+
+  gitlab:
+    # GitLab-specific settings
+    image: "alpine:latest"
+    
+    # Stages map to phases
+    stages:
+      phase-0: "setup"
+      phase-1: "scan"
+      phase-2: "test"
+      phase-3: "validate"
+      phase-4: "build"
+      phase-5: "deploy"
+    
+    # Environment variables
+    environment:
+      CI_PLATFORM: "gitlab"
+      CI_COMMIT: "$CI_COMMIT_SHA"
+      CI_BRANCH: "$CI_COMMIT_REF_NAME"
+      CI_REPO: "$CI_PROJECT_PATH"
+      CI_PIPELINE_ID: "$CI_PIPELINE_ID"
+      CI_JOB_ID: "$CI_JOB_ID"
+    
+    # Cache configuration
+    cache:
+      key: "${CI_COMMIT_REF_SLUG}"
+      paths:
+        - "vendor/"
+        - "node_modules/"
+        - "bin/"
+        - ".cache/"
+    
+    # Artifacts
+    artifacts:
+      expire_in: "1 hour"
+
+  tekton:
+    # Tekton-specific settings
+    api_version: "tekton.dev/v1"
+    
+    # Workspaces
+    workspaces:
+      - name: "source"
+        description: "Source code workspace"
+      - name: "artifacts"
+        description: "Build artifacts workspace"
+    
+    # Parameters
+    params:
+      - name: "git-url"
+        type: "string"
+        description: "Git repository URL"
+        default: "https://github.com/FruityWelsh/bot-maker.git"
+      - name: "git-revision"
+        type: "string"
+        description: "Git commit SHA"
+        default: "main"
+      - name: "image-registry"
+        type: "string"
+        description: "Container registry"
+        default: "ghcr.io"
+      - name: "image-repo"
+        type: "string"
+        description: "Container repository"
+        default: "chatbot-operator"
+    
+    # Environment variables
+    environment:
+      CI_PLATFORM: "tekton"
+      CI_COMMIT: "$(params.git-revision)"
+      CI_BRANCH: "$(params.git-revision)"
+      CI_REPO: "$(params.git-url)"
+
+---
+# Make Target Dependencies
+# Defines which Make targets need to be run before others
+# This is separate from the job dependencies above
+make_dependencies:
+  # Phase 0
+  build-security-container: []
+  
+  # Phase 1
+  scan-secrets: ["build-security-container"]
+  scan-security: ["build-security-container"]
+  scan-vulnerability: ["build-security-container"]
+  
+  # Phase 2
+  test-tools: ["scan-secrets", "scan-security", "scan-vulnerability"]
+  
+  # Phase 3
+  validate-strategy: ["scan-secrets", "scan-security", "scan-vulnerability", "test-tools"]
+  validate-toolchain: ["scan-secrets", "scan-security", "scan-vulnerability", "test-tools"]
+  validate-dates: ["scan-secrets", "scan-security", "scan-vulnerability", "test-tools"]
+  test-validation: ["validate-strategy", "validate-toolchain", "validate-dates"]
+  
+  # Phase 4
+  setup: ["scan-secrets", "scan-security", "scan-vulnerability", "test-tools", "validate-strategy", "validate-toolchain", "validate-dates"]
+  lint: ["setup"]
+  test-unit: ["lint"]
+  build: ["test-unit", "test-validation"]
+  
+  # Phase 5
+  test-cncf-compliance: ["build"]
+  sign-artifacts: ["build", "test-cncf-compliance"]
+  publish-artifacts: ["sign-artifacts"]
+  deploy: ["publish-artifacts"]
+  upload: ["sign-artifacts", "test-cncf-compliance"]
