@@ -1,6 +1,6 @@
 version: "1.0.0"
 name: "ChatBot Operator Value Proposition"
-created: "2026-05-25"
+created: "2026-05-26"
 author: "Strategy Coder"
 references:
   upstream: "../../../contributors/archimate/enterprise-architecture.xml"
@@ -10,7 +10,7 @@ business_motivation:
   vision: "Kubernetes-native chat bot management with automated provisioning and lifecycle management"
   mission: "Enable Platform Engineering teams to manage chat bot lifecycles as Kubernetes resources"
   
-  goals:
+  application_goals:
     - id: "G001"
       name: "Kubernetes CRD Development"
       description: "Build Kubernetes CRDs for chat bot management"
@@ -21,13 +21,22 @@ business_motivation:
         - "CRD adoption rate"
         - "Time to provision new bot instances"
   
+  developer_environment_goals:
+    - id: "DG001"
+      name: "Platform-agnostic CI/CD"
+      description: "Platform-agnostic CI/CD with open-source tools"
+      priority: "medium"
+      business_value: "Works across multiple CI/CD platforms"
+      success_metrics:
+        - "Number of supported CI/CD platforms"
+
   value_propositions:
     - name: "ChatBot Operator"
       description: "Kubernetes-native chat bot management"
       target_customers:
         - "Platform Engineering Teams"
         - "AppDev Teams"
-  
+
   stakeholders:
     - name: "Platform Engineering Team"
       description: "Responsible for infrastructure setup"

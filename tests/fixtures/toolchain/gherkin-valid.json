@@ -4,7 +4,7 @@
   "created": "2026-05-25",
   "references": {
     "upstream": "../../../contributors/diagrams.md",
-    "downstream": ["tests/schemas/validation.js", "tests/tools/"]
+    "downstream": "tests/schemas/validation.js"
   },
   "feature": {
     "title": "ChatBot Operator Lifecycle Management",

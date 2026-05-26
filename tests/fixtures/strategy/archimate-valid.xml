@@ -7,6 +7,9 @@
     <element xsi:type="archimate:BusinessActor" id="platform-team" name="Platform Engineering Team">
       <documentation>Responsible for infrastructure setup, RBAC/ABAC backend integration</documentation>
     </element>
+    <element xsi:type="archimate:BusinessRole" id="infrastructure-manager" name="Infrastructure Manager">
+      <documentation>Manages infrastructure components</documentation>
+    </element>
   </elements>
   <relationships>
     <relationship id="platform-assignment" source="platform-team" target="infrastructure-manager">

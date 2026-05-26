@@ -245,7 +245,7 @@ describe('ChatBot Operator CRD Validation', () => {
       expect(result.valid).toBe(false);
       expect(result.errors).toContainEqual(expect.objectContaining({
         instancePath: '/spec/expiresAt',
-        message: expect.stringContaining('must match format "date-time"')
+        message: expect.stringContaining('must match format "date"')
       }));
     });
 

@@ -2,17 +2,123 @@
   "metadata": {
     "name": "chatbot-operator-strategy",
     "version": "1.0.0",
-    "description": "Strategy definition for Kubernetes-native chat bot management"
+    "description": "Strategy definition for Kubernetes-native chat bot management",
+    "created": "2026-05-26",
+    "author": "Strategy Coder",
+    "references": {
+      "upstream": null,
+      "downstream": ["../../../contributors/archimate/enterprise-architecture.xml"]
+    }
   },
   "vision": {
     "statement": "Enable Platform Engineering teams to manage chat bot lifecycles as Kubernetes resources",
-    "targetAudience": ["Platform Engineers", "AppDev Teams", "Security Teams"]
+    "targetAudience": ["Platform Engineers", "AppDev Teams", "Security Teams"],
+    "valueProposition": "Kubernetes-native chat bot management with automated provisioning and lifecycle management"
   },
-  "goals": [
+  "goals": {
+    "application_goals": [
+      {
+        "id": "AG001",
+        "description": "Build Kubernetes CRDs for chat bot management",
+        "priority": "high",
+        "successCriteria": "CRDs support Slack, Matrix, Discord, Twilio bot provisioning",
+        "category": "application"
+      }
+    ],
+    "developer_environment_goals": [
+      {
+        "id": "DG001",
+        "description": "Platform-agnostic CI/CD with open-source tools",
+        "priority": "medium",
+        "successCriteria": "Works with GitLab, Forgejo, GitHub, Tekton",
+        "category": "developer_experience"
+      }
+    ]
+  },
+  "constraints": [
     {
-      "id": "G001",
-      "description": "Build Kubernetes CRDs for chat bot management",
-      "priority": "high"
+      "id": "C001",
+      "description": "Strategy must be parsed before code implementation",
+      "type": "hard",
+      "enforcement": "build-failure"
     }
-  ]
+  ],
+  "architecture": {
+    "toolchain": [
+      {
+        "name": "Omen",
+        "purpose": "Define strategy and vision",
+        "schema": "JSON",
+        "position": 1,
+        "references": []
+      },
+      {
+        "name": "ArchiMate",
+        "purpose": "Map enterprise architecture",
+        "schema": "XML/DSL",
+        "position": 2,
+        "references": ["omen/strategy.json"]
+      },
+      {
+        "name": "BMML",
+        "purpose": "Value proposition",
+        "schema": "YAML",
+        "position": 3,
+        "references": ["archimate/enterprise-architecture.xml"]
+      },
+      {
+        "name": "Structurizr & ADR",
+        "purpose": "Architecture decisions",
+        "schema": "Markdown with YAML frontmatter",
+        "position": 4,
+        "references": ["bmml/value-proposition.yaml"]
+      },
+      {
+        "name": "Cube.js",
+        "purpose": "Business metrics as code",
+        "schema": "YAML",
+        "position": 5,
+        "references": ["adr/architecture-decisions.md"]
+      },
+      {
+        "name": "react-markdown & gray-matter & Mermaid.js",
+        "purpose": "Render strategy metadata and diagrams safely",
+        "schema": "Markdown/TSX",
+        "position": 6,
+        "references": ["cubejs/metrics.yaml"]
+      },
+      {
+        "name": "Godog & Gherkin",
+        "purpose": "Behavior-driven feature tests",
+        "schema": "Gherkin (.feature)/Go",
+        "position": 7,
+        "references": ["../../contributors/diagrams.md"]
+      },
+      {
+        "name": "Jest & AJV",
+        "purpose": "Fast JSON schema validation for CRDs and toolchain documents",
+        "schema": "JavaScript/JSON",
+        "position": 8,
+        "references": ["features/chatbot.feature"],
+        "note": "Node.js is used only for validation testing, not in the application itself"
+      }
+    ],
+    "application": {
+      "type": "Kubernetes Operator",
+      "language": "Go",
+      "framework": "Kubebuilder",
+      "targetEnvironment": "RKE2 with Linkerd"
+    }
+  },
+  "security": {
+    "zeroTrust": true,
+    "serviceMesh": "Linkerd",
+    "mTLS": true,
+    "networkPolicies": true
+  },
+  "compliance": {
+    "cncf": true,
+    "slsaLevel": "3+",
+    "standards": ["Kubernetes", "Linkerd", "Argo CD"]
+  }
 }
