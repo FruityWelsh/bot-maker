@@ -37,6 +37,12 @@ on:
     - cron: '0 0 * * *'  # Run nightly at midnight UTC
   workflow_dispatch:
 
+env:
+  CI_PLATFORM: github
+  CI_COMMIT: ${{ github.sha }}
+  CI_BRANCH: ${{ github.ref_name }}
+  CI_REPO: ${{ github.repository }}
+
 jobs:
   # ============================================================================
   # PHASE 0: BUILD SECURITY SCANNER CONTAINER
@@ -114,7 +120,7 @@ jobs:
         with:
           fetch-depth: 0
       
-      - name: Run Security Scans
+      - name: Scan - Security
         run: make scan-security
 
   scan-vulnerability:
@@ -129,7 +135,7 @@ jobs:
         with:
           fetch-depth: 0
       
-      - name: Run Vulnerability Scans
+      - name: Scan - Vulnerability
         run: make scan-vulnerability
 
   # ============================================================================
@@ -237,7 +243,7 @@ jobs:
       - name: Install dependencies
         run: npm install
       
-      - name: Run Validation Tests
+      - name: Test - Validation Tests
         run: make test-validation
 
   # ============================================================================
@@ -327,7 +333,7 @@ jobs:
       - name: Install dependencies
         run: make deps
       
-      - name: Run Linting
+      - name: Lint
         run: make lint
 
   test-unit:
@@ -370,7 +376,7 @@ jobs:
       - name: Install dependencies
         run: make deps
       
-      - name: Run Unit Tests
+      - name: Test - Unit Tests
         run: make test-unit
 
   test-integration:
@@ -413,7 +419,7 @@ jobs:
       - name: Install dependencies
         run: make deps
       
-      - name: Run Integration Tests
+      - name: Test - Integration Tests
         run: make test-integration
 
   test-behavior:
@@ -456,7 +462,7 @@ jobs:
       - name: Install dependencies
         run: make deps
       
-      - name: Run Behavior Tests
+      - name: Test - Behavior Tests
         run: make test-behavior
 
   build:
@@ -499,7 +505,7 @@ jobs:
       - name: Install dependencies
         run: make deps
       
-      - name: Build Project
+      - name: Build
         run: make build
 
   # NOTE: test-cncf-compliance and upload can use the security-scanner container
@@ -540,8 +546,8 @@ jobs:
       - name: Set up Cosign
         uses: sigstore/cosign-installer@v3
       
-      - name: Sign artifacts
-        run: make ci-sign
+      - name: Sign - Artifacts
+        run: make sign
 
   # JOB: Publish Artifacts - Publish Docker images and binaries
   publish-artifacts:
@@ -564,8 +570,8 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
       
-      - name: Publish Docker image
-        run: make ci-package
+      - name: Package - Container Image
+        run: make package
 
   # JOB: Deploy to Cluster - Manual deployment
   deploy:
