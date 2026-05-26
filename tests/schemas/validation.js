@@ -35,7 +35,13 @@ function loadFixture(fixturePath) {
       parseTagValue: false,
       parseAttributeValue: false
     });
-    return parser.parse(content);
+    const parsed = parser.parse(content);
+    // Extract the model from the XML structure
+    // The XML has a <model> root element, so we return its children
+    if (parsed.model) {
+      return parsed.model;
+    }
+    return parsed;
   }
   
   return content;
