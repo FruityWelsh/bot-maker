@@ -31,16 +31,20 @@ business_motivation:
         - "Number of supported CI/CD platforms"
 
   value_propositions:
-    - name: "ChatBot Operator"
+    - id: "VP001"
+      name: "ChatBot Operator"
       description: "Kubernetes-native chat bot management"
-      target_customers:
+      value_statement: "Automated bot lifecycle management with Kubernetes-native approach"
+      target_stakeholders:
         - "Platform Engineering Teams"
         - "AppDev Teams"
 
   stakeholders:
-    - name: "Platform Engineering Team"
+    - id: "S001"
+      name: "Platform Engineering Team"
       description: "Responsible for infrastructure setup"
-      requirements:
+      category: "internal"
+      responsibilities:
         - "Kubernetes cluster management"
         - "RBAC/ABAC configuration"
         - "Service mesh setup"
