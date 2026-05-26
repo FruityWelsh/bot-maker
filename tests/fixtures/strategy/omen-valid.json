@@ -107,18 +107,29 @@
       "type": "Kubernetes Operator",
       "language": "Go",
       "framework": "Kubebuilder",
-      "targetEnvironment": "RKE2 with Linkerd"
+      "targetEnvironment": "RKE2 with Linkerd",
+      "components": [
+        "CRD Controller",
+        "Bot Provisioning Service",
+        "RBAC/ABAC Integration",
+        "Metrics & Monitoring",
+        "API Gateway"
+      ],
+      "testing": {
+        "primary": "Go (Godog for BDD testing)",
+        "coverage": "80%+"
+      }
     }
   },
   "security": {
-    "zeroTrust": true,
-    "serviceMesh": "Linkerd",
-    "mTLS": true,
-    "networkPolicies": true
+    "principles": ["Zero Trust", "Least Privilege", "Defense in Depth"],
+    "standards": ["CNCF", "NIST", "ISO 27001"],
+    "requirements": ["mTLS", "Service Mesh", "Network Policies"]
   },
   "compliance": {
-    "cncf": true,
     "slsaLevel": "3+",
-    "standards": ["Kubernetes", "Linkerd", "Argo CD"]
+    "cncfCompliance": true,
+    "openStandards": true,
+    "choiceMatters": true
   }
 }

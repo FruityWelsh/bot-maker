@@ -22,7 +22,7 @@ business_motivation:
         - "Time to provision new bot instances"
   
   developer_environment_goals:
-    - id: "DG001"
+    - id: "G002"
       name: "Platform-agnostic CI/CD"
       description: "Platform-agnostic CI/CD with open-source tools"
       priority: "medium"
