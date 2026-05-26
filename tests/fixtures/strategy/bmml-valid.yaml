@@ -31,7 +31,7 @@ business_motivation:
         - "Number of supported CI/CD platforms"
 
 value_propositions:
-  - id: "VP001"
+  - id: "V001"
     name: "ChatBot Operator"
     description: "Kubernetes-native chat bot management"
     value_statement: "Automated bot lifecycle management with Kubernetes-native approach"
