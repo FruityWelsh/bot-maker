@@ -249,8 +249,8 @@ jobs:
   # ============================================================================
   # PHASE 4: EXECUTION - DevX Tools Act on Validated Application Code
   # Priority: Only run after all security, DLP tests, and validation checks pass - HARD BLOCK
-  # NOTE: Jobs in this phase require Go, which is not yet in the security-scanner container.
-  #       See TODO below and ADR-007 for details.
+  # NOTE: Jobs in this phase require Go, which is now installed in the security-scanner container
+  #       (Dockerfile.security-scanner). See ADR-007 for details.
   # ============================================================================
   
   setup:
