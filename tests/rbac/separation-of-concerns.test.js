@@ -334,7 +334,7 @@ function checkDocumentation() {
 /**
  * Check if CRDs have proper ownership labels
  */
-function checkCr OwnershipLabels() {
+function checkCrOwnershipLabels() {
   const errors = [];
   const warnings = [];
   
