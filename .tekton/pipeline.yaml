@@ -9,6 +9,7 @@ metadata:
     description: "Platform-agnostic CI pipeline for ChatBot Operator. Wraps Make targets."
     author: "Strategy Coder"
     version: "1.0.0"
+    references: "docs/omen/strategy.json, docs/adr/architecture-decisions.md"
 
 spec:
   description: |
