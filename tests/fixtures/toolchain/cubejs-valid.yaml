@@ -1,0 +1,25 @@
+version: "1.0.0"
+name: "ChatBot Operator Business Metrics"
+created: "2026-05-25"
+author: "Strategy Coder"
+references:
+  upstream: "../../../contributors/adr/architecture-decisions.md"
+  downstream: "../../../contributors/diagrams.md"
+
+metrics:
+  - name: "bot_provisioning_time"
+    description: "Time taken to provision a new chat bot"
+    type: "time"
+    unit: "seconds"
+    dimensions: ["platform", "region", "team"]
+    targets:
+      - name: "average_provisioning_time"
+        description: "Average provisioning time across all platforms"
+        target_value: "< 300"
+        comparison: "less_than"
+
+data_sources:
+  - name: "kubernetes_api"
+    type: "kubernetes"
+    config:
+      api_version: "v1"

@@ -1,0 +1,41 @@
+{
+  "apiVersion": "chatbot.operator/v1alpha1",
+  "kind": "ChatBot",
+  "metadata": {
+    "name": "test-slack-bot",
+    "namespace": "default",
+    "labels": {
+      "app": "chatbot-operator",
+      "platform": "slack",
+      "team": "engineering"
+    }
+  },
+  "spec": {
+    "platform": "slack",
+    "displayName": "Test Slack Bot",
+    "description": "A test bot for Slack integration",
+    "team": "engineering",
+    "callbackURL": "https://api.example.com/callback",
+    "webhookURL": "https://api.example.com/webhook",
+    "configuration": {
+      "welcomeMessage": "Hello! I am a test bot.",
+      "commands": [
+        {
+          "name": "help",
+          "description": "Show help message",
+          "handler": "helpHandler"
+        }
+      ]
+    },
+    "resources": {
+      "requests": {
+        "cpu": "100m",
+        "memory": "128Mi"
+      },
+      "limits": {
+        "cpu": "500m",
+        "memory": "512Mi"
+      }
+    }
+  }
+}
