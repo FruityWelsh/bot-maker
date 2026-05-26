@@ -34,7 +34,108 @@ on:
   pull_request:
     branches: [ main, ai-dev ]
   schedule:
-    - cron: '0 0 * * *'  # Run nightly at midnight UTC
+    - cron: '0 0 * * *'  # PHASE 5: ARTIFACT HANDLING
+  # NOTE: upload job can use the security-scanner container as it only needs
+  #       basic tools, no Go or Node.js required.
+  # ============================================================================
+
+  # JOB: Sign Artifacts - Sign built artifacts with Cosign
+=======
+  # ============================================================================
+  # PHASE 5: ARTIFACT HANDLING
+  # NOTE: upload job can use the security-scanner container as it only needs
+  #       basic tools, no Go or Node.js required.
+  # ============================================================================
+
+  # JOB: Generate SBOM - Generate Software Bill of Materials
+  generate-sbom:
+    name: Generate SBOM
+    runs-on: ubuntu-latest
+    needs: build
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.21'
+      
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      
+      - name: Cache Go modules
+        uses: actions/cache@v3
+        with:
+          path: ~/go/pkg/mod
+          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-go-
+      
+      - name: Cache Node.js modules
+        uses: actions/cache@v3
+        with:
+          path: node_modules
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+      
+      - name: Install dependencies
+        run: make deps
+      
+      - name: Generate - SBOM
+        run: make generate-sbom
+
+  # JOB: Generate Provenance - Generate build provenance
+  generate-provenance:
+    name: Generate Provenance
+    runs-on: ubuntu-latest
+    needs: generate-sbom
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.21'
+      
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      
+      - name: Cache Go modules
+        uses: actions/cache@v3
+        with:
+          path: ~/go/pkg/mod
+          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-go-
+      
+      - name: Cache Node.js modules
+        uses: actions/cache@v3
+        with:
+          path: node_modules
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+      
+      - name: Install dependencies
+        run: make deps
+      
+      - name: Generate - Provenance
+        run: make generate-provenance
+
+  # JOB: Sign Artifacts - Sign built artifacts with CosignRun nightly at midnight UTC
   workflow_dispatch:
 
 env:
@@ -120,7 +221,7 @@ jobs:
         with:
           fetch-depth: 0
       
-      - name: Run Security Scans
+      - name: Scan - Security
         run: make scan-security
 
   scan-vulnerability:
@@ -135,7 +236,7 @@ jobs:
         with:
           fetch-depth: 0
       
-      - name: Run Vulnerability Scans
+      - name: Scan - Vulnerability
         run: make scan-vulnerability
 
   # ============================================================================
@@ -243,7 +344,7 @@ jobs:
       - name: Install dependencies
         run: npm install
       
-      - name: Run Validation Tests
+      - name: Test - Validation Tests
         run: make test-validation
 
   # ============================================================================
@@ -333,7 +434,7 @@ jobs:
       - name: Install dependencies
         run: make deps
       
-      - name: Run Linting
+      - name: Lint
         run: make lint
 
   test-unit:
@@ -376,7 +477,7 @@ jobs:
       - name: Install dependencies
         run: make deps
       
-      - name: Run Unit Tests
+      - name: Test - Unit Tests
         run: make test-unit
 
   test-integration:
@@ -419,7 +520,7 @@ jobs:
       - name: Install dependencies
         run: make deps
       
-      - name: Run Integration Tests
+      - name: Test - Integration Tests
         run: make test-integration
 
   test-behavior:
@@ -462,7 +563,7 @@ jobs:
       - name: Install dependencies
         run: make deps
       
-      - name: Run Behavior Tests
+      - name: Test - Behavior Tests
         run: make test-behavior
 
   build:
@@ -505,7 +606,7 @@ jobs:
       - name: Install dependencies
         run: make deps
       
-      - name: Build Project
+      - name: Build
         run: make build
 
   # NOTE: test-cncf-compliance and upload can use the security-scanner container
@@ -535,7 +636,7 @@ jobs:
   sign-artifacts:
     name: Sign Artifacts
     runs-on: ubuntu-latest
-    needs: [build, test-cncf-compliance]
+    needs: [build, test-cncf-compliance, generate-provenance]
     
     steps:
       - name: Checkout repository
@@ -546,7 +647,7 @@ jobs:
       - name: Set up Cosign
         uses: sigstore/cosign-installer@v3
       
-      - name: Sign artifacts
+      - name: Sign - Artifacts
         run: make sign
 
   # JOB: Publish Artifacts - Publish Docker images and binaries
@@ -570,7 +671,7 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
       
-      - name: Publish Docker image
+      - name: Package - Container Image
         run: make package
 
   # JOB: Deploy to Cluster - Manual deployment
