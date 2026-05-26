@@ -64,6 +64,10 @@ RUN go install golang.org/x/vuln/cmd/govulncheck@latest
 # Set working directory
 WORKDIR /workspace
 
+# Copy .git directory to enable git commands in the container
+# This is needed for date validation and other git-based operations
+COPY .git .git
+
 # Verify installations
 RUN echo "=== Tool Verification ===" && \
     echo "BetterLeaks:" && (test -x /usr/local/bin/betterleaks && echo "betterleaks installed" || echo "betterleaks not available") && \
