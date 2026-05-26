@@ -84,7 +84,7 @@ dependencies:
   - trivy
   - gosec
   - govulncheck
-  - gitleaks
+  - betterleaks
 
 # Pre-start commands (run once when container starts)
 preStart:

@@ -82,7 +82,7 @@ For the **Secure by Design** principle implementation, see [../common/principles
 │          CI/CD Layer (NEW)           │
 │  ┌─────────────────────────────────┐ │
 │  │   Security Scanning Pipeline     │ │
-│  │  - Gitleaks (Secrets)           │ │
+│  │  - Betterleaks (Secrets)        │ │
 │  │  - Gosec (Go Security)          │ │
 │  │  - Trivy (Vulnerabilities)      │ │
 │  │  - Cosign (Signing)             │ │
@@ -149,7 +149,7 @@ The CI/CD pipeline implements **multiple layers of security validation** to ensu
 PHASE 0: Build Security Scanner Container
     ↓
 PHASE 1: Data Loss Prevention (DLP) - HARD BLOCK
-    ├── Secret Scanning (Gitleaks)
+    ├── Secret Scanning (Betterleaks)
     ├── Security Scanning (Gosec)
     └── Vulnerability Scanning (Trivy, Govulncheck)
     ↓
@@ -177,14 +177,14 @@ PHASE 5: Artifact Handling
 ### Phase 1: Data Loss Prevention (DLP)
 
 #### 1. Secret Scanning
-- **Tool**: [Gitleaks](https://github.com/gitleaks/gitleaks)
-- **Configuration**: `.gitleaks.toml`
+- **Tool**: [Betterleaks](https://github.com/betterleaks/betterleaks)
+- **Configuration**: `.betterleaks.toml`
 - **Purpose**: Prevent accidental commitment of secrets
 - **CI Job**: `scan-secrets`
 - **HARD BLOCK**: Pipeline fails if secrets are detected
 
-**Configuration File**: `.gitleaks.toml`
-- Defines custom patterns for project-specific secrets
+**Configuration File**: `.betterleaks.toml`
+- Uses default betterleaks configuration with project-specific filters
 - Includes allowlists for false positives
 - Regularly updated with new secret patterns
 
@@ -228,7 +228,7 @@ tags = ["github", "token"]
 
 **Purpose**: Validate that the security scan jobs themselves are working correctly.
 
-- **Tool Tests**: Verify Gitleaks, Gosec, Trivy configurations
+- **Tool Tests**: Verify Betterleaks, Gosec, Trivy configurations
 - **CI Job**: `test-tools`
 - **HARD BLOCK**: Pipeline fails if scan jobs are misconfigured
 
@@ -295,9 +295,9 @@ cosign verify --key cosign.pub ghcr.io/fruitywelsh/bot-maker:latest
 
 ### Security Scanning Configuration
 
-#### Gitleaks Configuration (`.gitleaks.toml`)
+#### Betterleaks Configuration (`.betterleaks.toml`)
 
-The Gitleaks configuration includes:
+The Betterleaks configuration includes:
 
 **Default Rules**:
 - AWS access keys
@@ -306,6 +306,7 @@ The Gitleaks configuration includes:
 - Private keys
 - Password patterns
 - API keys
+- And many more (100+ rule types)
 - Bearer tokens
 
 **Custom Rules**:
@@ -384,7 +385,7 @@ The Makefile contains security-related targets:
 
 | Target | Purpose | CI Usage |
 |--------|---------|----------|
-| `make scan-secrets` | Run Gitleaks secret scanning | Phase 1 |
+| `make scan-secrets` | Run Betterleaks secret scanning | Phase 1 |
 | `make scan-security` | Run Gosec security scanning | Phase 1 |
 | `make scan-vulnerability` | Run Trivy vulnerability scanning | Phase 1 |
 | `make test-tools` | Run DevX tool tests | Phase 2 |
@@ -494,7 +495,7 @@ The CI pipeline tracks and reports:
 
 - [ADR-004: Security Architecture with Linkerd](../contributors/adr/application-adrs.md#adr-004-security-architecture-with-linkerd)
 - [ADR-005: RBAC/ABAC Integration Strategy](../contributors/adr/application-adrs.md#adr-005-rbacabac-integration-strategy)
-- [ADR-018: Secret Scanning with Gitleaks](../contributors/adr/devx-adrs.md#adr-018-secret-scanning-with-gitleaks)
+- [ADR-018: Secret Scanning with Betterleaks](../contributors/adr/devx-adrs.md#adr-018-secret-scanning-with-betterleaks)
 - [ADR-019: CNCF Graduated Project Compliance Validation](../contributors/adr/devx-adrs.md#adr-019-cncf-graduated-project-compliance-validation)
 - [CI/CD Pipeline Documentation](../devx/IMPLEMENTATION_PLAN.md)
 - [Contributing Guidelines](../CONTRIBUTING.md)

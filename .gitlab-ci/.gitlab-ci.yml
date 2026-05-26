@@ -1,27 +1,47 @@
 # ChatBot Operator GitLab CI/CD Configuration
 # ================================================
-# This configuration wraps the platform-agnostic Make targets.
-# The actual checks are defined in the Makefile.
-# GitLab CI is just a wrapper around: make ci-lint, make ci-test, etc.
+# Platform-agnostic CI/CD pipeline for GitLab CI
+# This configuration mirrors the GitHub Actions workflow structure
+# References: .github/workflows/ci.yml
+# References: docs/strategy/omen/strategy.json Developer Goal DG002 - Formal Verification
+# References: docs/contributors/adr/architecture-decisions.md
+# References: docs/contributors/adr/ADR-020-strategy-first-code-second.md ADR-020 - Strategy First, Code Second
+# References: docs/strategy/STRATEGY.md Core Principles: Strategy First, Code Second
+# References: docs/devx/IMPLEMENTATION_PLAN.md Implementation guidance
+#
+# Architecture: Platform-agnostic CI/CD as per ADR-007 and ADR-016
+#
+# Pipeline Flow:
+# 0. Build Security Scanner Container (FIRST - must complete before all other jobs)
+# 1. Data Loss Prevention (DLP) - Secret scanning and malicious code checks (HARD BLOCK)
+# 2. DLP Tests - Tests that validate the scan jobs themselves (HARD BLOCK)
+# 3. Validation - Strategy-to-BDD stack and DevX tools validation (HARD BLOCK)
+# 4. Execution - DevX tools act on validated application code (HARD BLOCK)
+# 5. Artifact Handling - Sign, package, and deploy artifacts
+#
+# IMPORTANT: NO BYPASS METHODS. All jobs must pass. Test in pipeline.
 
+# Define stages matching GitHub workflow phases
 stages:
-  - setup
-  - lint
-  - test
-  - build
-  - scan
-  - sign
-  - package
+  - build-security-container
+  - dlp
+  - dlp-tests
+  - validation
+  - execution
+  - artifact-handling
   - deploy
 
+# Global variables for all jobs
 variables:
-  # Platform identification for Make targets
+  # Platform identification
   CI_PLATFORM: gitlab
   CI_COMMIT: $CI_COMMIT_SHA
   CI_BRANCH: $CI_COMMIT_REF_NAME
   CI_REPO: $CI_PROJECT_PATH
-  CI_PIPELINE_ID: $CI_PIPELINE_ID
-  CI_JOB_ID: $CI_JOB_ID
+  
+  # Docker registry
+  DOCKER_REGISTRY: registry.gitlab.com
+  DOCKER_IMAGE: ${DOCKER_REGISTRY}/${CI_PROJECT_PATH}/security-scanner:latest
 
 # Cache configuration for dependencies
 cache:
@@ -29,135 +49,287 @@ cache:
   paths:
     - vendor/
     - node_modules/
-    - bin/
     - .cache/
+  policy: pull-push
 
-# Setup stage - Install dependencies
-setup:
-  stage: setup
-  image: alpine:latest
+# ============================================================================
+# PHASE 0: BUILD SECURITY SCANNER CONTAINER
+# Build and publish the container with all security tools pre-installed
+# This MUST complete first so all other jobs can use it
+# ============================================================================
+
+build-security-container:
+  stage: build-security-container
+  image: docker:24
+  services:
+    - docker:24-dind
+  variables:
+    DOCKER_TLS_CERTDIR: "/certs"
+  before_script:
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $DOCKER_REGISTRY
   script:
-    - echo "📦 Setting up dependencies..."
-    - apk add --no-cache make git curl nodejs npm go
+    - echo "🐳 Building Security Scanner Container..."
+    - docker build -t ${DOCKER_IMAGE} -f Dockerfile.security-scanner .
+    - docker push ${DOCKER_IMAGE}
+  tags:
+    - docker
+
+# ============================================================================
+# PHASE 1: DATA LOSS PREVENTION (DLP) AND SECURITY
+# Priority: Run security checks FIRST to prevent data loss and detect issues early
+# These jobs are REQUIRED and HARD BLOCK - no bypass allowed
+# All jobs use the pre-built security scanner container
+# ============================================================================
+
+scan-secrets:
+  stage: dlp
+  image: ${DOCKER_IMAGE}
+  needs: [build-security-container]
+  script:
+    - echo "🔍 Running Secret Scanning (DLP)..."
+    - ./scripts/update-commit-dates.sh --verbose
+    - make scan-secrets
+  tags:
+    - docker
+
+scan-security:
+  stage: dlp
+  image: ${DOCKER_IMAGE}
+  needs: [build-security-container]
+  script:
+    - echo "🔒 Running Security Scanning..."
+    - make scan-security
+  tags:
+    - docker
+
+scan-vulnerability:
+  stage: dlp
+  image: ${DOCKER_IMAGE}
+  needs: [build-security-container]
+  script:
+    - echo "🛡️  Running Vulnerability Scanning..."
+    - make scan-vulnerability
+  tags:
+    - docker
+
+# ============================================================================
+# PHASE 2: DLP TESTS
+# Tests that validate the scan jobs themselves (HARD BLOCK)
+# ============================================================================
+
+test-tools:
+  stage: dlp-tests
+  image: ${DOCKER_IMAGE}
+  needs: [scan-secrets, scan-security, scan-vulnerability]
+  script:
+    - echo "🔧 Running DevX Tool Tests..."
+    - make test-tools
+  tags:
+    - docker
+
+# ============================================================================
+# PHASE 3: VALIDATION
+# Strategy-to-BDD stack and DevX tools validation (HARD BLOCK)
+# ============================================================================
+
+validate-strategy:
+  stage: validation
+  image: ${DOCKER_IMAGE}
+  needs: [test-tools]
+  script:
+    - echo "📊 Validating Strategy Chain..."
+    - make test-strategy-chain
+  tags:
+    - docker
+
+validate-toolchain:
+  stage: validation
+  image: ${DOCKER_IMAGE}
+  needs: [test-tools]
+  script:
+    - echo "🔧 Validating Toolchain..."
+    - make test-toolchain
+  tags:
+    - docker
+
+validate-dates:
+  stage: validation
+  image: ${DOCKER_IMAGE}
+  needs: [test-tools]
+  script:
+    - echo "📅 Validating Date References..."
+    - make test-dates
+  tags:
+    - docker
+
+# ============================================================================
+# PHASE 4: EXECUTION
+# DevX tools act on validated application code (HARD BLOCK)
+# ============================================================================
+
+setup:
+  stage: execution
+  image: alpine:latest
+  needs: [validate-strategy, validate-toolchain, validate-dates]
+  before_script:
+    - apk add --no-cache make git curl nodejs npm go python3 py3-pip
+    - pip install yamllint markdownlint shellcheck
+  script:
+    - echo "📦 Setting up environment..."
     - make deps
   artifacts:
     paths:
       - vendor/
       - node_modules/
-      - bin/
     expire_in: 1 hour
+  tags:
+    - alpine
 
-# Lint stage - Run all linting checks
+test-validation:
+  stage: execution
+  image: node:20
+  needs: [setup]
+  script:
+    - echo "🧪 Running Validation Tests..."
+    - npm install
+    - make test-validation
+  tags:
+    - node
+
 lint:
-  stage: lint
+  stage: execution
   image: alpine:latest
-  script:
-    - echo "🔍 Running linting checks..."
-    - apk add --no-cache make git curl nodejs npm go yaml python3 py3-pip
+  needs: [setup]
+  before_script:
+    - apk add --no-cache make git curl nodejs npm go python3 py3-pip
     - pip install yamllint markdownlint shellcheck
-    - make ci-lint
-  needs: [setup]
-
-# Test stage - Run all tests
-test:
-  stage: test
-  image: alpine:latest
   script:
-    - echo "🧪 Running tests..."
-    - apk add --no-cache make git curl nodejs npm go
-    - make ci-test
-  needs: [setup]
+    - echo "🔍 Running Linting..."
+    - make lint
+  tags:
+    - alpine
 
-# Build stage - Build the application
+test-unit:
+  stage: execution
+  image: golang:1.21
+  needs: [setup, lint]
+  before_script:
+    - apt-get update && apt-get install -y make git curl nodejs npm
+  script:
+    - echo "🧪 Running Unit Tests..."
+    - make test-unit
+  tags:
+    - go
+
 build:
-  stage: build
-  image: alpine:latest
+  stage: execution
+  image: golang:1.21
+  needs: [setup, test-unit, test-validation]
+  before_script:
+    - apt-get update && apt-get install -y make git curl nodejs npm docker
   script:
     - echo "🔨 Building application..."
-    - apk add --no-cache make git curl nodejs npm go docker
-    - make ci-build
-  needs: [setup, lint, test]
+    - make build
+  tags:
+    - go
 
-# Scan stage - Run security scanning
-scan:
-  stage: scan
-  image: alpine:latest
-  script:
-    - echo "🔒 Running security scans..."
-    - apk add --no-cache make git curl nodejs npm go
-    - apk add --no-cache gosec trivy govulncheck gitleaks
-    - make ci-scan
+test-cncf-compliance:
+  stage: execution
+  image: ${DOCKER_IMAGE}
   needs: [build]
+  script:
+    - echo "☸️  Running CNCF Compliance Tests..."
+    - make test-cncf-compliance
+  tags:
+    - docker
 
-# Sign stage - Sign artifacts
-sign:
-  stage: sign
+# ============================================================================
+# PHASE 5: ARTIFACT HANDLING
+# Sign, package, and deploy artifacts
+# ============================================================================
+
+sign-artifacts:
+  stage: artifact-handling
   image: alpine:latest
+  needs: [build, test-cncf-compliance]
+  before_script:
+    - apk add --no-cache make git curl nodejs npm go cosign
   script:
     - echo "✍️  Signing artifacts..."
-    - apk add --no-cache make git curl nodejs npm go cosign
-    - make ci-sign
-  needs: [scan]
+    - make sign
+  tags:
+    - alpine
 
-# Package stage - Package artifacts
-package:
-  stage: package
+publish-artifacts:
+  stage: artifact-handling
   image: alpine:latest
+  needs: [sign-artifacts]
+  before_script:
+    - apk add --no-cache make git curl nodejs npm go docker
   script:
     - echo "📦 Packaging artifacts..."
-    - apk add --no-cache make git curl nodejs npm go docker
-    - make ci-package
-  needs: [sign]
+    - make package
+  tags:
+    - alpine
 
-# Deploy stage - Deploy to cluster (manual)
+# ============================================================================
+# DEPLOY STAGE
+# ============================================================================
+
 deploy:
   stage: deploy
   image: alpine:latest
+  needs: [publish-artifacts]
+  before_script:
+    - apk add --no-cache kubectl helm
   script:
     - echo "🚀 Deploying to cluster..."
-    - apk add --no-cache kubectl helm
     - echo "Deploy logic would go here"
     - echo "✅ Deployment complete"
   when: manual
-  needs: [package]
+  tags:
+    - alpine
 
-# Full pipeline job (runs everything)
-full-pipeline:
-  stage: setup
+# ============================================================================
+# UPLOAD ARTIFACTS
+# ============================================================================
+
+upload:
+  stage: artifact-handling
   image: alpine:latest
+  needs: [publish-artifacts]
   script:
-    - echo "🚀 Running full pipeline..."
-    - apk add --no-cache make git curl nodejs npm go docker gosec trivy govulncheck gitleaks cosign kubectl helm
-    - apk add --no-cache python3 py3-pip
-    - pip install yamllint markdownlint shellcheck
-    - make ci
-  rules:
-    - if: $CI_COMMIT_MESSAGE =~ /run full pipeline/i
-      when: always
-    - if: $CI_COMMIT_REF_NAME == "main"
-      when: never
-    - when: never
+    - echo "📤 Uploading artifacts..."
+    - mkdir -p dist
+    - echo "Artifacts uploaded"
+  artifacts:
+    paths:
+      - dist/
+    expire_in: 1 week
+  tags:
+    - alpine
 
-# Nightly pipeline
+# ============================================================================
+# NIGHTLY PIPELINE
+# ============================================================================
+
 nightly:
-  stage: setup
-  image: alpine:latest
+  stage: build-security-container
+  image: docker:24
+  services:
+    - docker:24-dind
+  variables:
+    DOCKER_TLS_CERTDIR: "/certs"
+  before_script:
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $DOCKER_REGISTRY
   script:
     - echo "🌙 Running nightly pipeline..."
-    - apk add --no-cache make git curl nodejs npm go docker gosec trivy govulncheck gitleaks cosign
-    - apk add --no-cache python3 py3-pip
-    - pip install yamllint markdownlint shellcheck
+    - docker build -t ${DOCKER_IMAGE} -f Dockerfile.security-scanner .
+    - docker push ${DOCKER_IMAGE}
     - make ci
   rules:
     - if: $CI_PIPELINE_SOURCE == "schedule"
       when: always
     - when: never
-
-# Cleanup job
-cleanup:
-  stage: .post
-  image: alpine:latest
-  script:
-    - echo "🧹 Cleaning up..."
-    - make clean
-  when: always
+  tags:
+    - docker

@@ -64,13 +64,13 @@ describe('CI/CD Platform Configurations', () => {
       expect(githubWorkflowContent).toContain('CI_REPO: ${{ github.repository }}');
     });
 
-    test('should trigger on push to main and vibe branches', () => {
-      expect(githubWorkflowContent).toContain('branches: [ main, vibe/* ]');
+    test('should trigger on push to main, ai-dev, and vibe branches', () => {
+      expect(githubWorkflowContent).toContain('branches: [ main, ai-dev, vibe/* ]');
     });
 
-    test('should trigger on pull requests to main', () => {
+    test('should trigger on pull requests to main and ai-dev', () => {
       expect(githubWorkflowContent).toContain('pull_request:');
-      expect(githubWorkflowContent).toContain('branches: [ main ]');
+      expect(githubWorkflowContent).toContain('branches: [ main, ai-dev ]');
     });
 
     test('should have proper step structure', () => {

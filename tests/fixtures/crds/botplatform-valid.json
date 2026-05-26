@@ -1,0 +1,24 @@
+{
+  "apiVersion": "chatbot.operator/v1alpha1",
+  "kind": "BotPlatform",
+  "metadata": {
+    "name": "slack-platform",
+    "namespace": "default"
+  },
+  "spec": {
+    "type": "slack",
+    "apiEndpoint": "https://slack.com/api",
+    "apiVersion": "v2",
+    "authenticationMethod": "oauth2",
+    "rateLimits": {
+      "requestsPerMinute": 60,
+      "burstLimit": 10
+    },
+    "features": {
+      "webhooks": true,
+      "bots": true,
+      "users": true,
+      "channels": true
+    }
+  }
+}

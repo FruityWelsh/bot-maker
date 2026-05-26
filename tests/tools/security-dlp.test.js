@@ -2,12 +2,12 @@
  * Security and DLP Pipeline Tests
  * 
  * Tests for the CI/CD security and data loss prevention jobs:
- * - scan-secrets: Secret scanning with Gitleaks
+ * - scan-secrets: Secret scanning with Betterleaks
  * - scan-security: Static analysis with gosec
  * - scan-vulnerability: Vulnerability scanning with govulncheck
  * 
  * References: docs/strategy/omen/strategy.json (Security Goal AG004)
- * References: docs/contributors/adr/devx-adrs.md (ADR-018 - Secret Scanning with Gitleaks)
+ * References: docs/contributors/adr/devx-adrs.md (ADR-018 - Secret Scanning with Betterleaks)
  * References: docs/contributors/adr/architecture-decisions.md (ADR-004 - Security Architecture with Linkerd)
  * 
  * Test Strategy:
@@ -68,11 +68,11 @@ describe('Security and DLP Pipeline Tests', () => {
       
       fs.writeFileSync(testFile, content);
       
-      // Check if gitleaks would detect this
-      const gitleaksConfig = path.join(REPO_ROOT, '.gitleaks.toml');
-      const configExists = fs.existsSync(gitleaksConfig);
+      // Check if betterleaks would detect this
+      const betterleaksConfig = path.join(REPO_ROOT, '.betterleaks.toml');
+      const configExists = fs.existsSync(betterleaksConfig);
       
-      // Gitleaks should have AWS patterns
+      // Betterleaks should have AWS patterns
       expect(configExists).toBe(true);
       
       // Clean up
@@ -145,8 +145,8 @@ describe('Security and DLP Pipeline Tests', () => {
       fs.unlinkSync(testFile);
     });
 
-    test('should have gitleaks configuration file', () => {
-      const configPath = path.join(REPO_ROOT, '.gitleaks.toml');
+    test('should have betterleaks configuration file', () => {
+      const configPath = path.join(REPO_ROOT, '.betterleaks.toml');
       expect(fs.existsSync(configPath)).toBe(true);
       
       const configContent = fs.readFileSync(configPath, 'utf8');
@@ -164,7 +164,7 @@ describe('Security and DLP Pipeline Tests', () => {
       // Check if pre-push hook exists (it might not in the sandbox)
       if (fs.existsSync(prePushHook)) {
         const hookContent = fs.readFileSync(prePushHook, 'utf8');
-        expect(hookContent).toContain('gitleaks');
+        expect(hookContent).toContain('betterleaks');
       }
       // This is acceptable - hooks might be set up separately
     });

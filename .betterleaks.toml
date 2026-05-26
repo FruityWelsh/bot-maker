@@ -1,0 +1,28 @@
+# Betterleaks Configuration for ChatBot Operator
+# ================================================
+# Prevents secrets from being committed to the repository
+# References: docs/omen/strategy.json (Security Goal AG004)
+# References: docs/adr/architecture-decisions.md (ADR-004 - Security with Linkerd)
+# References: docs/devx/SECURITY_DLP_PIPELINE.md (Security and DLP Pipeline Design)
+
+# Based on: https://github.com/betterleaks/betterleaks
+# Custom configuration for ChatBot Operator project
+
+title = "ChatBot Operator Secrets Detection"
+
+[global]
+  verbose = true
+  redact = true
+  exit-code = 1
+
+# Paths to exclude from scanning
+[paths]
+  exclude = [
+    "node_modules/",
+    ".git/",
+    "dist/",
+    "coverage/",
+    "reports/",
+    "tests/tools/test-data/",
+    "tests/tools/security-dlp.test.js"
+  ]

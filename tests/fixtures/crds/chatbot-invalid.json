@@ -1,0 +1,11 @@
+{
+  "apiVersion": "chatbot.operator/v1alpha1",
+  "kind": "ChatBot",
+  "metadata": {
+    "name": "invalid-bot",
+    "namespace": "default"
+  },
+  "spec": {
+    "displayName": "Invalid Bot"
+  }
+}

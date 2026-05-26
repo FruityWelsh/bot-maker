@@ -1,0 +1,49 @@
+{
+  "language": "en",
+  "author": "Strategy Coder",
+  "created": "2026-05-25",
+  "references": {
+    "upstream": "../../../contributors/diagrams.md",
+    "downstream": ["tests/schemas/validation.js", "tests/tools/"]
+  },
+  "feature": {
+    "title": "ChatBot Operator Lifecycle Management",
+    "description": "Manage chat bot lifecycles as Kubernetes resources",
+    "as_a": "Platform Engineering or Application Development team member",
+    "i_want": "manage chat bot lifecycles as Kubernetes resources",
+    "so_that": "I can automate bot provisioning, configuration, and management",
+    "tags": ["@crd", "@lifecycle"]
+  },
+  "background": {
+    "steps": [
+      {
+        "keyword": "Given",
+        "text": "the ChatBot Operator is deployed in RKE2 cluster with Linkerd"
+      },
+      {
+        "keyword": "And",
+        "text": "the operator has proper RBAC/ABAC permissions"
+      }
+    ]
+  },
+  "scenarios": [
+    {
+      "title": "Create a new ChatBot resource",
+      "tags": ["@crd", "@create"],
+      "steps": [
+        {
+          "keyword": "Given",
+          "text": "I have a valid ChatBot manifest for platform \"slack\""
+        },
+        {
+          "keyword": "When",
+          "text": "I apply the ChatBot manifest to Kubernetes"
+        },
+        {
+          "keyword": "Then",
+          "text": "the ChatBot resource should be created successfully"
+        }
+      ]
+    }
+  ]
+}

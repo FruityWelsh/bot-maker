@@ -311,6 +311,14 @@ toolchain.forEach(tool => {
 // Test 10: Check Git commit date can be retrieved
 console.log('\n🔍 Test 10: Checking Git commit date retrieval...\n');
 try {
+  // Fix git ownership issue in CI
+  try {
+    execSync('git config --global --add safe.directory /__w/bot-maker/bot-maker', { stdio: 'pipe' });
+    execSync('git config --global --add safe.directory *', { stdio: 'pipe' });
+  } catch (e) {
+    // Ignore if not in CI or already configured
+  }
+  
   const gitCommitDate = execSync('git log -1 --format="%cd" --date=iso', {
     cwd: repoRoot,
     encoding: 'utf8',

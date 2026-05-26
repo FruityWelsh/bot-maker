@@ -13,7 +13,10 @@ echo ""
 
 # Fix git ownership issue in CI
 if [ -d "/__w" ]; then
+    export GIT_CONFIG_GLOBAL=/etc/gitconfig
     git config --global --add safe.directory "/__w/bot-maker/bot-maker" || true
+    git config --global --add safe.directory "/__w" || true
+    git config --global --add safe.directory "*" || true
 fi
 
 # Get the repository root
@@ -30,21 +33,20 @@ if ! command -v betterleaks >/dev/null 2>&1; then
     exit 1
 fi
 
-# Check for betterleaks configuration
+# Use betterleaks configuration
 CONFIG_FILE="$REPO_ROOT/.betterleaks.toml"
 if [ -f "$CONFIG_FILE" ]; then
     echo "✅ Using custom Betterleaks configuration: $CONFIG_FILE"
     CONFIG_ARG="--config=$CONFIG_FILE"
 else
-    echo "⚠️  Betterleaks configuration not found at $CONFIG_FILE"
-    echo "Using default configuration"
+    echo "⚠️  Betterleaks configuration not found, using default"
     CONFIG_ARG=""
 fi
 
 echo ""
 
-# Run betterleaks scan
-if betterleaks git "$REPO_ROOT" $CONFIG_ARG; then
+# Run betterleaks scan on directory (avoids git ownership issues)
+if betterleaks dir "$REPO_ROOT" $CONFIG_ARG; then
     echo ""
     echo "✅ No secrets detected!"
     exit 0
