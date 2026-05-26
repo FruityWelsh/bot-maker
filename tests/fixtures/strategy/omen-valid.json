@@ -117,7 +117,8 @@
       ],
       "testing": {
         "primary": "Go (Godog for BDD testing)",
-        "coverage": "80%+"
+        "secondary": "Jest for validation tests",
+        "note": "Node.js used only for validation testing"
       }
     }
   },
