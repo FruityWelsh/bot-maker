@@ -54,44 +54,54 @@ function validateArchimate(archimateDocument) {
     }
   }
   
-  // Check for elements if present
-  if (archimateDocument.elements) {
-    if (!Array.isArray(archimateDocument.elements)) {
-      // If elements is not an array, check if it has element children
-      // XML parser might parse <elements><element>...</element></elements> differently
-      if (archimateDocument.elements.element && Array.isArray(archimateDocument.elements.element)) {
-        // elements is an object with element array - this is valid
-      } else if (archimateDocument.elements.element) {
-        // elements is an object with single element - convert to array
-        archimateDocument.elements = [archimateDocument.elements.element];
-      } else {
-        errors.push({
-          instancePath: '/elements',
-          message: 'elements must be an array',
-          params: { type: 'array' },
-          schemaPath: '#/properties/elements/type'
-        });
-      }
+  // Check for elements - must be present and an array
+  if (!archimateDocument.elements) {
+    errors.push({
+      instancePath: '/elements',
+      message: 'elements is required',
+      params: { type: 'array' },
+      schemaPath: '#/required/0'
+    });
+  } else if (!Array.isArray(archimateDocument.elements)) {
+    // If elements is not an array, check if it has element children
+    // XML parser might parse <elements><element>...</element></elements> differently
+    if (archimateDocument.elements.element && Array.isArray(archimateDocument.elements.element)) {
+      // elements is an object with element array - this is valid
+    } else if (archimateDocument.elements.element) {
+      // elements is an object with single element - convert to array
+      archimateDocument.elements = [archimateDocument.elements.element];
+    } else {
+      errors.push({
+        instancePath: '/elements',
+        message: 'elements must be an array',
+        params: { type: 'array' },
+        schemaPath: '#/properties/elements/type'
+      });
     }
   }
   
-  // Check for relationships if present
-  if (archimateDocument.relationships) {
-    if (!Array.isArray(archimateDocument.relationships)) {
-      // If relationships is not an array, check if it has relationship children
-      if (archimateDocument.relationships.relationship && Array.isArray(archimateDocument.relationships.relationship)) {
-        // relationships is an object with relationship array - this is valid
-      } else if (archimateDocument.relationships.relationship) {
-        // relationships is an object with single relationship - convert to array
-        archimateDocument.relationships = [archimateDocument.relationships.relationship];
-      } else {
-        errors.push({
-          instancePath: '/relationships',
-          message: 'relationships must be an array',
-          params: { type: 'array' },
-          schemaPath: '#/properties/relationships/type'
-        });
-      }
+  // Check for relationships - must be present and an array
+  if (!archimateDocument.relationships) {
+    errors.push({
+      instancePath: '/relationships',
+      message: 'relationships is required',
+      params: { type: 'array' },
+      schemaPath: '#/required/1'
+    });
+  } else if (!Array.isArray(archimateDocument.relationships)) {
+    // If relationships is not an array, check if it has relationship children
+    if (archimateDocument.relationships.relationship && Array.isArray(archimateDocument.relationships.relationship)) {
+      // relationships is an object with relationship array - this is valid
+    } else if (archimateDocument.relationships.relationship) {
+      // relationships is an object with single relationship - convert to array
+      archimateDocument.relationships = [archimateDocument.relationships.relationship];
+    } else {
+      errors.push({
+        instancePath: '/relationships',
+        message: 'relationships must be an array',
+        params: { type: 'array' },
+        schemaPath: '#/properties/relationships/type'
+      });
     }
   }
   
