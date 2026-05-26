@@ -1,3 +1,10 @@
+# This is a stubbed version that can be tested locally without requiring GitLab
+# Platform-agnostic CI workflow
+# References: docs/omen/strategy.json (Developer Environment Goal DG001)
+# References: docs/adr/architecture-decisions.md (ADR-012 - Platform-agnostic CI/CD)
+# The actual checks are defined in the Makefile.
+# GitLab CI is just a wrapper around: make ci-lint, make ci-test, etc.
+=======
 # Stubbed GitLab CI/CD Configuration
 # ====================================
 # This is a stubbed version that can be tested locally without requiring GitLab
@@ -9,6 +16,12 @@
 # - Tekton pipelines
 # - VSCode tasks
 #
+# References: docs/omen/strategy.json (Developer Environment Goal DG001)
+# References: docs/adr/architecture-decisions.md (ADR-012 - Platform-agnostic CI/CD)
+# The actual checks are defined in the Makefile.
+# GitLab CI is just a wrapper around: make ci-lint, make ci-test, etc.====================================
+# This is a stubbed version that can be tested locally without requiring GitLab
+# Platform-agnostic CI workflow
 # References: docs/omen/strategy.json (Developer Environment Goal DG001)
 # References: docs/adr/architecture-decisions.md (ADR-012 - Platform-agnostic CI/CD)
 # The actual checks are defined in the Makefile.
