@@ -25,6 +25,17 @@ function validateArchimate(archimateDocument) {
   const requiredFields = ['name', 'version', 'id'];
   const errors = [];
   
+  // Check if document has any properties at all
+  const hasAnyProperties = Object.keys(archimateDocument).length > 0;
+  if (!hasAnyProperties) {
+    errors.push({
+      instancePath: '',
+      message: 'ArchiMate document is empty or not parsed correctly',
+      params: {},
+      schemaPath: '#'
+    });
+  }
+  
   for (const field of requiredFields) {
     // XML parser converts attributes to @_name, @_version
     const prefixedField = `@_${field}`;
