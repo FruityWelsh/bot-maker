@@ -26,6 +26,16 @@ function loadFixture(fixturePath) {
   } else if (fixturePath.endsWith('.yaml') || fixturePath.endsWith('.yml')) {
     const yaml = require('js-yaml');
     return yaml.load(content);
+  } else if (fixturePath.endsWith('.xml')) {
+    // Parse XML to JavaScript object
+    const { XMLParser } = require('fast-xml-parser');
+    const parser = new XMLParser({
+      ignoreAttributes: false,
+      attributeNamePrefix: "@_",
+      parseTagValue: false,
+      parseAttributeValue: false
+    });
+    return parser.parse(content);
   }
   
   return content;
