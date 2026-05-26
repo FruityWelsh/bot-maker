@@ -33,7 +33,8 @@ function loadFixture(fixturePath) {
       ignoreAttributes: false,
       attributeNamePrefix: "@_",
       parseTagValue: false,
-      parseAttributeValue: false
+      parseAttributeValue: false,
+      isArray: (tagName) => ['element', 'relationship'].includes(tagName)
     });
     const parsed = parser.parse(content);
     // Extract the model from the XML structure
