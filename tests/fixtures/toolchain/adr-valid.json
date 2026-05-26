@@ -1,0 +1,17 @@
+{
+  "title": "ChatBot Operator Architecture Decisions",
+  "version": "1.0.0",
+  "decisions": [
+    {
+      "id": "ADR-001",
+      "status": "Accepted",
+      "date": "Generated from Git commit date",
+      "context": "Need to manage chat bot lifecycles as Kubernetes resources",
+      "decision": "Implement as Kubernetes Operator using Kubebuilder framework",
+      "consequences": [
+        "Native Kubernetes integration",
+        "Declarative management via CRDs"
+      ]
+    }
+  ]
+}
