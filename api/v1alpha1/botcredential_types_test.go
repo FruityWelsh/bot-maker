@@ -464,9 +464,9 @@ func TestBotCredentialList(t *testing.T) {
 	}
 
 	assert.Len(t, list.Items, 3)
-	assert.Equal(t, "credential1", list.Items[0].Name)
-	assert.Equal(t, "credential2", list.Items[1].Name)
-	assert.Equal(t, "credential3", list.Items[2].Name)
+	assert.Equal(t, "credential1", list.Items[0].ObjectMeta.Name)
+	assert.Equal(t, "credential2", list.Items[1].ObjectMeta.Name)
+	assert.Equal(t, "credential3", list.Items[2].ObjectMeta.Name)
 }
 
 // TestRotationConfig tests RotationConfig
@@ -613,8 +613,8 @@ func TestBotCredentialWithFullSpec(t *testing.T) {
 	}
 
 	// Verify all fields
-	assert.Equal(t, "full-credential", botCredential.Name)
-	assert.Equal(t, "production", botCredential.Namespace)
+	assert.Equal(t, "full-credential", botCredential.ObjectMeta.Name)
+	assert.Equal(t, "production", botCredential.ObjectMeta.Namespace)
 	assert.Equal(t, "production-bot", botCredential.Spec.ChatBotRef.Name)
 	assert.Equal(t, CredentialTypeAPIToken, botCredential.Spec.CredentialType)
 	assert.Equal(t, PlatformSlack, botCredential.Spec.Platform)

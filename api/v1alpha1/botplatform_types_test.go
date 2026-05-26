@@ -415,9 +415,9 @@ func TestBotPlatformList(t *testing.T) {
 	}
 
 	assert.Len(t, list.Items, 3)
-	assert.Equal(t, "platform1", list.Items[0].Name)
-	assert.Equal(t, "platform2", list.Items[1].Name)
-	assert.Equal(t, "platform3", list.Items[2].Name)
+	assert.Equal(t, "platform1", list.Items[0].ObjectMeta.Name)
+	assert.Equal(t, "platform2", list.Items[1].ObjectMeta.Name)
+	assert.Equal(t, "platform3", list.Items[2].ObjectMeta.Name)
 }
 
 // TestBotPlatformWithOAuth2Authentication tests BotPlatform with OAuth2 authentication
@@ -492,7 +492,7 @@ func TestBotPlatformWithOAuth2Authentication(t *testing.T) {
 	}
 
 	// Verify all fields
-	assert.Equal(t, "slack-platform", botPlatform.Name)
+	assert.Equal(t, "slack-platform", botPlatform.ObjectMeta.Name)
 	assert.Equal(t, PlatformSlack, botPlatform.Spec.PlatformType)
 	assert.Equal(t, "Slack Platform", botPlatform.Spec.DisplayName)
 	assert.Equal(t, "https://api.slack.com", botPlatform.Spec.API.BaseURL)

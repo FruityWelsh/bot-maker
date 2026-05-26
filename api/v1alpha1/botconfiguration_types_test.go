@@ -430,9 +430,9 @@ func TestBotConfigurationList(t *testing.T) {
 	}
 
 	assert.Len(t, list.Items, 3)
-	assert.Equal(t, "config1", list.Items[0].Name)
-	assert.Equal(t, "config2", list.Items[1].Name)
-	assert.Equal(t, "config3", list.Items[2].Name)
+	assert.Equal(t, "config1", list.Items[0].ObjectMeta.Name)
+	assert.Equal(t, "config2", list.Items[1].ObjectMeta.Name)
+	assert.Equal(t, "config3", list.Items[2].ObjectMeta.Name)
 }
 
 // TestHandler tests Handler type
@@ -812,8 +812,8 @@ func TestBotConfigurationWithFullSpec(t *testing.T) {
 	}
 
 	// Verify all fields
-	assert.Equal(t, "full-config", botConfig.Name)
-	assert.Equal(t, "production", botConfig.Namespace)
+	assert.Equal(t, "full-config", botConfig.ObjectMeta.Name)
+	assert.Equal(t, "production", botConfig.ObjectMeta.Namespace)
 	assert.Equal(t, "my-bot", botConfig.Spec.ChatBotRef.Name)
 	assert.Equal(t, "production", botConfig.Spec.ChatBotRef.Namespace)
 	assert.Len(t, botConfig.Spec.Configuration.Handlers, 2)

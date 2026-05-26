@@ -391,9 +391,9 @@ func TestChatBotList(t *testing.T) {
 	}
 
 	assert.Len(t, list.Items, 3)
-	assert.Equal(t, "bot1", list.Items[0].Name)
-	assert.Equal(t, "bot2", list.Items[1].Name)
-	assert.Equal(t, "bot3", list.Items[2].Name)
+	assert.Equal(t, "bot1", list.Items[0].ObjectMeta.Name)
+	assert.Equal(t, "bot2", list.Items[1].ObjectMeta.Name)
+	assert.Equal(t, "bot3", list.Items[2].ObjectMeta.Name)
 }
 
 // TestChatBotSpecValidation tests validation of ChatBotSpec
@@ -588,8 +588,8 @@ func TestChatBotWithFullConfiguration(t *testing.T) {
 	}
 
 	// Verify all fields are set correctly
-	assert.Equal(t, "full-bot", chatBot.Name)
-	assert.Equal(t, "production", chatBot.Namespace)
+	assert.Equal(t, "full-bot", chatBot.ObjectMeta.Name)
+	assert.Equal(t, "production", chatBot.ObjectMeta.Namespace)
 	assert.Equal(t, PlatformDiscord, chatBot.Spec.Platform)
 	assert.Equal(t, "Full Test Bot", chatBot.Spec.DisplayName)
 	assert.Equal(t, "A fully configured test bot", chatBot.Spec.Description)
