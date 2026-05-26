@@ -19,10 +19,12 @@ console.log('==================\n');
 let allPassed = true;
 
 // Get the current Git commit date (HEAD)
+// Use process.cwd() to get the current working directory, which should be the repository root
+// when the script is run from the Makefile
 let gitCommitDate;
 try {
   gitCommitDate = execSync('git log -1 --format="%cd" --date=iso', {
-    cwd: path.join(__dirname, '../..'),
+    cwd: process.cwd(),
     encoding: 'utf8',
     stdio: 'pipe'
   }).trim().split(' ')[0];
@@ -78,7 +80,7 @@ filesWithDates.forEach(file => {
     let fileCommitDate;
     try {
       const fileLog = execSync(`git log -1 --format="%cd" --date=iso -- ${file.path}`, {
-        cwd: path.join(__dirname, '../..'),
+        cwd: process.cwd(),
         encoding: 'utf8',
         stdio: 'pipe'
       }).trim();
