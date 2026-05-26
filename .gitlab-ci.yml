@@ -1,18 +1,15 @@
-# This configuration wraps the platform-agnostic Make targets.
-# The actual checks are defined in the Makefile.
-# GitLab CI is just a wrapper around: make ci-lint, make ci-test, etc.
-=======
-# ChatBot Operator GitLab CI/CD Configuration
-# ================================================
+# Stubbed GitLab CI/CD Configuration
+# ====================================
+# This is a stubbed version that can be tested locally without requiring GitLab
 # Platform-agnostic CI workflow
-# This workflow wraps Make targets that work across all platforms
 # References: docs/omen/strategy.json (Developer Environment Goal DG001)
 # References: docs/adr/architecture-decisions.md (ADR-012 - Platform-agnostic CI/CD)
 # The actual checks are defined in the Makefile.
-# GitLab CI is just a wrapper around: make ci-lint, make ci-test, etc.================================================
-# This configuration wraps the platform-agnostic Make targets.
-# The actual checks are defined in the Makefile.
 # GitLab CI is just a wrapper around: make ci-lint, make ci-test, etc.
+
+# This file can be used for local testing with:
+#   make gitlab-ci
+#   or manually running the make targets
 
 stages:
   - setup
@@ -27,147 +24,79 @@ stages:
 variables:
   # Platform identification for Make targets
   CI_PLATFORM: gitlab
-  CI_COMMIT: $CI_COMMIT_SHA
-  CI_BRANCH: $CI_COMMIT_REF_NAME
-  CI_REPO: $CI_PROJECT_PATH
-  CI_PIPELINE_ID: $CI_PIPELINE_ID
-  CI_JOB_ID: $CI_JOB_ID
+  CI_COMMIT: ${CI_COMMIT_SHA}
+  CI_BRANCH: ${CI_COMMIT_REF_NAME}
+  CI_REPO: ${CI_PROJECT_PATH}
 
-# Cache configuration for dependencies
-cache:
-  key: ${CI_COMMIT_REF_SLUG}
-  paths:
-    - vendor/
-    - node_modules/
-    - bin/
-    - .cache/
-
-# Setup stage - Install dependencies
+# Setup stage
 setup:
   stage: setup
-  image: alpine:latest
   script:
-    - echo "📦 Setting up dependencies..."
-    - apk add --no-cache make git curl nodejs npm go
+    - echo "Setting up GitLab CI environment..."
     - make deps
   artifacts:
     paths:
-      - vendor/
       - node_modules/
-      - bin/
+      - vendor/
     expire_in: 1 hour
 
-# Lint stage - Run all linting checks
+# Lint stage
 lint:
   stage: lint
-  image: alpine:latest
   script:
-    - echo "🔍 Running linting checks..."
-    - apk add --no-cache make git curl nodejs npm go yaml python3 py3-pip
-    - pip install yamllint markdownlint shellcheck
+    - echo "Running linting..."
     - make ci-lint
   needs: [setup]
 
-# Test stage - Run all tests
+# Test stage
 test:
   stage: test
-  image: alpine:latest
   script:
-    - echo "🧪 Running tests..."
-    - apk add --no-cache make git curl nodejs npm go
+    - echo "Running tests..."
     - make ci-test
-  needs: [setup]
+  needs: [lint]
 
-# Build stage - Build the application
+# Build stage
 build:
   stage: build
-  image: alpine:latest
   script:
-    - echo "🔨 Building application..."
-    - apk add --no-cache make git curl nodejs npm go docker
+    - echo "Building application..."
     - make ci-build
-  needs: [setup, lint, test]
+  needs: [test]
 
-# Scan stage - Run security scanning
-scan:
+# Security scan stage
+scan-security:
   stage: scan
-  image: alpine:latest
   script:
-    - echo "🔒 Running security scans..."
-    - apk add --no-cache make git curl nodejs npm go
-    - apk add --no-cache gosec trivy govulncheck betterleaks
+    - echo "Running security scans..."
     - make ci-scan
   needs: [build]
 
-# Sign stage - Sign artifacts
+# Sign stage
 sign:
   stage: sign
-  image: alpine:latest
   script:
-    - echo "✍️  Signing artifacts..."
-    - apk add --no-cache make git curl nodejs npm go cosign
+    - echo "Signing artifacts..."
     - make ci-sign
-  needs: [scan]
+  needs: [scan-security]
 
-# Package stage - Package artifacts
+# Package stage
 package:
   stage: package
-  image: alpine:latest
   script:
-    - echo "📦 Packaging artifacts..."
-    - apk add --no-cache make git curl nodejs npm go docker
+    - echo "Packaging artifacts..."
     - make ci-package
   needs: [sign]
 
-# Deploy stage - Deploy to cluster (manual)
+# Deploy stage (stubbed - would require actual cluster)
 deploy:
   stage: deploy
-  image: alpine:latest
   script:
-    - echo "🚀 Deploying to cluster..."
-    - apk add --no-cache kubectl helm
-    - echo "Deploy logic would go here"
-    - echo "✅ Deployment complete"
-  when: manual
+    - echo "Deploy stub - would deploy to cluster"
+    - echo "This is a stubbed version for local testing"
   needs: [package]
+  when: manual
 
-# Full pipeline job (runs everything)
-full-pipeline:
-  stage: setup
-  image: alpine:latest
-  script:
-    - echo "🚀 Running full pipeline..."
-    - apk add --no-cache make git curl nodejs npm go docker gosec trivy govulncheck betterleaks cosign kubectl helm
-    - apk add --no-cache python3 py3-pip
-    - pip install yamllint markdownlint shellcheck
-    - make ci
-  rules:
-    - if: $CI_COMMIT_MESSAGE =~ /run full pipeline/i
-      when: always
-    - if: $CI_COMMIT_REF_NAME == "main"
-      when: never
-    - when: never
-
-# Nightly pipeline
-nightly:
-  stage: setup
-  image: alpine:latest
-  script:
-    - echo "🌙 Running nightly pipeline..."
-    - apk add --no-cache make git curl nodejs npm go docker gosec trivy govulncheck betterleaks cosign
-    - apk add --no-cache python3 py3-pip
-    - pip install yamllint markdownlint shellcheck
-    - make ci
-  rules:
-    - if: $CI_PIPELINE_SOURCE == "schedule"
-      when: always
-    - when: never
-
-# Cleanup job
-cleanup:
-  stage: .post
-  image: alpine:latest
-  script:
-    - echo "🧹 Cleaning up..."
-    - make clean
-  when: always
+# Note: This is a stubbed version for local testing.
+# The actual GitLab CI/CD would run on GitLab runners.
+# For local testing, use: make gitlab-ci or run make targets directly
