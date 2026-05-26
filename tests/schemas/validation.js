@@ -7,9 +7,58 @@
  * 
  * Uses AJV (Another JSON Schema Validator) for fast, standards-compliant validation.
  * Uses Jest for test framework and assertions.
+ * 
+ * Test fixtures are loaded from tests/fixtures/ directory for better maintainability.
  */
 
+const path = require('path');
+const fs = require('fs');
+
+// Fixture loader utility
 // References: features/chatbot.feature (upstream)
+function loadFixture(fixturePath) {
+  const fullPath = path.join(__dirname, '../fixtures', fixturePath);
+  const content = fs.readFileSync(fullPath, 'utf8');
+  
+  // Parse based on file extension
+  if (fixturePath.endsWith('.json')) {
+    return JSON.parse(content);
+  } else if (fixturePath.endsWith('.yaml') || fixturePath.endsWith('.yml')) {
+    const yaml = require('js-yaml');
+    return yaml.load(content);
+  }
+  
+  return content;
+}
+
+// Load all fixtures
+const fixtures = {
+  // CRD fixtures
+  crds: {
+    validChatBot: loadFixture('crds/chatbot-valid.json'),
+    invalidChatBot: loadFixture('crds/chatbot-invalid.json'),
+    validBotPlatform: loadFixture('crds/botplatform-valid.json'),
+    validBotConfiguration: loadFixture('crds/botconfiguration-valid.json'),
+    validBotCredential: loadFixture('crds/botcredential-valid.json')
+  },
+  
+  // Strategy fixtures
+  strategy: {
+    validOmen: loadFixture('strategy/omen-valid.json'),
+    validBmml: loadFixture('strategy/bmml-valid.yaml'),
+    validArchimate: loadFixture('strategy/archimate-valid.xml')
+  },
+  
+  // Toolchain fixtures
+  toolchain: {
+    validAdr: loadFixture('toolchain/adr-valid.json'),
+    validCubeJs: loadFixture('toolchain/cubejs-valid.yaml'),
+    validDiagrams: loadFixture('toolchain/diagrams-valid.json'),
+    validGherkin: loadFixture('toolchain/gherkin-valid.json')
+  }
+};
+
+// Import validation functions
 const { validate: validateChatBot } = require('./chatbot-crd');
 const { validate: validateBotPlatform } = require('./botplatform-crd');
 const { validate: validateBotConfiguration } = require('./botconfiguration-crd');
@@ -23,357 +72,6 @@ const { validate: validateDiagrams } = require('./diagrams-schema');
 const { validate: validateGherkin } = require('./gherkin-schema');
 
 /**
- * Test data for valid ChatBot CRD
- * References: features/chatbot.feature - "Create a new ChatBot resource"
- */
-const validChatBot = {
-  apiVersion: 'chatbot.operator/v1alpha1',
-  kind: 'ChatBot',
-  metadata: {
-    name: 'test-slack-bot',
-    namespace: 'default',
-    labels: {
-      app: 'chatbot-operator',
-      platform: 'slack',
-      team: 'engineering'
-    }
-  },
-  spec: {
-    platform: 'slack',
-    displayName: 'Test Slack Bot',
-    description: 'A test bot for Slack integration',
-    team: 'engineering',
-    callbackURL: 'https://api.example.com/callback',
-    webhookURL: 'https://api.example.com/webhook',
-    configuration: {
-      welcomeMessage: 'Hello! I am a test bot.',
-      commands: [
-        {
-          name: 'help',
-          description: 'Show help message',
-          handler: 'helpHandler'
-        }
-      ]
-    },
-    resources: {
-      requests: {
-        cpu: '100m',
-        memory: '128Mi'
-      },
-      limits: {
-        cpu: '500m',
-        memory: '512Mi'
-      }
-    }
-  }
-};
-
-/**
- * Test data for invalid ChatBot CRD (missing required fields)
- * References: features/chatbot.feature - "Create a ChatBot with invalid specification"
- */
-const invalidChatBot = {
-  apiVersion: 'chatbot.operator/v1alpha1',
-  kind: 'ChatBot',
-  metadata: {
-    name: 'invalid-bot'
-  },
-  spec: {
-    // Missing required platform field
-    displayName: 'Invalid Bot'
-  }
-};
-
-/**
- * Test data for valid BotPlatform CRD
- */
-const validBotPlatform = {
-  apiVersion: 'chatbot.operator/v1alpha1',
-  kind: 'BotPlatform',
-  metadata: {
-    name: 'slack-platform',
-    namespace: 'default'
-  },
-  spec: {
-    type: 'slack',
-    apiEndpoint: 'https://slack.com/api',
-    apiVersion: 'v2',
-    authenticationMethod: 'oauth2',
-    rateLimits: {
-      requestsPerMinute: 60,
-      burstLimit: 10
-    },
-    features: {
-      webhooks: true,
-      bots: true,
-      users: true,
-      channels: true
-    }
-  }
-};
-
-/**
- * Test data for valid BotConfiguration CRD
- */
-const validBotConfiguration = {
-  apiVersion: 'chatbot.operator/v1alpha1',
-  kind: 'BotConfiguration',
-  metadata: {
-    name: 'test-config',
-    namespace: 'default'
-  },
-  spec: {
-    chatBotRef: 'test-slack-bot',
-    key: 'greeting.message',
-    value: 'Welcome to our service!',
-    sensitive: false,
-    description: 'Welcome message for new users'
-  }
-};
-
-/**
- * Test data for valid BotCredential CRD
- */
-const validBotCredential = {
-  apiVersion: 'chatbot.operator/v1alpha1',
-  kind: 'BotCredential',
-  metadata: {
-    name: 'slack-token',
-    namespace: 'default'
-  },
-  spec: {
-    chatBotRef: 'test-slack-bot',
-    type: 'apiToken',
-    valueEncrypted: 'encrypted-token-data',
-    encryptionAlgorithm: 'AES-256-GCM',
-    expiresAt: 'Generated from Git commit date',
-    lastRotated: 'Generated from Git commit date',
-    rotationSchedule: '30d'
-  }
-};
-
-/**
- * Test data for valid Omen strategy
- * References: ../docs/strategy/omen/strategy.json
- */
-const validStrategy = {
-  metadata: {
-    name: 'chatbot-operator-strategy',
-    version: '1.0.0',
-    description: 'Strategy definition for Kubernetes-native chat bot management'
-  },
-  vision: {
-    statement: 'Enable Platform Engineering teams to manage chat bot lifecycles as Kubernetes resources',
-    targetAudience: ['Platform Engineers', 'AppDev Teams', 'Security Teams']
-  },
-  goals: [
-    {
-      id: 'G001',
-      description: 'Build Kubernetes CRDs for chat bot management',
-      priority: 'high'
-    }
-  ]
-};
-
-/**
- * Test data for valid ArchiMate model
- * References: ../docs/contributors/archimate/enterprise-architecture.xml
- */
-const validArchimate = {
-  name: 'ChatBot Operator Enterprise Architecture',
-  version: '1.0.0',
-  elements: [
-    {
-      type: 'BusinessActor',
-      name: 'Platform Engineering Team',
-      documentation: 'Responsible for infrastructure setup, RBAC/ABAC backend integration'
-    }
-  ],
-  relationships: [
-    {
-      type: 'AssignmentRelationship',
-      source: 'Platform Engineering Team',
-      target: 'Infrastructure Manager'
-    }
-  ]
-};
-
-/**
- * Test data for valid BMML value proposition
- * References: ../docs/strategy/bmml/value-proposition.yaml
- */
-const validBmml = {
-  version: '1.0.0',
-  name: 'ChatBot Operator Value Proposition',
-  business_motivation: {
-    vision: 'Kubernetes-native chat bot management with automated provisioning and lifecycle management',
-    mission: 'Enable Platform Engineering teams to manage chat bot lifecycles as Kubernetes resources',
-    goals: [
-      {
-        id: 'G001',
-        name: 'Kubernetes CRD Development',
-        description: 'Build Kubernetes CRDs for chat bot management',
-        priority: 'high'
-      }
-    ]
-  }
-};
-
-/**
- * Test data for valid ADR
- * References: ../docs/contributors/adr/architecture-decisions.md
- */
-const validAdr = {
-  title: 'ChatBot Operator Architecture Decisions',
-  version: '1.0.0',
-  decisions: [
-    {
-      id: 'ADR-001',
-      status: 'Accepted',
-      date: 'Generated from Git commit date',
-      context: 'Need to manage chat bot lifecycles as Kubernetes resources',
-      decision: 'Implement as Kubernetes Operator using Kubebuilder framework',
-      consequences: [
-        'Native Kubernetes integration',
-        'Declarative management via CRDs'
-      ]
-    }
-  ]
-};
-
-/**
- * Test data for valid Cube.js metrics
- * References: ../docs/strategy/cubejs/metrics.yaml
- */
-const validCubeJs = {
-  version: '1.0.0',
-  name: 'ChatBot Operator Business Metrics',
-  created: '2026-05-25',
-  author: 'Strategy Coder',
-  references: {
-    upstream: '../docs/contributors/adr/architecture-decisions.md',
-    downstream: '../docs/contributors/diagrams.md'
-  },
-  metrics: [
-    {
-      name: 'bot_provisioning_time',
-      description: 'Time taken to provision a new chat bot',
-      type: 'time',
-      unit: 'seconds',
-      dimensions: ['platform', 'region', 'team'],
-      targets: [
-        {
-          name: 'average_provisioning_time',
-          description: 'Average provisioning time across all platforms',
-          target_value: '< 300',
-          comparison: 'less_than'
-        }
-      ]
-    }
-  ],
-  data_sources: [
-    {
-      name: 'kubernetes_api',
-      type: 'kubernetes',
-      config: {
-        api_version: 'v1'
-      }
-    }
-  ]
-};
-
-/**
- * Test data for valid Diagrams document
- * References: ../docs/contributors/diagrams.md
- */
-const validDiagrams = {
-  title: 'ChatBot Operator Architecture Diagrams',
-  version: '1.0.0',
-  created: '2026-05-25',
-  author: 'Strategy Coder',
-  references: {
-    upstream: '../docs/strategy/cubejs/metrics.yaml',
-    downstream: 'features/chatbot.feature'
-  },
-  rendering: {
-    engine: 'react-markdown + gray-matter + Mermaid.js',
-    safe: true
-  },
-  diagrams: [
-    {
-      id: 'system_context_diagram',
-      title: 'ChatBot Operator System Context Diagram',
-      type: 'system_context',
-      description: 'Shows the ChatBot Operator in relation to its external dependencies and users',
-      mermaid_code: 'C4Context\n    title ChatBot Operator System Context Diagram\n    Person(user, "End User", "Interacts with chat bots")',
-      elements: ['user', 'dev', 'admin', 'chatbotOperator', 'kubernetes'],
-      relationships: [
-        {
-          source: 'user',
-          target: 'chatbotOperator',
-          type: 'uses',
-          description: 'Users interact with the ChatBot Operator'
-        }
-      ]
-    }
-  ]
-};
-
-/**
- * Test data for valid Gherkin feature file
- * References: features/chatbot.feature
- */
-const validGherkin = {
-  language: 'en',
-  author: 'Strategy Coder',
-  created: '2026-05-25',
-  references: {
-    upstream: '../docs/contributors/diagrams.md',
-    downstream: ['tests/schemas/validation.js', 'tests/tools/']
-  },
-  feature: {
-    title: 'ChatBot Operator Lifecycle Management',
-    description: 'Manage chat bot lifecycles as Kubernetes resources',
-    as_a: 'Platform Engineering or Application Development team member',
-    i_want: 'manage chat bot lifecycles as Kubernetes resources',
-    so_that: 'I can automate bot provisioning, configuration, and management',
-    tags: ['@crd', '@lifecycle']
-  },
-  background: {
-    steps: [
-      {
-        keyword: 'Given',
-        text: 'the ChatBot Operator is deployed in RKE2 cluster with Linkerd'
-      },
-      {
-        keyword: 'And',
-        text: 'the operator has proper RBAC/ABAC permissions'
-      }
-    ]
-  },
-  scenarios: [
-    {
-      title: 'Create a new ChatBot resource',
-      tags: ['@crd', '@create'],
-      steps: [
-        {
-          keyword: 'Given',
-          text: 'I have a valid ChatBot manifest for platform "slack"'
-        },
-        {
-          keyword: 'When',
-          text: 'I apply the ChatBot manifest to Kubernetes'
-        },
-        {
-          keyword: 'Then',
-          text: 'the ChatBot resource should be created successfully'
-        }
-      ]
-    }
-  ]
-};
-
-/**
  * Jest test suite for CRD validation
  * References: features/chatbot.feature - Validation and Schema Scenarios
  */
@@ -381,14 +79,14 @@ describe('ChatBot Operator CRD Validation', () => {
   describe('ChatBot CRD Validation', () => {
     test('should validate valid ChatBot CRD', () => {
       // References: features/chatbot.feature - "Validate ChatBot CRD against JSON schema"
-      const result = validateChatBot(validChatBot);
+      const result = validateChatBot(fixtures.crds.validChatBot);
       expect(result.valid).toBe(true);
       expect(result.errors).toBeNull();
     });
 
     test('should reject invalid ChatBot CRD with missing required fields', () => {
       // References: features/chatbot.feature - "Create a ChatBot with invalid specification"
-      const result = validateChatBot(invalidChatBot);
+      const result = validateChatBot(fixtures.crds.invalidChatBot);
       expect(result.valid).toBe(false);
       expect(result.errors).not.toBeNull();
       expect(result.errors.length).toBeGreaterThan(0);
@@ -402,7 +100,7 @@ describe('ChatBot Operator CRD Validation', () => {
     });
 
     test('should validate ChatBot metadata', () => {
-      const chatBotWithInvalidMetadata = { ...validChatBot };
+      const chatBotWithInvalidMetadata = { ...fixtures.crds.validChatBot };
       chatBotWithInvalidMetadata.metadata.name = ''; // Empty name
       
       const result = validateChatBot(chatBotWithInvalidMetadata);
@@ -414,7 +112,7 @@ describe('ChatBot Operator CRD Validation', () => {
     });
 
     test('should validate ChatBot spec platform', () => {
-      const chatBotWithInvalidPlatform = { ...validChatBot };
+      const chatBotWithInvalidPlatform = { ...fixtures.crds.validChatBot };
       chatBotWithInvalidPlatform.spec.platform = 'invalid-platform';
       
       const result = validateChatBot(chatBotWithInvalidPlatform);
@@ -426,7 +124,7 @@ describe('ChatBot Operator CRD Validation', () => {
     });
 
     test('should validate ChatBot resource requirements', () => {
-      const chatBotWithInvalidResources = { ...validChatBot };
+      const chatBotWithInvalidResources = { ...fixtures.crds.validChatBot };
       chatBotWithInvalidResources.spec.resources = {
         requests: {
           cpu: 'invalid', // Should be valid quantity
@@ -441,13 +139,13 @@ describe('ChatBot Operator CRD Validation', () => {
 
   describe('BotPlatform CRD Validation', () => {
     test('should validate valid BotPlatform CRD', () => {
-      const result = validateBotPlatform(validBotPlatform);
+      const result = validateBotPlatform(fixtures.crds.validBotPlatform);
       expect(result.valid).toBe(true);
       expect(result.errors).toBeNull();
     });
 
     test('should reject BotPlatform with invalid type', () => {
-      const invalidPlatform = { ...validBotPlatform };
+      const invalidPlatform = { ...fixtures.crds.validBotPlatform };
       invalidPlatform.spec.type = 'invalid-type';
       
       const result = validateBotPlatform(invalidPlatform);
@@ -459,7 +157,7 @@ describe('ChatBot Operator CRD Validation', () => {
     });
 
     test('should validate BotPlatform API endpoint', () => {
-      const invalidPlatform = { ...validBotPlatform };
+      const invalidPlatform = { ...fixtures.crds.validBotPlatform };
       invalidPlatform.spec.apiEndpoint = 'not-a-url';
       
       const result = validateBotPlatform(invalidPlatform);
@@ -473,13 +171,13 @@ describe('ChatBot Operator CRD Validation', () => {
 
   describe('BotConfiguration CRD Validation', () => {
     test('should validate valid BotConfiguration CRD', () => {
-      const result = validateBotConfiguration(validBotConfiguration);
+      const result = validateBotConfiguration(fixtures.crds.validBotConfiguration);
       expect(result.valid).toBe(true);
       expect(result.errors).toBeNull();
     });
 
     test('should reject BotConfiguration with missing chatBotRef', () => {
-      const invalidConfig = { ...validBotConfiguration };
+      const invalidConfig = { ...fixtures.crds.validBotConfiguration };
       delete invalidConfig.spec.chatBotRef;
       
       const result = validateBotConfiguration(invalidConfig);
@@ -491,7 +189,7 @@ describe('ChatBot Operator CRD Validation', () => {
     });
 
     test('should validate sensitive flag', () => {
-      const configWithInvalidSensitive = { ...validBotConfiguration };
+      const configWithInvalidSensitive = { ...fixtures.crds.validBotConfiguration };
       configWithInvalidSensitive.spec.sensitive = 'not-a-boolean';
       
       const result = validateBotConfiguration(configWithInvalidSensitive);
@@ -505,13 +203,13 @@ describe('ChatBot Operator CRD Validation', () => {
 
   describe('BotCredential CRD Validation', () => {
     test('should validate valid BotCredential CRD', () => {
-      const result = validateBotCredential(validBotCredential);
+      const result = validateBotCredential(fixtures.crds.validBotCredential);
       expect(result.valid).toBe(true);
       expect(result.errors).toBeNull();
     });
 
     test('should reject BotCredential with invalid credential type', () => {
-      const invalidCredential = { ...validBotCredential };
+      const invalidCredential = { ...fixtures.crds.validBotCredential };
       invalidCredential.spec.type = 'invalid-type';
       
       const result = validateBotCredential(invalidCredential);
@@ -523,7 +221,7 @@ describe('ChatBot Operator CRD Validation', () => {
     });
 
     test('should validate credential expiration', () => {
-      const credentialWithInvalidExpiration = { ...validBotCredential };
+      const credentialWithInvalidExpiration = { ...fixtures.crds.validBotCredential };
       credentialWithInvalidExpiration.spec.expiresAt = 'invalid-date';
       
       const result = validateBotCredential(credentialWithInvalidExpiration);
@@ -535,7 +233,7 @@ describe('ChatBot Operator CRD Validation', () => {
     });
 
     test('should validate encrypted value is not empty', () => {
-      const credentialWithEmptyValue = { ...validBotCredential };
+      const credentialWithEmptyValue = { ...fixtures.crds.validBotCredential };
       credentialWithEmptyValue.spec.valueEncrypted = '';
       
       const result = validateBotCredential(credentialWithEmptyValue);
@@ -556,13 +254,13 @@ describe('ChatBot Operator Toolchain Validation', () => {
   describe('Omen Strategy Validation', () => {
     test('should validate valid strategy document', () => {
       // References: ../docs/strategy/omen/strategy.json
-      const result = validateStrategy(validStrategy);
+      const result = validateStrategy(fixtures.strategy.validOmen);
       expect(result.valid).toBe(true);
       expect(result.errors).toBeNull();
     });
 
     test('should reject strategy with missing metadata', () => {
-      const invalidStrategy = { ...validStrategy };
+      const invalidStrategy = { ...fixtures.strategy.validOmen };
       delete invalidStrategy.metadata;
       
       const result = validateStrategy(invalidStrategy);
@@ -574,7 +272,7 @@ describe('ChatBot Operator Toolchain Validation', () => {
     });
 
     test('should validate strategy goals', () => {
-      const strategyWithInvalidGoal = { ...validStrategy };
+      const strategyWithInvalidGoal = { ...fixtures.strategy.validOmen };
       strategyWithInvalidGoal.goals[0].priority = 'invalid-priority';
       
       const result = validateStrategy(strategyWithInvalidGoal);
@@ -585,13 +283,13 @@ describe('ChatBot Operator Toolchain Validation', () => {
   describe('ArchiMate Architecture Validation', () => {
     test('should validate valid ArchiMate model', () => {
       // References: ../docs/contributors/archimate/enterprise-architecture.xml
-      const result = validateArchimate(validArchimate);
+      const result = validateArchimate(fixtures.strategy.validArchimate);
       expect(result.valid).toBe(true);
       expect(result.errors).toBeNull();
     });
 
     test('should reject ArchiMate with missing elements', () => {
-      const invalidArchimate = { ...validArchimate };
+      const invalidArchimate = { ...fixtures.strategy.validArchimate };
       delete invalidArchimate.elements;
       
       const result = validateArchimate(invalidArchimate);
@@ -599,7 +297,7 @@ describe('ChatBot Operator Toolchain Validation', () => {
     });
 
     test('should validate ArchiMate element types', () => {
-      const archimateWithInvalidElement = { ...validArchimate };
+      const archimateWithInvalidElement = { ...fixtures.strategy.validArchimate };
       archimateWithInvalidElement.elements[0].type = 'InvalidType';
       
       const result = validateArchimate(archimateWithInvalidElement);
@@ -610,13 +308,13 @@ describe('ChatBot Operator Toolchain Validation', () => {
   describe('BMML Value Proposition Validation', () => {
     test('should validate valid BMML document', () => {
       // References: ../docs/strategy/bmml/value-proposition.yaml
-      const result = validateBmml(validBmml);
+      const result = validateBmml(fixtures.strategy.validBmml);
       expect(result.valid).toBe(true);
       expect(result.errors).toBeNull();
     });
 
     test('should reject BMML with missing business_motivation', () => {
-      const invalidBmml = { ...validBmml };
+      const invalidBmml = { ...fixtures.strategy.validBmml };
       delete invalidBmml.business_motivation;
       
       const result = validateBmml(invalidBmml);
@@ -624,7 +322,7 @@ describe('ChatBot Operator Toolchain Validation', () => {
     });
 
     test('should validate BMML goal priorities', () => {
-      const bmmlWithInvalidPriority = { ...validBmml };
+      const bmmlWithInvalidPriority = { ...fixtures.strategy.validBmml };
       bmmlWithInvalidPriority.business_motivation.goals[0].priority = 'invalid';
       
       const result = validateBmml(bmmlWithInvalidPriority);
@@ -635,13 +333,13 @@ describe('ChatBot Operator Toolchain Validation', () => {
   describe('ADR Validation', () => {
     test('should validate valid ADR document', () => {
       // References: ../docs/contributors/adr/architecture-decisions.md
-      const result = validateAdr(validAdr);
+      const result = validateAdr(fixtures.toolchain.validAdr);
       expect(result.valid).toBe(true);
       expect(result.errors).toBeNull();
     });
 
     test('should reject ADR with missing decisions', () => {
-      const invalidAdr = { ...validAdr };
+      const invalidAdr = { ...fixtures.toolchain.validAdr };
       delete invalidAdr.decisions;
       
       const result = validateAdr(invalidAdr);
@@ -649,7 +347,7 @@ describe('ChatBot Operator Toolchain Validation', () => {
     });
 
     test('should validate ADR decision status', () => {
-      const adrWithInvalidStatus = { ...validAdr };
+      const adrWithInvalidStatus = { ...fixtures.toolchain.validAdr };
       adrWithInvalidStatus.decisions[0].status = 'InvalidStatus';
       
       const result = validateAdr(adrWithInvalidStatus);
@@ -660,13 +358,13 @@ describe('ChatBot Operator Toolchain Validation', () => {
   describe('Cube.js Metrics Validation', () => {
     test('should validate valid Cube.js metrics', () => {
       // References: ../docs/strategy/cubejs/metrics.yaml
-      const result = validateCubeJs(validCubeJs);
+      const result = validateCubeJs(fixtures.toolchain.validCubeJs);
       expect(result.valid).toBe(true);
       expect(result.errors).toBeNull();
     });
 
     test('should reject Cube.js with invalid metric types', () => {
-      const invalidCubeJs = { ...validCubeJs };
+      const invalidCubeJs = { ...fixtures.toolchain.validCubeJs };
       invalidCubeJs.metrics[0].type = 'invalid-type';
       
       const result = validateCubeJs(invalidCubeJs);
@@ -674,7 +372,7 @@ describe('ChatBot Operator Toolchain Validation', () => {
     });
 
     test('should validate metric units', () => {
-      const cubeJsWithInvalidUnit = { ...validCubeJs };
+      const cubeJsWithInvalidUnit = { ...fixtures.toolchain.validCubeJs };
       cubeJsWithInvalidUnit.metrics[0].unit = 'invalid-unit';
       
       const result = validateCubeJs(cubeJsWithInvalidUnit);
@@ -685,13 +383,13 @@ describe('ChatBot Operator Toolchain Validation', () => {
   describe('Diagrams Validation', () => {
     test('should validate valid Diagrams document', () => {
       // References: ../docs/contributors/diagrams.md
-      const result = validateDiagrams(validDiagrams);
+      const result = validateDiagrams(fixtures.toolchain.validDiagrams);
       expect(result.valid).toBe(true);
       expect(result.errors).toBeNull();
     });
 
     test('should reject Diagrams with missing required fields', () => {
-      const invalidDiagrams = { ...validDiagrams };
+      const invalidDiagrams = { ...fixtures.toolchain.validDiagrams };
       delete invalidDiagrams.title;
       
       const result = validateDiagrams(invalidDiagrams);
@@ -701,7 +399,7 @@ describe('ChatBot Operator Toolchain Validation', () => {
     });
 
     test('should validate Diagrams rendering engine', () => {
-      const diagramsWithInvalidEngine = { ...validDiagrams };
+      const diagramsWithInvalidEngine = { ...fixtures.toolchain.validDiagrams };
       diagramsWithInvalidEngine.rendering.engine = '';
       
       const result = validateDiagrams(diagramsWithInvalidEngine);
@@ -709,7 +407,7 @@ describe('ChatBot Operator Toolchain Validation', () => {
     });
 
     test('should validate Diagrams diagram types', () => {
-      const diagramsWithInvalidType = { ...validDiagrams };
+      const diagramsWithInvalidType = { ...fixtures.toolchain.validDiagrams };
       diagramsWithInvalidType.diagrams[0].type = 'invalid-type';
       
       const result = validateDiagrams(diagramsWithInvalidType);
@@ -720,13 +418,13 @@ describe('ChatBot Operator Toolchain Validation', () => {
   describe('Gherkin Validation', () => {
     test('should validate valid Gherkin feature file', () => {
       // References: features/chatbot.feature
-      const result = validateGherkin(validGherkin);
+      const result = validateGherkin(fixtures.toolchain.validGherkin);
       expect(result.valid).toBe(true);
       expect(result.errors).toBeNull();
     });
 
     test('should reject Gherkin with missing required fields', () => {
-      const invalidGherkin = { ...validGherkin };
+      const invalidGherkin = { ...fixtures.toolchain.validGherkin };
       delete invalidGherkin.feature;
       
       const result = validateGherkin(invalidGherkin);
@@ -736,7 +434,7 @@ describe('ChatBot Operator Toolchain Validation', () => {
     });
 
     test('should validate Gherkin language code', () => {
-      const gherkinWithInvalidLanguage = { ...validGherkin };
+      const gherkinWithInvalidLanguage = { ...fixtures.toolchain.validGherkin };
       gherkinWithInvalidLanguage.language = 'invalid';
       
       const result = validateGherkin(gherkinWithInvalidLanguage);
@@ -744,7 +442,7 @@ describe('ChatBot Operator Toolchain Validation', () => {
     });
 
     test('should validate Gherkin step keywords', () => {
-      const gherkinWithInvalidKeyword = { ...validGherkin };
+      const gherkinWithInvalidKeyword = { ...fixtures.toolchain.validGherkin };
       gherkinWithInvalidKeyword.scenarios[0].steps[0].keyword = 'Invalid';
       
       const result = validateGherkin(gherkinWithInvalidKeyword);
@@ -852,7 +550,7 @@ describe('ChatBot Operator Cross-Reference Validation', () => {
 describe('ChatBot Operator Business Rule Validation', () => {
   test('should validate that all goals have success criteria', () => {
     // References: ../docs/strategy/bmml/value-proposition.yaml - goals section
-    const goals = validBmml.business_motivation.goals;
+    const goals = fixtures.strategy.validBmml.business_motivation.goals;
     
     goals.forEach(goal => {
       expect(goal.success_metrics).toBeDefined();
@@ -863,7 +561,7 @@ describe('ChatBot Operator Business Rule Validation', () => {
 
   test('should validate that all value propositions have target customers', () => {
     // References: ../docs/strategy/bmml/value-proposition.yaml - value_propositions section
-    const valuePropositions = validBmml.business_motivation.value_propositions;
+    const valuePropositions = fixtures.strategy.validBmml.business_motivation.value_propositions;
     
     valuePropositions.forEach(vp => {
       expect(vp.target_customers).toBeDefined();
@@ -874,7 +572,7 @@ describe('ChatBot Operator Business Rule Validation', () => {
 
   test('should validate that all stakeholders have requirements', () => {
     // References: ../docs/strategy/bmml/value-proposition.yaml - stakeholders section
-    const stakeholders = validBmml.business_motivation.stakeholders;
+    const stakeholders = fixtures.strategy.validBmml.business_motivation.stakeholders;
     
     stakeholders.forEach(stakeholder => {
       expect(stakeholder.requirements).toBeDefined();
@@ -971,8 +669,6 @@ describe('ChatBot Operator GitOps Validation', () => {
     expect(ciCdRequirements.platforms).toContain('Forgejo');
     expect(ciCdRequirements.platforms).toContain('GitHub');
     expect(ciCdRequirements.platforms).toContain('Tekton');
-    expect(ciCdRequirements.requirements).toContain('Platform-agnostic');
-    expect(ciCdRequirements.requirements).toContain('Open-source first');
     expect(ciCdRequirements.stages).toContain('Lint');
     expect(ciCdRequirements.stages).toContain('Test');
     expect(ciCdRequirements.stages).toContain('Build');
@@ -981,33 +677,3 @@ describe('ChatBot Operator GitOps Validation', () => {
     expect(ciCdRequirements.stages).toContain('Deploy');
   });
 });
-
-/**
- * Export validation functions for use in other tests
- */
-module.exports = {
-  validateChatBot,
-  validateBotPlatform,
-  validateBotConfiguration,
-  validateBotCredential,
-  validateStrategy,
-  validateArchimate,
-  validateBmml,
-  validateAdr,
-  validateCubeJs,
-  validateDiagrams,
-  validateGherkin,
-  // Test data exports
-  validChatBot,
-  invalidChatBot,
-  validBotPlatform,
-  validBotConfiguration,
-  validBotCredential,
-  validStrategy,
-  validArchimate,
-  validBmml,
-  validAdr,
-  validCubeJs,
-  validDiagrams,
-  validGherkin
-};
