@@ -585,7 +585,7 @@ describe('ChatBot Operator Business Rule Validation', () => {
 
   test('should validate that all value propositions have target customers', () => {
     // References: ../docs/strategy/bmml/value-proposition.yaml - value_propositions section
-    const valuePropositions = fixtures.strategy.validBmml.business_motivation.value_propositions;
+    const valuePropositions = fixtures.strategy.validBmml.value_propositions;
     
     valuePropositions.forEach(vp => {
       expect(vp.target_stakeholders).toBeDefined();
@@ -596,7 +596,7 @@ describe('ChatBot Operator Business Rule Validation', () => {
 
   test('should validate that all stakeholders have requirements', () => {
     // References: ../docs/strategy/bmml/value-proposition.yaml - stakeholders section
-    const stakeholders = fixtures.strategy.validBmml.business_motivation.stakeholders;
+    const stakeholders = fixtures.strategy.validBmml.stakeholders;
     
     stakeholders.forEach(stakeholder => {
       expect(stakeholder.responsibilities).toBeDefined();
