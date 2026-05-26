@@ -10,7 +10,7 @@ business_motivation:
   vision: "Kubernetes-native chat bot management with automated provisioning and lifecycle management"
   mission: "Enable Platform Engineering teams to manage chat bot lifecycles as Kubernetes resources"
   
-  application_goals:
+  goals:
     - id: "G001"
       name: "Kubernetes CRD Development"
       description: "Build Kubernetes CRDs for chat bot management"
@@ -20,3 +20,18 @@ business_motivation:
         - "Number of supported platforms (Slack, Matrix, Discord, Twilio)"
         - "CRD adoption rate"
         - "Time to provision new bot instances"
+  
+  value_propositions:
+    - name: "ChatBot Operator"
+      description: "Kubernetes-native chat bot management"
+      target_customers:
+        - "Platform Engineering Teams"
+        - "AppDev Teams"
+  
+  stakeholders:
+    - name: "Platform Engineering Team"
+      description: "Responsible for infrastructure setup"
+      requirements:
+        - "Kubernetes cluster management"
+        - "RBAC/ABAC configuration"
+        - "Service mesh setup"
