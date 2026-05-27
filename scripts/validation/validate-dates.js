@@ -18,12 +18,13 @@ console.log('==================\n');
 
 // Configure git to trust the current directory (for CI environments)
 try {
-  execSync('git config --global --add safe.directory *', {
-    cwd: process.cwd(),
+  const repoPath = process.cwd();
+  execSync(`git config --global --add safe.directory ${repoPath}`, {
+    cwd: repoPath,
     encoding: 'utf8',
     stdio: 'pipe'
   });
-  console.log('Configured git safe.directory for current repository');
+  console.log(`Configured git safe.directory for ${repoPath}`);
 } catch (error) {
   // Ignore errors - this is just a best effort
   console.log('Note: Could not configure git safe.directory (may already be configured)');
