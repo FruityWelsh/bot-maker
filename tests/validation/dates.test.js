@@ -36,12 +36,12 @@ describe('Date Validation - No Manual Dates Rule', () => {
     const filesWithDates = [
       { path: 'README.md' },
       { path: 'CONTRIBUTING.md' },
-      { path: 'docs/STRATEGY.md' },
-      { path: 'docs/adr/architecture-decisions.md' },
-      { path: 'docs/bmml/value-proposition.yaml' },
-      { path: 'docs/cubejs/metrics.yaml' },
-      { path: 'docs/diagrams.md' },
-      { path: 'docs/omen/strategy.json' }
+      { path: 'docs/strategy/STRATEGY.md' },
+      { path: 'docs/contributors/adr/architecture-decisions.md' },
+      { path: 'docs/strategy/bmml/value-proposition.yaml' },
+      { path: 'docs/strategy/cubejs/metrics.yaml' },
+      { path: 'docs/contributors/diagrams.md' },
+      { path: 'docs/strategy/omen/strategy.json' }
     ];
 
     test('should not contain manual dates from 2024', () => {
@@ -116,9 +116,9 @@ describe('Date Validation - No Manual Dates Rule', () => {
   describe('Date Pattern Validation', () => {
     test('should contain valid Git commit dates in YAML frontmatter', () => {
       const yamlFiles = [
-        'docs/diagrams.md',
-        'docs/bmml/value-proposition.yaml',
-        'docs/cubejs/metrics.yaml'
+        'docs/contributors/diagrams.md',
+        'docs/strategy/bmml/value-proposition.yaml',
+        'docs/strategy/cubejs/metrics.yaml'
       ];
 
       yamlFiles.forEach(file => {

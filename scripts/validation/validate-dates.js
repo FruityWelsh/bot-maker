@@ -51,7 +51,7 @@ const filesWithDates = [
 console.log('📁 Checking files for valid Git commit dates...\n');
 
 filesWithDates.forEach(file => {
-  const fullPath = path.join(__dirname, '../..', file.path);
+  const fullPath = path.join(process.cwd(), file.path);
   if (fs.existsSync(fullPath)) {
     const content = fs.readFileSync(fullPath, 'utf8');
     
@@ -128,7 +128,7 @@ const dateScripts = [
 ];
 
 dateScripts.forEach(script => {
-  const fullPath = path.join(__dirname, '../..', script);
+  const fullPath = path.join(process.cwd(), script);
   if (fs.existsSync(fullPath)) {
     console.log(`  ✅ ${script} exists`);
   } else {
@@ -140,7 +140,7 @@ dateScripts.forEach(script => {
 console.log('\n📋 Checking for documentation about the rule...\n');
 
 // Check for documentation about the date management rule
-const contributingPath = path.join(__dirname, '../..', 'CONTRIBUTING.md');
+const contributingPath = path.join(process.cwd(), 'CONTRIBUTING.md');
 if (fs.existsSync(contributingPath)) {
   const content = fs.readFileSync(contributingPath, 'utf8');
   if (content.includes('Date Management Rule') || content.includes('All dates MUST be valid Git commit dates')) {
