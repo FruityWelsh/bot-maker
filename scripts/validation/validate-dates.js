@@ -16,6 +16,19 @@ const { execSync } = require('child_process');
 console.log('📅 Date Validation');
 console.log('==================\n');
 
+// Configure git to trust the current directory (for CI environments)
+try {
+  execSync('git config --global --add safe.directory *', {
+    cwd: process.cwd(),
+    encoding: 'utf8',
+    stdio: 'pipe'
+  });
+  console.log('Configured git safe.directory for current repository');
+} catch (error) {
+  // Ignore errors - this is just a best effort
+  console.log('Note: Could not configure git safe.directory (may already be configured)');
+}
+
 let allPassed = true;
 
 // Get the current Git commit date (HEAD)
