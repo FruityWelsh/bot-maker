@@ -31,9 +31,24 @@ try {
   
   console.log(`Current HEAD commit date: ${gitCommitDate}`);
 } catch (error) {
-  const now = new Date();
-  gitCommitDate = now.toISOString().split('T')[0];
-  console.log(`Using current date: ${gitCommitDate}`);
+  console.log(`Warning: Could not get HEAD commit date: ${error.message}`);
+  console.log(`Trying alternative git command...`);
+  try {
+    // Try without --date=iso
+    const gitOutput = execSync('git log -1 --format="%cd"', {
+      cwd: process.cwd(),
+      encoding: 'utf8',
+      stdio: 'pipe'
+    }).trim();
+    gitCommitDate = gitOutput.split(' ')[0];
+    console.log(`Current HEAD commit date (alternative): ${gitCommitDate}`);
+  } catch (error2) {
+    console.log(`Warning: Alternative git command also failed: ${error2.message}`);
+    console.log(`Using current date as fallback`);
+    const now = new Date();
+    gitCommitDate = now.toISOString().split('T')[0];
+    console.log(`Using current date: ${gitCommitDate}`);
+  }
 }
 
 // Files that should have date references
@@ -86,8 +101,22 @@ filesWithDates.forEach(file => {
       }).trim();
       fileCommitDate = fileLog.split(' ')[0];
     } catch (error) {
-      // If we can't get the file's commit date, use the HEAD commit date
-      fileCommitDate = gitCommitDate;
+      console.log(`  Warning: Could not get commit date for ${file.path}: ${error.message}`);
+      console.log(`  Trying alternative git command for ${file.path}...`);
+      try {
+        const fileLogAlt = execSync(`git log -1 --format="%cd" -- ${file.path}`, {
+          cwd: process.cwd(),
+          encoding: 'utf8',
+          stdio: 'pipe'
+        }).trim();
+        fileCommitDate = fileLogAlt.split(' ')[0];
+        console.log(`  Using alternative commit date for ${file.path}: ${fileCommitDate}`);
+      } catch (error2) {
+        console.log(`  Warning: Alternative git command also failed for ${file.path}: ${error2.message}`);
+        console.log(`  Using HEAD commit date as fallback for ${file.path}`);
+        // If we can't get the file's commit date, use the HEAD commit date
+        fileCommitDate = gitCommitDate;
+      }
     }
     
     if (content.includes('created') || content.includes('date') || content.includes('updated')) {
